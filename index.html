@@ -1,0 +1,810 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Drone Trompeta</title>
+<meta name="description" content="Drone de afinación y afinador para trompeta">
+<meta name="theme-color" content="#14161c">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<style>
+  :root {
+    --bg: #14161c;
+    --panel: #1d2028;
+    --panel-2: #262a34;
+    --borde: #323743;
+    --texto: #eceef2;
+    --suave: #9aa1ae;
+    --acento: #e0b04a;
+    --acento-txt: #1a1407;
+    --ok: #4cc38a;
+    --casi: #e8c547;
+    --lejos: #e5684f;
+    --radio: 14px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--texto);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+    -webkit-tap-highlight-color: transparent;
+    padding-bottom: calc(96px + env(safe-area-inset-bottom));
+  }
+  button {
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    touch-action: manipulation;
+    user-select: none;
+  }
+
+  /* Cabecera */
+  .top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: calc(12px + env(safe-area-inset-top)) 16px 12px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .top h1 { font-size: 1.25rem; margin: 0; font-weight: 700; letter-spacing: .01em; }
+  .top h1 span { color: var(--acento); }
+
+  /* Aviso de auriculares */
+  .aviso {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin: 0 16px 12px;
+    padding: 12px 14px;
+    background: #2b2616;
+    border: 1px solid #5a4a1f;
+    border-radius: var(--radio);
+    font-size: .95rem;
+  }
+  .aviso p { margin: 0; flex: 1; }
+  .aviso .icono { font-size: 1.6rem; }
+  .aviso button {
+    background: transparent;
+    border: 1px solid #7a6428;
+    border-radius: 10px;
+    padding: 8px 12px;
+    color: var(--acento);
+    white-space: nowrap;
+  }
+  @media (min-width: 1132px) { .aviso { max-width: 1068px; margin: 0 auto 12px; } }
+
+  main {
+    display: grid;
+    gap: 14px;
+    padding: 0 16px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  @media (min-width: 900px) {
+    main { grid-template-columns: 1fr 1fr; align-items: start; }
+    #panelDrone { order: -1; }
+  }
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--borde);
+    border-radius: 18px;
+    padding: 16px;
+  }
+  .panel h2 {
+    margin: 0 0 12px;
+    font-size: .8rem;
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    color: var(--suave);
+    font-weight: 600;
+  }
+
+  /* Controles segmentados y chips */
+  .fila {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+  .etq { color: var(--suave); font-size: .9rem; min-width: 74px; }
+  .seg {
+    display: flex;
+    flex: 1;
+    background: var(--panel-2);
+    border: 1px solid var(--borde);
+    border-radius: 12px;
+    padding: 3px;
+    gap: 3px;
+    min-width: 0;
+  }
+  .top .seg { flex: 0 0 auto; }
+  .seg button {
+    flex: 1;
+    min-height: 46px;
+    padding: 0 12px;
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    color: var(--suave);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .seg button[aria-pressed="true"] { background: var(--acento); color: var(--acento-txt); }
+  .chips { display: flex; gap: 8px; flex: 1; flex-wrap: wrap; }
+  .chip {
+    flex: 1;
+    min-height: 46px;
+    padding: 0 14px;
+    border-radius: 12px;
+    border: 1px solid var(--borde);
+    background: var(--panel-2);
+    color: var(--suave);
+    font-weight: 600;
+  }
+  .chip[aria-pressed="true"] { border-color: var(--acento); color: var(--acento); background: #2e2918; }
+  .chip[aria-pressed="true"]::before { content: "✓ "; }
+
+  /* Drone */
+  .lectura { display: flex; align-items: baseline; gap: 6px; margin-bottom: 14px; }
+  .nota-grande { font-size: 3.2rem; font-weight: 700; line-height: 1; }
+  .oct { font-size: 1.3rem; color: var(--suave); font-weight: 600; }
+  .hz { margin-left: auto; color: var(--suave); font-variant-numeric: tabular-nums; font-size: .95rem; }
+  .notas { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .notas button {
+    min-height: 58px;
+    border-radius: 12px;
+    border: 1px solid var(--borde);
+    background: var(--panel-2);
+    font-size: 1.2rem;
+    font-weight: 600;
+  }
+  .notas button[aria-pressed="true"] { background: var(--acento); color: var(--acento-txt); border-color: var(--acento); }
+  @media (min-width: 900px) { .notas { grid-template-columns: repeat(6, 1fr); } }
+
+  /* Afinador */
+  .medidor { text-align: center; }
+  .lectura-af { display: flex; justify-content: center; align-items: baseline; gap: 6px; min-height: 90px; }
+  .lectura-af .nota-grande { font-size: 5rem; }
+  .escala {
+    position: relative;
+    height: 56px;
+    margin: 10px 4px 0;
+    border-radius: 10px;
+    background:
+      repeating-linear-gradient(to right, var(--borde) 0 2px, transparent 2px 10%) 0 0 / 100% 14px no-repeat,
+      var(--panel-2);
+    overflow: hidden;
+  }
+  .zona {
+    position: absolute;
+    top: 0; bottom: 0;
+    left: 45%; width: 10%;
+    background: rgba(76, 195, 138, .18);
+    border-left: 1px solid rgba(76, 195, 138, .5);
+    border-right: 1px solid rgba(76, 195, 138, .5);
+  }
+  .aguja {
+    position: absolute;
+    top: 6px; bottom: 6px;
+    left: 50%;
+    width: 6px;
+    margin-left: -3px;
+    border-radius: 3px;
+    background: var(--suave);
+    opacity: .25;
+    transition: left .08s linear, background-color .15s;
+  }
+  .medidor.activo .aguja { opacity: 1; }
+  .medidor.ok .aguja { background: var(--ok); }
+  .medidor.casi .aguja { background: var(--casi); }
+  .medidor.lejos .aguja { background: var(--lejos); }
+  .escala-etq {
+    display: flex;
+    justify-content: space-between;
+    color: var(--suave);
+    font-size: .8rem;
+    margin: 4px 4px 0;
+    font-variant-numeric: tabular-nums;
+  }
+  .cents { font-size: 1.6rem; font-weight: 700; margin-top: 6px; font-variant-numeric: tabular-nums; }
+  .medidor.ok .cents { color: var(--ok); }
+  .medidor.casi .cents { color: var(--casi); }
+  .medidor.lejos .cents { color: var(--lejos); }
+  .info { color: var(--suave); font-size: .92rem; min-height: 2.6em; margin-top: 2px; }
+  .peq { color: var(--suave); font-size: .85rem; margin: 10px 0 0; }
+  .peq.alerta { color: var(--casi); }
+  .error { color: var(--lejos); font-size: .92rem; margin: 10px 0 0; }
+
+  footer {
+    max-width: 1100px;
+    margin: 16px auto 0;
+    padding: 0 16px;
+    color: var(--suave);
+    font-size: .82rem;
+  }
+
+  /* Barra inferior con los dos botones principales */
+  .barra {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+    background: rgba(20, 22, 28, .94);
+    border-top: 1px solid var(--borde);
+    backdrop-filter: blur(8px);
+    z-index: 10;
+  }
+  .barra button {
+    flex: 1;
+    max-width: 420px;
+    min-height: 64px;
+    border-radius: 16px;
+    border: 2px solid var(--acento);
+    background: transparent;
+    color: var(--acento);
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+  .barra button[aria-pressed="true"] { background: var(--acento); color: var(--acento-txt); }
+
+  @media (max-width: 380px) {
+    .etq { min-width: 100%; }
+    .seg button { padding: 0 6px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <h1>Drone <span>Trompeta</span></h1>
+  <div class="seg" id="segNotacion" role="group" aria-label="Notación">
+    <button data-v="bb">Si♭</button>
+    <button data-v="do">Do</button>
+  </div>
+</header>
+
+<div class="aviso" id="aviso" hidden>
+  <span class="icono" aria-hidden="true">🎧</span>
+  <p><strong>En el móvil, escucha el drone con auriculares.</strong> Si sale por el altavoz, el micrófono lo capta y el afinador puede confundirlo con tu nota.</p>
+  <button id="avisoOk">Entendido</button>
+</div>
+
+<main>
+  <section class="panel" id="panelAfinador" aria-label="Afinador">
+    <h2>Afinador</h2>
+    <div class="medidor" id="medidor">
+      <div class="lectura-af"><span class="nota-grande" id="afNota">–</span><span class="oct" id="afOct"></span></div>
+      <div class="escala" aria-hidden="true"><div class="zona"></div><div class="aguja" id="aguja"></div></div>
+      <div class="escala-etq" aria-hidden="true"><span>−50</span><span>−25</span><span>0</span><span>+25</span><span>+50</span></div>
+      <div class="cents" id="afCents">&nbsp;</div>
+      <div class="info" id="afInfo">Pulsa «Afinador» y toca una nota.</div>
+    </div>
+    <div class="fila">
+      <span class="etq">Referencia</span>
+      <div class="seg" id="segModo" role="group" aria-label="Referencia de afinación">
+        <button data-v="temperado">Temperado</button>
+        <button data-v="justo">Justo (drone)</button>
+      </div>
+    </div>
+    <div class="fila">
+      <span class="etq">Altavoz</span>
+      <div class="chips"><button class="chip" id="chFiltro">Filtrar el drone del micro</button></div>
+    </div>
+    <p class="peq" id="afHint"></p>
+    <p class="error" id="afError" hidden></p>
+  </section>
+
+  <section class="panel" id="panelDrone" aria-label="Drone">
+    <h2>Drone</h2>
+    <div class="lectura">
+      <span class="nota-grande" id="droneNota">Do</span><span class="oct" id="droneOct">4</span>
+      <span class="hz" id="droneHz"></span>
+    </div>
+    <div class="notas" id="notas" role="group" aria-label="Nota del drone"></div>
+    <div class="fila">
+      <span class="etq">Octava</span>
+      <div class="seg" id="segOctava" role="group" aria-label="Octava">
+        <button data-v="grave">Grave</button>
+        <button data-v="media">Media</button>
+        <button data-v="aguda">Aguda</button>
+      </div>
+    </div>
+    <div class="fila">
+      <span class="etq">Añadir</span>
+      <div class="chips">
+        <button class="chip" id="chQuinta">Quinta</button>
+        <button class="chip" id="chOctava">Octava</button>
+      </div>
+    </div>
+    <div class="fila">
+      <span class="etq">Timbre</span>
+      <div class="seg" id="segTimbre" role="group" aria-label="Timbre">
+        <button data-v="pura">Pura</button>
+        <button data-v="organo">Órgano</button>
+        <button data-v="cuerda">Cuerda</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer id="pie"></footer>
+
+<nav class="barra">
+  <button id="btnDrone" aria-pressed="false">▶ Drone</button>
+  <button id="btnAfinador" aria-pressed="false">🎤 Afinador</button>
+</nav>
+
+<script>
+'use strict';
+
+// ---------- Constantes musicales ----------
+const LA4 = 442;
+const NOMBRES = ['Do', 'Do♯', 'Re', 'Mi♭', 'Mi', 'Fa', 'Fa♯', 'Sol', 'La♭', 'La', 'Si♭', 'Si'];
+const INTERVALOS = ['unísono', '2ª m', '2ª M', '3ª m', '3ª M', '4ª J', 'tritono', '5ª J', '6ª m', '6ª M', '7ª m', '7ª M'];
+// Desviación (cents) del intervalo justo respecto al temperado: 16/15, 9/8, 6/5, 5/4, 4/3, 45/32, 3/2, 8/5, 5/3, 9/5, 15/8
+const JUSTO = [0, 11.73, 3.91, 15.64, -13.69, -1.96, -9.78, 1.96, 13.69, -15.64, 17.6, -11.73];
+const OCTAVA_NUM = { grave: 3, media: 4, aguda: 5 }; // octava en la notación que se muestra
+
+const mod12 = (n) => ((n % 12) + 12) % 12;
+const frecuencia = (midi) => LA4 * Math.pow(2, (midi - 69) / 12);
+
+// ---------- Estado persistente ----------
+const PREDETERMINADO = {
+  notacion: 'bb',
+  raiz: 58,          // nota del drone en sonido real (MIDI): Si♭3 real = Do4 escrito
+  octava: 'media',
+  quinta: false,
+  octavaSup: false,
+  timbre: 'organo',
+  modo: 'temperado',
+  filtro: true,
+  avisoVisto: false
+};
+let st = { ...PREDETERMINADO };
+try { Object.assign(st, JSON.parse(localStorage.getItem('droneTrompeta') || '{}')); } catch (e) {}
+function guardar() { try { localStorage.setItem('droneTrompeta', JSON.stringify(st)); } catch (e) {} }
+
+const transp = () => (st.notacion === 'bb' ? 2 : 0);   // Si♭: escrito = real + 2 semitonos
+const nombreNota = (midiReal) => NOMBRES[mod12(midiReal + transp())];
+const octavaNota = (midiReal) => Math.floor((midiReal + transp()) / 12) - 1;
+
+// ---------- Audio común ----------
+let ctx = null, master = null;
+const ondas = {};
+
+function audio() {
+  if (!ctx) {
+    ctx = new (window.AudioContext || window.webkitAudioContext)({ latencyHint: 'interactive' });
+    master = ctx.createGain();
+    master.gain.value = 0.3;
+    master.connect(ctx.destination);
+  }
+  if (ctx.state !== 'running') ctx.resume();
+  return ctx;
+}
+
+function onda(timbre) {
+  if (ondas[timbre]) return ondas[timbre];
+  let arm;
+  if (timbre === 'organo') {
+    arm = { 1: 1, 2: 0.55, 3: 0.32, 4: 0.22, 5: 0.08, 6: 0.1, 8: 0.06 };
+  } else { // cuerda: rica en armónicos, luego se suaviza con un paso bajo
+    arm = {};
+    for (let n = 1; n <= 40; n++) arm[n] = (1 / n) * (n === 2 || n === 3 ? 1.3 : 1);
+  }
+  const N = 41;
+  const real = new Float32Array(N), imag = new Float32Array(N);
+  for (const n in arm) imag[n] = arm[n];
+  ondas[timbre] = ctx.createPeriodicWave(real, imag);
+  return ondas[timbre];
+}
+
+// ---------- Drone ----------
+let droneOn = false;
+let grupo = null;
+
+function vocesDrone() {
+  const f = frecuencia(st.raiz);
+  const v = [{ f, g: 1 }];
+  if (st.quinta) v.push({ f: f * 1.5, g: 0.6 });   // quinta justa (3/2), sin batidos
+  if (st.octavaSup) v.push({ f: f * 2, g: 0.45 });
+  return v;
+}
+
+function crearGrupo() {
+  const c = audio();
+  const t = c.currentTime;
+  const voces = vocesDrone();
+  const total = voces.reduce((s, v) => s + v.g, 0);
+  const salida = c.createGain();
+  salida.gain.setValueAtTime(0, t);
+  salida.gain.linearRampToValueAtTime(1, t + 0.15);
+  salida.connect(master);
+  const oscs = voces.map((v) => {
+    const o = c.createOscillator();
+    if (st.timbre === 'pura') o.type = 'sine';
+    else o.setPeriodicWave(onda(st.timbre));
+    o.frequency.value = v.f;
+    const g = c.createGain();
+    g.gain.value = (v.g / total) * (st.timbre === 'cuerda' ? 1.3 : 1);
+    if (st.timbre === 'cuerda') {
+      const lp = c.createBiquadFilter();
+      lp.type = 'lowpass';
+      lp.frequency.value = Math.min(v.f * 6, 5000);
+      lp.Q.value = 0.7;
+      o.connect(lp).connect(g);
+    } else {
+      o.connect(g);
+    }
+    g.connect(salida);
+    o.start(t);
+    return o;
+  });
+  return { salida, oscs };
+}
+
+function apagarGrupo(gr, dur) {
+  if (!gr) return;
+  const t = ctx.currentTime;
+  gr.salida.gain.cancelScheduledValues(t);
+  gr.salida.gain.setValueAtTime(gr.salida.gain.value, t);
+  gr.salida.gain.linearRampToValueAtTime(0, t + dur);
+  gr.oscs.forEach((o) => o.stop(t + dur + 0.05));
+  setTimeout(() => gr.salida.disconnect(), (dur + 0.2) * 1000);
+}
+
+function actualizarDrone() {
+  if (droneOn) {
+    const viejo = grupo;
+    grupo = crearGrupo();
+    apagarGrupo(viejo, 0.15);
+  }
+  conectarFiltros();
+}
+
+function alternarDrone() {
+  droneOn = !droneOn;
+  if (droneOn) grupo = crearGrupo();
+  else { apagarGrupo(grupo, 0.3); grupo = null; }
+  conectarFiltros();
+  pintar();
+  wakeLock();
+}
+
+// ---------- Afinador ----------
+let afOn = false;
+let stream = null, micSrc = null, paso = null, analizador = null, buf = null;
+let filtros = [];
+let raf = 0;
+
+async function alternarAfinador() {
+  if (afOn) { pararAfinador(); return; }
+  const err = document.getElementById('afError');
+  err.hidden = true;
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    mostrarError('El micrófono necesita HTTPS (o localhost). Abre la app desde GitHub Pages o desde un servidor local.');
+    return;
+  }
+  const c = audio();
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false, channelCount: 1 }
+    });
+  } catch (e) {
+    mostrarError(e.name === 'NotAllowedError'
+      ? 'Permiso de micrófono denegado. Actívalo en los ajustes del sitio (icono junto a la dirección) y vuelve a intentarlo.'
+      : 'No se pudo abrir el micrófono: ' + e.message);
+    return;
+  }
+  micSrc = c.createMediaStreamSource(stream);
+  paso = c.createBiquadFilter();           // quita retumbos y golpes de aire
+  paso.type = 'highpass';
+  paso.frequency.value = 60;
+  analizador = c.createAnalyser();
+  analizador.fftSize = 2048;
+  buf = new Float32Array(analizador.fftSize);
+  paso.connect(analizador);
+  afOn = true;
+  reiniciarDeteccion();
+  conectarFiltros();
+  pintar();
+  wakeLock();
+  bucle();
+}
+
+function pararAfinador() {
+  afOn = false;
+  cancelAnimationFrame(raf);
+  if (stream) stream.getTracks().forEach((t) => t.stop());
+  if (micSrc) micSrc.disconnect();
+  filtros.forEach((f) => f.disconnect());
+  if (paso) paso.disconnect();
+  stream = micSrc = paso = analizador = null;
+  filtros = [];
+  mostrarLectura(null);
+  pintar();
+  wakeLock();
+}
+
+function mostrarError(txt) {
+  const err = document.getElementById('afError');
+  err.textContent = txt;
+  err.hidden = false;
+}
+
+// Filtros de rechazo (notch) en la frecuencia del drone y sus armónicos, solo en la señal del micro.
+// Así, si el drone sale por el altavoz, el afinador lo "oye" muy atenuado y se queda con tu nota.
+function frecuenciasDrone() {
+  const fs = [];
+  const maxArm = st.timbre === 'pura' ? 1 : 8;
+  for (const v of vocesDrone()) {
+    for (let h = 1; h <= maxArm; h++) {
+      const f = v.f * h;
+      if (f > 4000) break;
+      if (!fs.some((x) => Math.abs(x / f - 1) < 0.01)) fs.push(f);
+    }
+  }
+  return fs;
+}
+
+function conectarFiltros() {
+  if (!micSrc) return;
+  micSrc.disconnect();
+  filtros.forEach((f) => f.disconnect());
+  filtros = [];
+  let nodo = micSrc;
+  if (st.filtro && droneOn) {
+    for (const f of frecuenciasDrone()) {
+      const n = ctx.createBiquadFilter();
+      n.type = 'notch';
+      n.frequency.value = f;
+      n.Q.value = 35;
+      nodo.connect(n);
+      nodo = n;
+      filtros.push(n);
+    }
+  }
+  nodo.connect(paso);
+}
+
+// --- Detección de altura (YIN) ---
+const VENTANA = 1024;
+let dif = null;
+
+function yin(b, sr) {
+  const tauMin = Math.floor(sr / 1600);
+  const tauMax = Math.min(VENTANA - 1, Math.floor(sr / 65));
+  if (!dif || dif.length !== tauMax + 1) dif = new Float32Array(tauMax + 1);
+  dif[0] = 1;
+  let acum = 0;
+  for (let t = 1; t <= tauMax; t++) {
+    let s = 0;
+    for (let i = 0; i < VENTANA; i++) { const d = b[i] - b[i + t]; s += d * d; }
+    acum += s;
+    dif[t] = acum > 0 ? (s * t) / acum : 1;
+  }
+  let tau = -1;
+  for (let t = tauMin; t <= tauMax; t++) {
+    if (dif[t] < 0.15) {
+      while (t + 1 <= tauMax && dif[t + 1] < dif[t]) t++;
+      tau = t;
+      break;
+    }
+  }
+  if (tau < 0) return null;
+  let x = tau;
+  if (tau > 1 && tau < tauMax) {
+    const a = dif[tau - 1], m = dif[tau], c = dif[tau + 1];
+    const den = a - 2 * m + c;
+    if (den !== 0) x = tau + (0.5 * (a - c)) / den;
+  }
+  return sr / x;
+}
+
+// Puerta de nivel adaptativa: aprende el ruido de fondo (incluido el drone residual) cuando no tocas.
+let suelo, abierta, historial, centsSuave, notaActual, ultimaVez;
+function reiniciarDeteccion() {
+  suelo = 0.002; abierta = false; historial = []; centsSuave = 0; notaActual = null; ultimaVez = 0;
+}
+
+function bucle() {
+  if (!afOn) return;
+  raf = requestAnimationFrame(bucle);
+  analizador.getFloatTimeDomainData(buf);
+
+  let rms = 0;
+  for (let i = 0; i < buf.length; i++) rms += buf[i] * buf[i];
+  rms = Math.sqrt(rms / buf.length);
+
+  const umbral = Math.max(suelo * (abierta ? 2 : 3.5), 0.003);
+  abierta = rms > umbral;
+  if (!abierta) suelo += (rms - suelo) * 0.08;
+  else suelo = Math.min(suelo * 1.0003, rms);   // sube muy despacio mientras tocas notas largas
+  suelo = Math.max(suelo, 0.0003);
+
+  const ahora = performance.now();
+  const f = abierta ? yin(buf, ctx.sampleRate) : null;
+  if (f && f >= 65 && f <= 1600) {
+    historial.push(f);
+    if (historial.length > 5) historial.shift();
+    const mediana = [...historial].sort((a, b) => a - b)[historial.length >> 1];
+    procesar(mediana);
+    ultimaVez = ahora;
+  } else if (!abierta) {
+    historial = [];
+    if (notaActual !== null && ahora - ultimaVez > 700) { notaActual = null; mostrarLectura(null); }
+  }
+}
+
+function procesar(f) {
+  const midiF = 69 + 12 * Math.log2(f / LA4);
+  const n = Math.round(midiF);
+  let cents = (midiF - n) * 100;
+  let intervalo = null;
+  if (st.modo === 'justo') {
+    intervalo = mod12(n - st.raiz);
+    cents -= JUSTO[intervalo];
+  }
+  if (n !== notaActual) { notaActual = n; centsSuave = cents; }
+  else centsSuave += (cents - centsSuave) * 0.3;
+  mostrarLectura({ n, f, cents: centsSuave, intervalo });
+}
+
+const fmt = (x, d) => x.toLocaleString('es-ES', { minimumFractionDigits: d, maximumFractionDigits: d });
+
+function mostrarLectura(l) {
+  const med = document.getElementById('medidor');
+  const aguja = document.getElementById('aguja');
+  med.classList.remove('ok', 'casi', 'lejos', 'activo');
+  if (!l) {
+    document.getElementById('afNota').textContent = '–';
+    document.getElementById('afOct').textContent = '';
+    document.getElementById('afCents').innerHTML = '&nbsp;';
+    aguja.style.left = '50%';
+    document.getElementById('afInfo').textContent = afOn ? 'Escuchando… toca una nota.' : 'Pulsa «Afinador» y toca una nota.';
+    return;
+  }
+  const c = Math.max(-50, Math.min(50, l.cents));
+  const abs = Math.abs(l.cents);
+  med.classList.add('activo', abs <= 5 ? 'ok' : abs <= 15 ? 'casi' : 'lejos');
+  aguja.style.left = (50 + c) + '%';
+  document.getElementById('afNota').textContent = nombreNota(l.n);
+  document.getElementById('afOct').textContent = octavaNota(l.n);
+  const r = Math.round(l.cents);
+  document.getElementById('afCents').textContent = (r > 0 ? '+' : r < 0 ? '−' : '') + Math.abs(r) + ' c';
+  let info = fmt(l.f, 1) + ' Hz (real)';
+  if (l.intervalo !== null) {
+    const off = JUSTO[l.intervalo];
+    const offTxt = off === 0 ? '' : ' · pura: ' + (off > 0 ? '+' : '−') + fmt(Math.abs(off), 0) + ' c vs temperado';
+    info += '<br>' + INTERVALOS[l.intervalo] + ' sobre ' + nombreNota(st.raiz) + offTxt;
+  }
+  document.getElementById('afInfo').innerHTML = info;
+}
+
+// ---------- Pantalla siempre encendida ----------
+let bloqueo = null;
+async function wakeLock() {
+  const quiero = droneOn || afOn;
+  if (quiero && !bloqueo && 'wakeLock' in navigator && document.visibilityState === 'visible') {
+    try {
+      bloqueo = await navigator.wakeLock.request('screen');
+      bloqueo.addEventListener('release', () => { bloqueo = null; });
+    } catch (e) {}
+  } else if (!quiero && bloqueo) {
+    bloqueo.release();
+    bloqueo = null;
+  }
+}
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    if (ctx && (droneOn || afOn)) ctx.resume();
+    wakeLock();
+  }
+});
+
+// ---------- Interfaz ----------
+function marcar(id, valor) {
+  document.querySelectorAll('#' + id + ' button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.v === valor)));
+}
+
+function pintar() {
+  marcar('segNotacion', st.notacion);
+  marcar('segOctava', st.octava);
+  marcar('segTimbre', st.timbre);
+  marcar('segModo', st.modo);
+  document.getElementById('chQuinta').setAttribute('aria-pressed', st.quinta);
+  document.getElementById('chOctava').setAttribute('aria-pressed', st.octavaSup);
+  document.getElementById('chFiltro').setAttribute('aria-pressed', st.filtro);
+
+  const pcMostrado = mod12(st.raiz + transp());
+  document.querySelectorAll('#notas button').forEach((b, i) => {
+    b.textContent = NOMBRES[i];
+    b.setAttribute('aria-pressed', String(i === pcMostrado));
+  });
+  document.getElementById('droneNota').textContent = nombreNota(st.raiz);
+  document.getElementById('droneOct').textContent = octavaNota(st.raiz);
+  document.getElementById('droneHz').textContent = fmt(frecuencia(st.raiz), 1) + ' Hz';
+
+  const bd = document.getElementById('btnDrone');
+  bd.setAttribute('aria-pressed', droneOn);
+  bd.textContent = droneOn ? '■ Parar drone' : '▶ Drone';
+  const ba = document.getElementById('btnAfinador');
+  ba.setAttribute('aria-pressed', afOn);
+  ba.textContent = afOn ? '■ Parar afinador' : '🎤 Afinador';
+
+  const hint = document.getElementById('afHint');
+  if (st.modo === 'justo') {
+    hint.className = 'peq';
+    hint.textContent = 'Mide contra el intervalo puro sobre ' + nombreNota(st.raiz) + ' (la nota del drone).';
+  } else {
+    hint.className = 'peq';
+    hint.textContent = st.filtro ? 'Si usas auriculares puedes desactivar el filtro.' : '';
+  }
+  if (droneOn && afOn && !st.filtro) {
+    hint.className = 'peq alerta';
+    hint.textContent = 'Drone y afinador a la vez sin filtro: usa auriculares o activa el filtro.';
+  }
+
+  document.getElementById('pie').textContent = 'La4 = ' + LA4 + ' Hz · ' + (st.notacion === 'bb'
+    ? 'Notación para trompeta en Si♭: las notas aparecen escritas (suenan un tono más grave).'
+    : 'Notación en Do: las notas aparecen en sonido real.');
+}
+
+function elegirNota(pcMostrado) {
+  st.raiz = pcMostrado + 12 * (OCTAVA_NUM[st.octava] + 1) - transp();
+  guardar(); actualizarDrone(); pintar();
+}
+
+// Construir botones de nota
+const contNotas = document.getElementById('notas');
+NOMBRES.forEach((_, i) => {
+  const b = document.createElement('button');
+  b.addEventListener('click', () => elegirNota(i));
+  contNotas.appendChild(b);
+});
+
+function segmento(id, fn) {
+  document.querySelectorAll('#' + id + ' button').forEach((b) => b.addEventListener('click', () => fn(b.dataset.v)));
+}
+
+segmento('segNotacion', (v) => {
+  st.notacion = v;
+  // El sonido no cambia: se recalcula en qué octava "escrita" queda el drone
+  const o = octavaNota(st.raiz);
+  st.octava = o <= 3 ? 'grave' : o >= 5 ? 'aguda' : 'media';
+  if (notaActual !== null) notaActual = null;
+  guardar(); pintar();
+});
+segmento('segOctava', (v) => { st.octava = v; elegirNota(mod12(st.raiz + transp())); });
+segmento('segTimbre', (v) => { st.timbre = v; guardar(); actualizarDrone(); pintar(); });
+segmento('segModo', (v) => { st.modo = v; notaActual = null; guardar(); pintar(); });
+
+document.getElementById('chQuinta').addEventListener('click', () => { st.quinta = !st.quinta; guardar(); actualizarDrone(); pintar(); });
+document.getElementById('chOctava').addEventListener('click', () => { st.octavaSup = !st.octavaSup; guardar(); actualizarDrone(); pintar(); });
+document.getElementById('chFiltro').addEventListener('click', () => { st.filtro = !st.filtro; guardar(); conectarFiltros(); pintar(); });
+document.getElementById('btnDrone').addEventListener('click', alternarDrone);
+document.getElementById('btnAfinador').addEventListener('click', alternarAfinador);
+
+const aviso = document.getElementById('aviso');
+aviso.hidden = !!st.avisoVisto;
+document.getElementById('avisoOk').addEventListener('click', () => { st.avisoVisto = true; guardar(); aviso.hidden = true; });
+
+pintar();
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./service-worker.js').catch(() => {}));
+}
+</script>
+</body>
+</html>
