@@ -467,6 +467,45 @@ function saturacion() {
   return w;
 }
 
+// ---------- Muestras reales de trompeta ----------
+// Universidad de Iowa, Musical Instrument Samples (trompeta en Si♭, sin vibrato, mf), uso libre.
+// Cada archivo es un bucle de la parte sostenida de la nota; f = frecuencia medida de la muestra.
+const MUESTRAS = [
+  { archivo: 'trompeta-E3.wav', f: 165.775 },
+  { archivo: 'trompeta-A3.wav', f: 218.053 },
+  { archivo: 'trompeta-D4.wav', f: 293.104 },
+  { archivo: 'trompeta-G4.wav', f: 389.444 },
+  { archivo: 'trompeta-C5.wav', f: 521.661 },
+  { archivo: 'trompeta-F5.wav', f: 702.507 },
+  { archivo: 'trompeta-Bb5.wav', f: 929.881 }
+];
+let muestras = null, cargandoMuestras = null;
+
+function cargarMuestras() {
+  if (!cargandoMuestras) {
+    const c = audio();
+    cargandoMuestras = Promise.all(MUESTRAS.map((m) =>
+      fetch('audio/' + m.archivo)
+        .then((r) => { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); })
+        .then((b) => c.decodeAudioData(b))
+        .then((buffer) => ({ f: m.f, buffer }))
+    )).then((lista) => (muestras = lista))
+      .catch((e) => { cargandoMuestras = null; throw e; });
+  }
+  return cargandoMuestras;
+}
+
+async function prepararTimbre() {
+  if (st.timbre !== 'trompeta' || muestras) return;
+  try { await cargarMuestras(); } catch (e) { /* sin muestras se usa la trompeta sintética */ }
+}
+
+// La muestra más cercana a la frecuencia pedida (como mucho ~2,5 semitonos de ajuste)
+function muestraPara(f) {
+  return muestras.reduce((mejor, m) =>
+    Math.abs(Math.log(f / m.f)) < Math.abs(Math.log(f / mejor.f)) ? m : mejor);
+}
+
 // ---------- Drone ----------
 let droneOn = false;
 let grupo = null;
@@ -489,6 +528,18 @@ function crearGrupo() {
   salida.gain.linearRampToValueAtTime(1, t + 0.15);
   salida.connect(master);
   const oscs = voces.map((v) => {
+    if (st.timbre === 'trompeta' && muestras) {
+      const m = muestraPara(v.f);
+      const src = c.createBufferSource();
+      src.buffer = m.buffer;
+      src.loop = true;
+      src.playbackRate.value = v.f / m.f;   // ajuste exacto a la nota del drone (La = 442)
+      const g = c.createGain();
+      g.gain.value = (v.g / total) * 3.5;
+      src.connect(g).connect(salida);
+      src.start(t, Math.random() * m.buffer.duration);   // cada voz arranca en un punto distinto del bucle
+      return src;
+    }
     const o = c.createOscillator();
     if (st.timbre === 'pura') o.type = 'sine';
     else o.setPeriodicWave(onda(st.timbre));
@@ -529,8 +580,10 @@ function apagarGrupo(gr, dur) {
   setTimeout(() => gr.salida.disconnect(), (dur + 0.2) * 1000);
 }
 
-function actualizarDrone() {
+async function actualizarDrone() {
   if (droneOn) {
+    await prepararTimbre();
+    if (!droneOn) return;
     const viejo = grupo;
     grupo = crearGrupo();
     apagarGrupo(viejo, 0.15);
@@ -538,14 +591,20 @@ function actualizarDrone() {
   conectarFiltros();
 }
 
-function alternarDrone() {
+async function alternarDrone() {
   droneOn = !droneOn;
-  if (droneOn) mostrarAviso();
-  if (droneOn) grupo = crearGrupo();
-  else { apagarGrupo(grupo, 0.3); grupo = null; }
-  conectarFiltros();
   pintar();
   wakeLock();
+  if (droneOn) {
+    mostrarAviso();
+    await prepararTimbre();
+    if (!droneOn || grupo) return;   // se paró (o ya arrancó) mientras cargaban las muestras
+    grupo = crearGrupo();
+  } else {
+    apagarGrupo(grupo, 0.3);
+    grupo = null;
+  }
+  conectarFiltros();
 }
 
 // ---------- Afinador ----------

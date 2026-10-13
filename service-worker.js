@@ -1,5 +1,5 @@
 // Cambia la versión cada vez que publiques cambios para que los móviles se actualicen.
-const CACHE = 'drone-trompeta-v6';
+const CACHE = 'drone-trompeta-v7';
 
 const ARCHIVOS = [
   './',
@@ -7,7 +7,14 @@ const ARCHIVOS = [
   './manifest.json',
   './icons/icon.svg',
   './icons/icon-192.png',
-  './icons/icon-512.png'
+  './icons/icon-512.png',
+  './audio/trompeta-E3.wav',
+  './audio/trompeta-A3.wav',
+  './audio/trompeta-D4.wav',
+  './audio/trompeta-G4.wav',
+  './audio/trompeta-C5.wav',
+  './audio/trompeta-F5.wav',
+  './audio/trompeta-Bb5.wav'
 ];
 
 self.addEventListener('install', (e) => {

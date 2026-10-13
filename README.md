@@ -2,7 +2,7 @@
 
 App web instalable (PWA) con un drone de afinación y un afinador para trompeta, cada uno en su pestaña. Funciona sin conexión en Android y en Windows.
 
-- **Drone**: 12 notas, octava grave/media/aguda, quinta justa y octava opcionales, y timbres puro, órgano y trompeta.
+- **Drone**: 12 notas, octava grave/media/aguda, quinta justa y octava opcionales, y timbres puro, órgano y trompeta. La trompeta usa grabaciones reales.
 - **Afinador**: nota y desviación en cents. Mide contra el temperamento igual o contra la afinación justa respecto al drone.
 - **Notación**: Si♭ (escrita para trompeta) o Do (sonido real). La4 = 442 Hz.
 - **Filtro anti-drone**: quita del micrófono la frecuencia del drone y sus armónicos para que el afinador detecte tu nota. Con auriculares puedes desactivarlo.
@@ -15,6 +15,7 @@ index.html          app completa (HTML + CSS + JS)
 manifest.json       nombre, iconos, modo standalone y vertical
 service-worker.js   caché para usarla sin conexión
 icons/              icon.svg, icon-192.png, icon-512.png
+audio/              bucles de trompeta real (7 notas, Mi3–Si♭5)
 ```
 
 ---
@@ -106,3 +107,7 @@ La app aparece en el menú Inicio y puedes anclarla a la barra de tareas.
 - **Sin auriculares**: deja activado *Filtrar el drone del micro*. Es fiable, pero los auriculares lo son todavía más.
 - **Modo justo**: en este modo la 3ª mayor queda en 0 cuando está unos 14 cents más baja que en el temperado, y la 3ª menor cuando está unos 16 cents más alta. Es la referencia que quieres al afinar contra el drone.
 - Si el afinador se queda en «–» mientras tocas, toca más fuerte o acércate. La puerta de nivel aprende el ruido de fondo durante los silencios.
+
+## Créditos
+
+Las grabaciones de trompeta son de los [University of Iowa Musical Instrument Samples](https://theremin.music.uiowa.edu/MIS.html) (Lawrence Fritts, Electronic Music Studios). Se usó la trompeta en Si♭ sin vibrato, en mf. Son de uso libre en cualquier proyecto. De cada nota se recortó un bucle de la parte sostenida, y la app lo ajusta a la frecuencia exacta de cada nota con La4 = 442 Hz.
