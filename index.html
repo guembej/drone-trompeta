@@ -50,47 +50,77 @@
     justify-content: space-between;
     gap: 12px;
     padding: calc(12px + env(safe-area-inset-top)) 16px 12px;
-    max-width: 1100px;
+    max-width: 640px;
     margin: 0 auto;
   }
   .top h1 { font-size: 1.25rem; margin: 0; font-weight: 700; letter-spacing: .01em; }
   .top h1 span { color: var(--acento); }
 
   /* Aviso de auriculares */
+  /* Ventana emergente del aviso de auriculares */
   .aviso {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    margin: 0 16px 12px;
-    padding: 12px 14px;
-    background: #2b2616;
+    width: min(360px, calc(100vw - 32px));
+    padding: 22px 20px 18px;
+    background: var(--panel);
+    color: var(--texto);
     border: 1px solid #5a4a1f;
-    border-radius: var(--radio);
-    font-size: .95rem;
+    border-radius: 18px;
+    text-align: center;
   }
-  .aviso p { margin: 0; flex: 1; }
-  .aviso .icono { font-size: 1.6rem; }
+  .aviso::backdrop { background: rgba(0, 0, 0, .6); }
+  .aviso .icono { font-size: 2.4rem; line-height: 1; }
+  .aviso h3 { margin: 10px 0 6px; font-size: 1.15rem; }
+  .aviso p { margin: 0 0 18px; color: var(--suave); }
   .aviso button {
-    background: transparent;
-    border: 1px solid #7a6428;
-    border-radius: 10px;
-    padding: 8px 12px;
-    color: var(--acento);
-    white-space: nowrap;
+    width: 100%;
+    min-height: 52px;
+    border: 0;
+    border-radius: 12px;
+    background: var(--acento);
+    color: var(--acento-txt);
+    font-weight: 700;
+    font-size: 1.05rem;
   }
-  @media (min-width: 1132px) { .aviso { max-width: 1068px; margin: 0 auto 12px; } }
+
+  /* Pestañas */
+  .pestanas {
+    display: flex;
+    gap: 4px;
+    max-width: 608px;
+    margin: 0 16px 14px;
+    padding: 4px;
+    background: var(--panel);
+    border: 1px solid var(--borde);
+    border-radius: 14px;
+  }
+  @media (min-width: 672px) { .pestanas { margin: 0 auto 14px; } }
+  .pestanas button {
+    flex: 1;
+    min-height: 52px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--suave);
+    font-size: 1.05rem;
+    font-weight: 700;
+  }
+  .pestanas button[aria-selected="true"] { background: var(--panel-2); color: var(--texto); box-shadow: inset 0 -3px 0 var(--acento); }
+  .pestanas .punto {
+    display: inline-block;
+    width: 8px; height: 8px;
+    margin-left: 8px;
+    border-radius: 50%;
+    background: var(--acento);
+    vertical-align: middle;
+  }
+  .pestanas .punto[hidden] { display: none; }
 
   main {
-    display: grid;
-    gap: 14px;
     padding: 0 16px;
-    max-width: 1100px;
+    max-width: 640px;
     margin: 0 auto;
   }
-  @media (min-width: 900px) {
-    main { grid-template-columns: 1fr 1fr; align-items: start; }
-    #panelDrone { order: -1; }
-  }
+  .panel[hidden] { display: none; }
 
   .panel {
     background: var(--panel);
@@ -225,7 +255,7 @@
   .error { color: var(--lejos); font-size: .92rem; margin: 10px 0 0; }
 
   footer {
-    max-width: 1100px;
+    max-width: 640px;
     margin: 16px auto 0;
     padding: 0 16px;
     color: var(--suave);
@@ -274,39 +304,21 @@
   </div>
 </header>
 
-<div class="aviso" id="aviso" hidden>
-  <span class="icono" aria-hidden="true">🎧</span>
-  <p><strong>En el móvil, escucha el drone con auriculares.</strong> Si sale por el altavoz, el micrófono lo capta y el afinador puede confundirlo con tu nota.</p>
+<dialog class="aviso" id="aviso">
+  <div class="icono" aria-hidden="true">🎧</div>
+  <h3>Usa auriculares en el móvil</h3>
+  <p>Si el drone sale por el altavoz, el micrófono lo capta y el afinador puede confundirlo con tu nota.</p>
   <button id="avisoOk">Entendido</button>
-</div>
+</dialog>
+
+<nav class="pestanas" role="tablist" aria-label="Secciones">
+  <button role="tab" id="tabDrone" data-v="drone" aria-controls="panelDrone">Drone<span class="punto" id="puntoDrone" hidden></span></button>
+  <button role="tab" id="tabAfinador" data-v="afinador" aria-controls="panelAfinador">Afinador<span class="punto" id="puntoAfinador" hidden></span></button>
+</nav>
 
 <main>
-  <section class="panel" id="panelAfinador" aria-label="Afinador">
-    <h2>Afinador</h2>
-    <div class="medidor" id="medidor">
-      <div class="lectura-af"><span class="nota-grande" id="afNota">–</span><span class="oct" id="afOct"></span></div>
-      <div class="escala" aria-hidden="true"><div class="zona"></div><div class="aguja" id="aguja"></div></div>
-      <div class="escala-etq" aria-hidden="true"><span>−50</span><span>−25</span><span>0</span><span>+25</span><span>+50</span></div>
-      <div class="cents" id="afCents">&nbsp;</div>
-      <div class="info" id="afInfo">Pulsa «Afinador» y toca una nota.</div>
-    </div>
-    <div class="fila">
-      <span class="etq">Referencia</span>
-      <div class="seg" id="segModo" role="group" aria-label="Referencia de afinación">
-        <button data-v="temperado">Temperado</button>
-        <button data-v="justo">Justo (drone)</button>
-      </div>
-    </div>
-    <div class="fila">
-      <span class="etq">Altavoz</span>
-      <div class="chips"><button class="chip" id="chFiltro">Filtrar el drone del micro</button></div>
-    </div>
-    <p class="peq" id="afHint"></p>
-    <p class="error" id="afError" hidden></p>
-  </section>
 
-  <section class="panel" id="panelDrone" aria-label="Drone">
-    <h2>Drone</h2>
+  <section class="panel" id="panelDrone" role="tabpanel" aria-labelledby="tabDrone">
     <div class="lectura">
       <span class="nota-grande" id="droneNota">Do</span><span class="oct" id="droneOct">4</span>
       <span class="hz" id="droneHz"></span>
@@ -333,8 +345,32 @@
         <button data-v="pura">Pura</button>
         <button data-v="organo">Órgano</button>
         <button data-v="cuerda">Cuerda</button>
+        <button data-v="trompeta">Trompeta</button>
       </div>
     </div>
+  </section>
+
+  <section class="panel" id="panelAfinador" role="tabpanel" aria-labelledby="tabAfinador" hidden>
+    <div class="medidor" id="medidor">
+      <div class="lectura-af"><span class="nota-grande" id="afNota">–</span><span class="oct" id="afOct"></span></div>
+      <div class="escala" aria-hidden="true"><div class="zona"></div><div class="aguja" id="aguja"></div></div>
+      <div class="escala-etq" aria-hidden="true"><span>−50</span><span>−25</span><span>0</span><span>+25</span><span>+50</span></div>
+      <div class="cents" id="afCents">&nbsp;</div>
+      <div class="info" id="afInfo">Pulsa «Afinador» y toca una nota.</div>
+    </div>
+    <div class="fila">
+      <span class="etq">Referencia</span>
+      <div class="seg" id="segModo" role="group" aria-label="Referencia de afinación">
+        <button data-v="temperado">Temperado</button>
+        <button data-v="justo">Justo (drone)</button>
+      </div>
+    </div>
+    <div class="fila">
+      <span class="etq">Altavoz</span>
+      <div class="chips"><button class="chip" id="chFiltro">Filtrar el drone del micro</button></div>
+    </div>
+    <p class="peq" id="afHint"></p>
+    <p class="error" id="afError" hidden></p>
   </section>
 </main>
 
@@ -369,7 +405,8 @@ const PREDETERMINADO = {
   timbre: 'organo',
   modo: 'temperado',
   filtro: true,
-  avisoVisto: false
+  avisoVisto: false,
+  pestana: 'drone'
 };
 let st = { ...PREDETERMINADO };
 try { Object.assign(st, JSON.parse(localStorage.getItem('droneTrompeta') || '{}')); } catch (e) {}
@@ -399,6 +436,11 @@ function onda(timbre) {
   let arm;
   if (timbre === 'organo') {
     arm = { 1: 1, 2: 0.55, 3: 0.32, 4: 0.22, 5: 0.08, 6: 0.1, 8: 0.06 };
+  } else if (timbre === 'trompeta') {
+    // Espectro de metal: el 2º-4º armónico más fuertes que la fundamental y muchos armónicos agudos
+    const t = [0, 0.55, 1, 0.92, 0.78, 0.62, 0.48, 0.38, 0.3, 0.23, 0.18, 0.14, 0.11, 0.085, 0.065, 0.05, 0.04];
+    arm = {};
+    for (let n = 1; n <= 40; n++) arm[n] = n < t.length ? t[n] : 0.04 * Math.pow(0.85, n - 16);
   } else { // cuerda: rica en armónicos, luego se suaviza con un paso bajo
     arm = {};
     for (let n = 1; n <= 40; n++) arm[n] = (1 / n) * (n === 2 || n === 3 ? 1.3 : 1);
@@ -437,12 +479,13 @@ function crearGrupo() {
     else o.setPeriodicWave(onda(st.timbre));
     o.frequency.value = v.f;
     const g = c.createGain();
-    g.gain.value = (v.g / total) * (st.timbre === 'cuerda' ? 1.3 : 1);
-    if (st.timbre === 'cuerda') {
+    g.gain.value = (v.g / total) * (st.timbre === 'cuerda' ? 1.3 : st.timbre === 'trompeta' ? 0.55 : 1);
+    if (st.timbre === 'cuerda' || st.timbre === 'trompeta') {
       const lp = c.createBiquadFilter();
       lp.type = 'lowpass';
-      lp.frequency.value = Math.min(v.f * 6, 5000);
-      lp.Q.value = 0.7;
+      // la trompeta lleva un corte más alto (brillo) con algo de resonancia, como el formante del metal
+      lp.frequency.value = st.timbre === 'trompeta' ? Math.min(Math.max(v.f * 10, 1800), 6000) : Math.min(v.f * 6, 5000);
+      lp.Q.value = st.timbre === 'trompeta' ? 1.4 : 0.7;
       o.connect(lp).connect(g);
     } else {
       o.connect(g);
@@ -475,6 +518,7 @@ function actualizarDrone() {
 
 function alternarDrone() {
   droneOn = !droneOn;
+  if (droneOn) mostrarAviso();
   if (droneOn) grupo = crearGrupo();
   else { apagarGrupo(grupo, 0.3); grupo = null; }
   conectarFiltros();
@@ -547,7 +591,7 @@ function mostrarError(txt) {
 // Así, si el drone sale por el altavoz, el afinador lo "oye" muy atenuado y se queda con tu nota.
 function frecuenciasDrone() {
   const fs = [];
-  const maxArm = st.timbre === 'pura' ? 1 : 8;
+  const maxArm = st.timbre === 'pura' ? 1 : st.timbre === 'trompeta' ? 16 : 8;
   for (const v of vocesDrone()) {
     for (let h = 1; h <= maxArm; h++) {
       const f = v.f * h;
@@ -736,6 +780,12 @@ function pintar() {
   document.getElementById('droneOct').textContent = octavaNota(st.raiz);
   document.getElementById('droneHz').textContent = fmt(frecuencia(st.raiz), 1) + ' Hz';
 
+  document.querySelectorAll('.pestanas button').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.v === st.pestana)));
+  document.getElementById('panelDrone').hidden = st.pestana !== 'drone';
+  document.getElementById('panelAfinador').hidden = st.pestana !== 'afinador';
+  document.getElementById('puntoDrone').hidden = !droneOn;      // indica que suena aunque estés en la otra pestaña
+  document.getElementById('puntoAfinador').hidden = !afOn;
+
   const bd = document.getElementById('btnDrone');
   bd.setAttribute('aria-pressed', droneOn);
   bd.textContent = droneOn ? '■ Parar drone' : '▶ Drone';
@@ -796,9 +846,23 @@ document.getElementById('chFiltro').addEventListener('click', () => { st.filtro 
 document.getElementById('btnDrone').addEventListener('click', alternarDrone);
 document.getElementById('btnAfinador').addEventListener('click', alternarAfinador);
 
+// Aviso de auriculares: ventana emergente la primera vez que se activa el drone
 const aviso = document.getElementById('aviso');
-aviso.hidden = !!st.avisoVisto;
-document.getElementById('avisoOk').addEventListener('click', () => { st.avisoVisto = true; guardar(); aviso.hidden = true; });
+function mostrarAviso() {
+  if (st.avisoVisto || aviso.open) return;
+  if (aviso.showModal) aviso.showModal(); else aviso.setAttribute('open', '');
+}
+function cerrarAviso() {
+  st.avisoVisto = true; guardar();
+  if (aviso.close) aviso.close(); else aviso.removeAttribute('open');
+}
+document.getElementById('avisoOk').addEventListener('click', cerrarAviso);
+aviso.addEventListener('click', (e) => { if (e.target === aviso) cerrarAviso(); }); // tocar fuera también cierra
+aviso.addEventListener('cancel', () => { st.avisoVisto = true; guardar(); });
+
+// Pestañas
+function elegirPestana(v) { st.pestana = v; guardar(); pintar(); }
+document.querySelectorAll('.pestanas button').forEach((b) => b.addEventListener('click', () => elegirPestana(b.dataset.v)));
 
 pintar();
 
