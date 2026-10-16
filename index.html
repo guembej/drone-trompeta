@@ -260,7 +260,7 @@
   /* Afinador */
   .medidor { text-align: center; }
   /* Esfera de aguja */
-  .esfera { display: block; width: 100%; max-height: 200px; margin: 0 auto; }
+  .esfera { display: block; width: 100%; max-height: 185px; margin: 0 auto; }
   .esfera .marca { stroke: var(--suave); }
   .esfera .marca.cero { stroke: var(--texto); }
   .esfera .num { fill: var(--suave); font-size: 13px; font-family: inherit; }
@@ -277,11 +277,43 @@
   .medidor.ok .cents { color: var(--ok); }
   .medidor.casi .cents { color: var(--casi); }
   .medidor.lejos .cents { color: var(--lejos); }
-  .info { color: var(--suave); font-size: .92rem; min-height: 2.6em; margin-top: 2px; }
+  .info { color: var(--suave); font-size: .92rem; min-height: 1.4em; margin-top: 2px; }
   .peq { color: var(--suave); font-size: .85rem; margin: 10px 0 0; }
   .peq.alerta { color: var(--casi); }
+  .peq:empty { display: none; }
   .error { color: var(--lejos); font-size: .92rem; margin: 10px 0 0; }
 
+
+  /* Afinador: panel teñido de verde cuando estás afinado */
+  #panelAfinador { transition: background-color .25s, border-color .25s; }
+  #panelAfinador:has(#medidor.ok) { background: #16271e; border-color: #2c5a41; }
+  .cents small { font-size: .9rem; font-weight: 600; margin-left: 6px; opacity: .85; }
+  .fila.dos { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .fila.dos > div { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+  .fila.dos .seg button { padding: 0 4px; font-size: .88rem; }
+
+  /* Aviso de descanso (sobre la barra de transporte, visible en cualquier pestaña) */
+  .descanso {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: calc(84px + env(safe-area-inset-bottom));
+    z-index: 11;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 8px 8px 16px;
+    max-width: calc(100vw - 24px);
+    background: #173326;
+    border: 1px solid #2c6a49;
+    border-radius: 99px;
+    color: var(--texto);
+    font-weight: 600;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, .4);
+  }
+  .descanso[hidden] { display: none; }
+  .descanso b { font-variant-numeric: tabular-nums; color: var(--ok); }
+  .descanso button { min-height: 36px; padding: 0 12px; border-radius: 99px; border: 1px solid #2c6a49; background: transparent; color: var(--ok); font-weight: 600; }
 
   /* Metrónomo */
   .tempo { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
@@ -301,6 +333,9 @@
   .pulsos i { width: 18px; height: 18px; border-radius: 50%; background: var(--panel-2); border: 1px solid var(--borde); transition: background .06s; }
   .pulsos i.uno { width: 22px; height: 22px; margin-top: -2px; }
   .pulsos i.on { background: var(--acento); border-color: var(--acento); }
+  .params { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; color: var(--suave); font-size: .9rem; }
+  .params select { min-height: 36px; padding: 0 6px; border-radius: 10px; }
+  .params.apagado { opacity: .45; }
   .seg button:disabled { opacity: .35; }
   button:disabled { cursor: default; }
 
@@ -566,10 +601,19 @@
         <button data-v="justo">Justo (drone)</button>
       </div>
     </div>
-    <div class="fila">
-      <span class="etq">Altavoz</span>
-      <div class="chips"><button class="chip" id="chFiltro">Filtrar el drone del micro</button></div>
+    <div class="fila dos">
+      <div><span class="etq">Tolerancia</span>
+        <div class="seg" id="segTol" role="group" aria-label="Tolerancia"><button data-v="10">±10</button><button data-v="5">±5</button><button data-v="3">±3</button></div></div>
+      <div><span class="etq">Respuesta</span>
+        <div class="seg" id="segResp" role="group" aria-label="Velocidad de respuesta"><button data-v="lenta">Lenta</button><button data-v="normal">Media</button><button data-v="rapida">Rápida</button></div></div>
     </div>
+    <div class="fila">
+      <div class="chips">
+        <button class="chip" id="chFiltro">Filtro anti-drone</button>
+        <button class="chip" id="chDescanso">Avisar descansos</button>
+      </div>
+    </div>
+    <p class="peq" id="labioTxt"></p>
     <p class="peq" id="afHint"></p>
     <p class="error" id="afError" hidden></p>
   </section>
@@ -599,6 +643,14 @@
         <button class="chip" id="chAcento">Acento en el 1</button>
         <button class="chip" id="btnTap">Tap tempo</button>
       </div>
+    </div>
+    <div class="fila">
+      <div class="fila-cab"><span class="etq">Subir el tempo solo</span><button class="chip mini" id="chSube">Activar</button></div>
+      <div class="params" id="paramsSube">+<select id="subePaso" aria-label="Subida en bpm"></select> cada <select id="subeCada" aria-label="Cada cuántos compases"></select> comp. hasta <select id="subeTope" aria-label="Tempo máximo"></select></div>
+    </div>
+    <div class="fila">
+      <div class="fila-cab"><span class="etq">Compases mudos (pulso interno)</span><button class="chip mini" id="chMudo">Activar</button></div>
+      <div class="params" id="paramsMudo">Suenan <select id="mudoSuenan" aria-label="Compases que suenan"></select> · callan <select id="mudoCallan" aria-label="Compases en silencio"></select></div>
     </div>
     <p class="peq" id="metroInfo"></p>
   </section>
@@ -637,6 +689,8 @@
   </section>
 </main>
 
+
+<div class="descanso" id="descanso" role="status" hidden><span id="descTxt"></span><button id="descSaltar">Saltar</button></div>
 
 <nav class="barra" aria-label="Transporte">
   <button id="btnDrone" aria-pressed="false">▶ Drone</button>
@@ -679,7 +733,13 @@ const PREDETERMINADO = {
   ejDir: 'baja',
   ejN: 6,
   ejDrone: true,
-  ejercicios: []     // ejercicios propios: { id, nombre, compas, notas }
+  ejercicios: [],    // ejercicios propios: { id, nombre, compas, notas }
+  tol: 5,            // tolerancia del afinador (± cents en verde)
+  resp: 'normal',    // respuesta del afinador: lenta / normal / rapida
+  avisoDescanso: true,
+  labio: { fecha: '', seg: 0 },              // tiempo de trompeta sonando hoy
+  metroSube: { on: false, paso: 2, cada: 4, tope: 120 },
+  metroMudo: { on: false, suenan: 2, callan: 2 }
 };
 let st = { ...PREDETERMINADO };
 try { Object.assign(st, JSON.parse(localStorage.getItem('droneTrompeta') || '{}')); } catch (e) {}
@@ -687,6 +747,10 @@ if (!['pura', 'organo', 'trompeta'].includes(st.timbre)) st.timbre = 'organo'; /
 if (!(st.la >= LA_MIN && st.la <= LA_MAX)) st.la = 442;
 if (!(st.bpm >= 30 && st.bpm <= 250)) st.bpm = 80;
 if (!Array.isArray(st.ejercicios)) st.ejercicios = [];
+if (![3, 5, 10].includes(st.tol)) st.tol = 5;
+st.metroSube = { ...PREDETERMINADO.metroSube, ...st.metroSube };
+st.metroMudo = { ...PREDETERMINADO.metroMudo, ...st.metroMudo };
+st.labio = { ...PREDETERMINADO.labio, ...st.labio };
 function guardar() { try { localStorage.setItem('droneTrompeta', JSON.stringify(st)); } catch (e) {} }
 
 const esPC = window.matchMedia('(min-width: 1000px)');   // en PC el afinador queda fijo a la derecha
@@ -1024,12 +1088,20 @@ function reiniciarDeteccion() {
   suelo = 0.002; abierta = false; historial = []; centsSuave = 0; notaActual = null; ultimaVez = 0;
 }
 
+// Velocidad de respuesta del afinador: cuántas lecturas se promedian y cuánto se amortigua la aguja
+const RESP = {
+  lenta: { mediana: 9, lectura: 0.12, aguja: 0.07 },
+  normal: { mediana: 5, lectura: 0.3, aguja: 0.16 },
+  rapida: { mediana: 3, lectura: 0.6, aguja: 0.35 }
+};
+const ambar = () => Math.min(st.tol * 3, 30);   // zona ámbar según la tolerancia
+
 let micPausa = false;   // en el calentamiento el micro no escucha mientras toca la app
 
 function bucle() {
   if (!afOn) return;
   raf = requestAnimationFrame(bucle);
-  if (micPausa) return;
+  if (micPausa) { contarLabio(false); return; }
   analizador.getFloatTimeDomainData(buf);
 
   let rms = 0;
@@ -1038,6 +1110,7 @@ function bucle() {
 
   const umbral = Math.max(suelo * (abierta ? 2 : 3.5), 0.003);
   abierta = rms > umbral;
+  contarLabio(abierta);
   if (!abierta) suelo += (rms - suelo) * 0.08;
   else suelo = Math.min(suelo * 1.0003, rms);   // sube muy despacio mientras tocas notas largas
   suelo = Math.max(suelo, 0.0003);
@@ -1046,7 +1119,7 @@ function bucle() {
   const f = abierta ? yin(buf, ctx.sampleRate) : null;
   if (f && f >= 65 && f <= 1600) {
     historial.push(f);
-    if (historial.length > 5) historial.shift();
+    if (historial.length > RESP[st.resp].mediana) historial.shift();
     const mediana = [...historial].sort((a, b) => a - b)[historial.length >> 1];
     procesar(mediana);
     ultimaVez = ahora;
@@ -1071,7 +1144,7 @@ function procesar(f) {
     cents -= JUSTO[intervalo];
   }
   if (n !== notaActual) { notaActual = n; centsSuave = cents; }
-  else centsSuave += (cents - centsSuave) * 0.3;
+  else centsSuave += (cents - centsSuave) * RESP[st.resp].lectura;
   mostrarLectura({ n, f, cents: centsSuave, intervalo });
 }
 
@@ -1090,8 +1163,9 @@ function dibujarEsfera(idSvg) {
   };
   let svg = '';
   // bandas: rojo fuera de ±15, ámbar de 5 a 15, verde ±5
-  for (const [c1, c2, col, op] of [[-50, -15, 'var(--lejos)', .55], [15, 50, 'var(--lejos)', .55],
-    [-15, -5, 'var(--casi)', .7], [5, 15, 'var(--casi)', .7], [-5, 5, 'var(--ok)', 1]]) {
+  const t = st.tol, a = ambar();
+  for (const [c1, c2, col, op] of [[-50, -a, 'var(--lejos)', .55], [a, 50, 'var(--lejos)', .55],
+    [-a, -t, 'var(--casi)', .7], [t, a, 'var(--casi)', .7], [-t, t, 'var(--ok)', 1]]) {
     svg += `<path class="banda" d="${arco(c1, c2)}" stroke="${col}" stroke-opacity="${op}"/>`;
   }
   for (let k = -50; k <= 50; k += 5) {
@@ -1123,7 +1197,7 @@ function moverAguja(cents) {
   if (!agujaAnim) agujaAnim = requestAnimationFrame(pasoAguja);
 }
 function pasoAguja() {
-  agujaPos += (agujaObj - agujaPos) * 0.16;
+  agujaPos += (agujaObj - agujaPos) * RESP[st.resp].aguja;
   if (Math.abs(agujaObj - agujaPos) < 0.05) agujaPos = agujaObj;
   const giro = `rotate(${agujaPos * ESF.grados / 50} ${ESF.cx} ${ESF.cy})`;
   document.querySelectorAll('.aguja-g').forEach((a) => a.setAttribute('transform', giro));
@@ -1144,13 +1218,16 @@ function mostrarLectura(l) {
     return;
   }
   const abs = Math.abs(l.cents);
-  meds.forEach((m) => m.classList.add('activo', abs <= 5 ? 'ok' : abs <= 15 ? 'casi' : 'lejos'));
+  const estado = abs <= st.tol ? 'ok' : abs <= ambar() ? 'casi' : 'lejos';
+  meds.forEach((m) => m.classList.add('activo', estado));
   moverAguja(l.cents);
   document.getElementById('afNota').textContent = nombreNota(l.n);
   document.getElementById('afOct').textContent = octavaNota(l.n);
   const r = Math.round(l.cents);
-  document.getElementById('afCents').textContent = (r > 0 ? '+' : r < 0 ? '−' : '') + Math.abs(r) + ' c';
-  tocas.textContent = 'Tocas ' + nombreNota(l.n) + octavaNota(l.n) + ' · ' + document.getElementById('afCents').textContent;
+  const centsTxt = (r > 0 ? '+' : r < 0 ? '−' : '') + Math.abs(r) + ' c';
+  // además del color, la palabra: para leerlo de lejos y para quien no distingue bien los colores
+  document.getElementById('afCents').innerHTML = centsTxt + '<small>' + (estado === 'ok' ? 'afinado' : l.cents > 0 ? 'alto' : 'bajo') + '</small>';
+  tocas.textContent = 'Tocas ' + nombreNota(l.n) + octavaNota(l.n) + ' · ' + centsTxt;
   let info = fmt(l.f, 1) + ' Hz (real)';
   if (l.intervalo !== null) {
     const off = JUSTO[l.intervalo];
@@ -1208,8 +1285,20 @@ function programar() {
     const enCompas = metroTick % (pulsos * tpp);
     const esPulso = enCompas % tpp === 0;
     const tipo = enCompas === 0 && st.acento ? 'acento' : esPulso ? 'pulso' : 'sub';
-    sonidoClick(metroProx, tipo);
-    if (esPulso) eventos.push({ t: metroProx, tipo: 'pulso', pulso: enCompas / tpp });
+    const compas = Math.floor(metroTick / (pulsos * tpp));
+    let mudo = false;
+    if (!ej.activo) {   // en el calentamiento el metrónomo marca siempre y el tempo lo lleva el ejercicio
+      const m = st.metroMudo;
+      if (m.on) mudo = compas % (m.suenan + m.callan) >= m.suenan;   // el primer compás siempre suena
+      const sb = st.metroSube;
+      if (sb.on && enCompas === 0 && compas > 0 && compas % sb.cada === 0 && st.bpm < sb.tope) {
+        st.bpm = Math.min(sb.tope, st.bpm + sb.paso);
+        metroMax = Math.max(metroMax, st.bpm);
+        eventos.push({ t: metroProx, tipo: 'tempo' });
+      }
+    }
+    if (!mudo) sonidoClick(metroProx, tipo);
+    if (esPulso) eventos.push({ t: metroProx, tipo: 'pulso', pulso: mudo ? -1 : enCompas / tpp });
     metroProx += 60 / bpmEn(metroProx) / tpp;
     metroTick++;
   }
@@ -1224,9 +1313,12 @@ function bpmEn(t) {
   return b;
 }
 
+let metroBase = 0, metroMax = 0;   // con «subir el tempo», al parar se vuelve al tempo de partida
+
 function iniciarMetronomo(t0) {
   audio();
   metroOn = true;
+  metroBase = metroMax = st.bpm;
   metroProx = t0 !== undefined ? t0 : ctx.currentTime + 0.08;
   metroTick = 0;
   clearInterval(metroTimer);
@@ -1240,6 +1332,11 @@ function iniciarMetronomo(t0) {
 function pararMetronomo() {
   metroOn = false;
   clearInterval(metroTimer);
+  if (st.metroSube.on && metroBase && !ej.activo) {
+    ultimoMax = metroMax > metroBase ? metroMax : 0;
+    st.bpm = metroBase;
+    guardar();
+  }
   eventos = eventos.filter((e) => e.tipo !== 'pulso');
   if (ej.activo) pararEjercicio();
   pintarPulsos(-1);
@@ -1278,7 +1375,11 @@ function bucleUI() {
     const listos = eventos.filter((e) => e.t <= ahora);
     if (listos.length) {
       eventos = eventos.filter((e) => e.t > ahora);
-      listos.sort((a, b) => a.t - b.t).forEach((e) => (e.tipo === 'pulso' ? pintarPulsos(e.pulso) : eventoEjercicio(e)));
+      listos.sort((a, b) => a.t - b.t).forEach((e) => {
+        if (e.tipo === 'pulso') pintarPulsos(e.pulso);
+        else if (e.tipo === 'tempo') pintar();
+        else eventoEjercicio(e);
+      });
     }
     uiAnim = metroOn || ej.activo || eventos.length ? requestAnimationFrame(paso) : 0;
   };
@@ -1300,7 +1401,19 @@ function pintarPulsos(i) {
   }
 }
 
+let ultimoMax = 0;
+
 function pintarMetronomo() {
+  const sb = st.metroSube, md = st.metroMudo;
+  document.getElementById('chSube').setAttribute('aria-pressed', sb.on);
+  document.getElementById('chSube').textContent = sb.on ? 'Activo' : 'Activar';
+  document.getElementById('chMudo').setAttribute('aria-pressed', md.on);
+  document.getElementById('chMudo').textContent = md.on ? 'Activo' : 'Activar';
+  document.getElementById('paramsSube').classList.toggle('apagado', !sb.on);
+  document.getElementById('paramsMudo').classList.toggle('apagado', !md.on);
+  for (const [id, v] of [['subePaso', sb.paso], ['subeCada', sb.cada], ['subeTope', sb.tope], ['mudoSuenan', md.suenan], ['mudoCallan', md.callan]]) {
+    document.getElementById(id).value = String(v);
+  }
   document.getElementById('bpmValor').textContent = st.bpm;
   document.getElementById('bpmNombre').textContent = nombreTempo(st.bpm);
   const sl = document.getElementById('bpmSlider');
@@ -1313,6 +1426,8 @@ function pintarMetronomo() {
   document.querySelectorAll('#segCompas button').forEach((b) => { b.disabled = ej.activo; });
   document.getElementById('metroInfo').textContent = ej.activo
     ? 'Compás fijo mientras dura el ejercicio. Los cambios de tempo entran en la siguiente repetición.'
+    : metroOn && sb.on ? 'Subiendo desde ' + metroBase + ' hasta ' + sb.tope + '. Al parar vuelve a ' + metroBase + '.'
+    : ultimoMax ? 'La última vez llegaste a ' + ultimoMax + ' bpm.'
     : compuesto ? 'En 6/8 el tempo es la negra con puntillo y suenan las tres corcheas.' : '';
   if (!metroOn) pintarPulsos(-1);
 }
@@ -1330,6 +1445,29 @@ function repetir(boton, fn) {
   ['pointerup', 'pointerleave', 'pointercancel'].forEach((ev) => boton.addEventListener(ev, parar));
   boton.addEventListener('keydown', (e) => { if (e.key === 'Enter') fn(); });
 }
+
+function opciones(id, valores) {
+  const sel = document.getElementById(id);
+  valores.forEach((v) => sel.appendChild(new Option(v, v)));
+}
+opciones('subePaso', [1, 2, 3, 4, 5, 10]);
+opciones('subeCada', [1, 2, 4, 8, 16]);
+opciones('subeTope', Array.from({ length: 45 }, (_, i) => 40 + i * 5));
+opciones('mudoSuenan', [1, 2, 3, 4]);
+opciones('mudoCallan', [1, 2, 3, 4]);
+const ajustar = (obj, campo) => (e) => { st[obj][campo] = Number(e.target.value); guardar(); pintar(); };
+document.getElementById('subePaso').addEventListener('change', ajustar('metroSube', 'paso'));
+document.getElementById('subeCada').addEventListener('change', ajustar('metroSube', 'cada'));
+document.getElementById('subeTope').addEventListener('change', ajustar('metroSube', 'tope'));
+document.getElementById('mudoSuenan').addEventListener('change', ajustar('metroMudo', 'suenan'));
+document.getElementById('mudoCallan').addEventListener('change', ajustar('metroMudo', 'callan'));
+document.getElementById('chSube').addEventListener('click', () => {
+  st.metroSube.on = !st.metroSube.on;
+  if (st.metroSube.on && st.metroSube.tope <= st.bpm) st.metroSube.tope = Math.min(250, Math.ceil((st.bpm + 20) / 5) * 5);
+  if (metroOn) metroBase = metroMax = st.bpm;
+  guardar(); pintar();
+});
+document.getElementById('chMudo').addEventListener('click', () => { st.metroMudo.on = !st.metroMudo.on; guardar(); pintar(); });
 
 repetir(document.getElementById('bpmMenos'), () => ponerBpm(st.bpm - 1));
 repetir(document.getElementById('bpmMas'), () => ponerBpm(st.bpm + 1));
@@ -1814,6 +1952,65 @@ document.getElementById('edBorrar').addEventListener('click', () => {
   pintar();
 });
 
+// ---------- Temporizador de labio y descanso («descansa tanto como tocas») ----------
+// Cuenta el tiempo que suena la trompeta (con el afinador activo). Tras un bloque de 30 s o más tocando,
+// al parar más de 4 s propone un descanso igual de largo.
+const labio = { bloque: 0, ultimoSonido: 0, ultimoFrame: 0, ultimoPinte: 0, ultimoGuardado: 0, descansoHasta: 0, timer: 0 };
+const hoy = () => new Date().toLocaleDateString('sv');   // AAAA-MM-DD en hora local
+const mmss = (seg) => Math.floor(seg / 60) + ':' + String(Math.floor(seg % 60)).padStart(2, '0');
+
+function contarLabio(sonando) {
+  const ahora = performance.now();
+  const dt = labio.ultimoFrame ? Math.min((ahora - labio.ultimoFrame) / 1000, 0.25) : 0;
+  labio.ultimoFrame = ahora;
+  if (st.labio.fecha !== hoy()) st.labio = { fecha: hoy(), seg: 0 };
+  if (sonando) {
+    st.labio.seg += dt;
+    labio.bloque += dt;
+    labio.ultimoSonido = ahora;
+    if (labio.descansoHasta) terminarDescanso(false);
+  } else if (labio.bloque > 0 && ahora - labio.ultimoSonido > 4000) {
+    if (labio.bloque >= 30 && st.avisoDescanso) empezarDescanso(labio.bloque);
+    labio.bloque = 0;
+    guardar();
+  }
+  if (ahora - labio.ultimoGuardado > 15000) { labio.ultimoGuardado = ahora; guardar(); }
+  if (ahora - labio.ultimoPinte > 500) { labio.ultimoPinte = ahora; pintarLabio(); }
+}
+
+function pintarLabio() {
+  const p = document.getElementById('labioTxt');
+  const seg = st.labio.fecha === hoy() ? st.labio.seg : 0;
+  p.textContent = afOn || seg >= 1
+    ? 'Labio hoy: ' + mmss(seg) + (labio.bloque >= 1 ? ' · tocando seguido ' + mmss(labio.bloque) : '')
+    : '';
+}
+
+function empezarDescanso(seg) {
+  labio.descansoHasta = performance.now() + seg * 1000;
+  document.getElementById('descanso').hidden = false;
+  clearInterval(labio.timer);
+  const paso = () => {
+    const quedan = (labio.descansoHasta - performance.now()) / 1000;
+    if (quedan <= 0) { terminarDescanso(true); return; }
+    document.getElementById('descTxt').innerHTML = 'Has tocado ' + mmss(seg) + ' seguidos. Descansa <b>' + mmss(Math.ceil(quedan)) + '</b>';
+  };
+  paso();
+  labio.timer = setInterval(paso, 250);
+}
+
+function terminarDescanso(completo) {
+  clearInterval(labio.timer);
+  labio.descansoHasta = 0;
+  const caja = document.getElementById('descanso');
+  if (!completo) { caja.hidden = true; return; }
+  document.getElementById('descTxt').innerHTML = '<b>✓ Descanso hecho.</b> Puedes seguir.';
+  if (navigator.vibrate) navigator.vibrate([150, 80, 150]);
+  labio.timer = setTimeout(() => { caja.hidden = true; }, 4000);
+}
+
+document.getElementById('descSaltar').addEventListener('click', () => terminarDescanso(false));
+
 // ---------- Pantalla siempre encendida ----------
 let bloqueo = null;
 async function wakeLock() {
@@ -1848,6 +2045,10 @@ function pintar() {
   document.getElementById('chQuinta').setAttribute('aria-pressed', st.quinta);
   document.getElementById('chOctava').setAttribute('aria-pressed', st.octavaSup);
   document.getElementById('chFiltro').setAttribute('aria-pressed', st.filtro);
+  document.getElementById('chDescanso').setAttribute('aria-pressed', st.avisoDescanso);
+  marcar('segTol', String(st.tol));
+  marcar('segResp', st.resp);
+  pintarLabio();
 
   const pcMostrado = mod12(st.raiz + transp());
   document.querySelectorAll('#notas button').forEach((b, i) => {
@@ -1978,6 +2179,13 @@ segmento('segModo', (v) => { st.modo = v; notaActual = null; guardar(); pintar()
 document.getElementById('chQuinta').addEventListener('click', () => { st.quinta = !st.quinta; guardar(); actualizarDrone(); pintar(); });
 document.getElementById('chOctava').addEventListener('click', () => { st.octavaSup = !st.octavaSup; guardar(); actualizarDrone(); pintar(); });
 document.getElementById('chFiltro').addEventListener('click', () => { st.filtro = !st.filtro; guardar(); conectarFiltros(); pintar(); });
+document.getElementById('chDescanso').addEventListener('click', () => {
+  st.avisoDescanso = !st.avisoDescanso;
+  if (!st.avisoDescanso && labio.descansoHasta) terminarDescanso(false);
+  guardar(); pintar();
+});
+segmento('segTol', (v) => { st.tol = Number(v); guardar(); dibujarEsfera('esfera1'); dibujarEsfera('esfera2'); agujaAnim = 0; moverAguja(agujaObj); pintar(); });
+segmento('segResp', (v) => { st.resp = v; guardar(); pintar(); });
 document.getElementById('btnDrone').addEventListener('click', alternarDrone);
 document.getElementById('btnAfinador').addEventListener('click', alternarAfinador);
 document.getElementById('btnMetro').addEventListener('click', alternarMetronomo);

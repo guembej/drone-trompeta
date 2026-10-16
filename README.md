@@ -7,12 +7,14 @@ App web instalable (PWA) para estudiar trompeta: drone, afinador, metrónomo y c
 - **Notación**: Si♭ (escrita para trompeta) o Do (sonido real).
 - **Diapasón**: ajustable de 415 a 460 Hz (442 por defecto) desde el botón de la cabecera. En notación Si♭ se muestra como Si4 (el La4 real escrito para trompeta) y en Do como La4.
 - **Filtro anti-drone**: quita del micrófono la frecuencia del drone y sus armónicos para que el afinador detecte tu nota. Con auriculares puedes desactivarlo.
-- **Metrónomo**: de 30 a 250 bpm, con − / + (mantén pulsado), deslizador y tap tempo. Compases 2/4, 3/4, 4/4 y 6/8, subdivisiones y acento en el primer tiempo.
+- **Metrónomo**: de 30 a 250 bpm, con − / + (mantén pulsado), deslizador y tap tempo. Compases 2/4, 3/4, 4/4 y 6/8, subdivisiones y acento en el primer tiempo. Puede **subir el tempo solo** (+N bpm cada M compases hasta un tope; al parar vuelve al tempo inicial y te dice a cuánto llegaste) y dejar **compases mudos** para entrenar el pulso interno.
 - **Calentamiento**: la app toca la frase con trompeta real y tú la repites en los compases siguientes. Después se transporta medio tono (bajando, subiendo o igual). El pentagrama muestra la frase con clave de sol, armadura y alteraciones. En tu turno, la aguja mide respecto a la nota que toca. El drone puede seguir la tónica. Tempo, transposición, número de tonalidades y drone se ajustan en vivo; el tempo nuevo entra en la siguiente repetición para que no se descuadre la frase.
 - **En el PC**: el afinador queda fijo a la derecha y cada pestaña aprovecha el ancho (el pentagrama del calentamiento ocupa toda la línea).
 - **Editor de ejercicios**: escribe tus frases en texto (`Do4 Sol4 Do5:2 | Mi5:4`) con vista previa en el pentagrama.
 - **Barra de transporte**: drone, metrónomo y afinador se encienden y apagan desde cualquier pestaña.
 - **Teclado** (ordenador): C–B notas, Mayús = ♯, Espacio drone, ↑↓ octava, M metrónomo, ←→ tempo, T afinador.
+- **Afinador ajustable**: tolerancia ±10 / ±5 / ±3 cents y respuesta lenta, media o rápida. El panel se tiñe de verde al estar afinado y dice «afinado», «alto» o «bajo».
+- **Labio y descanso**: con el afinador activo cuenta el tiempo que suena la trompeta («Labio hoy») y, tras tocar 30 s o más seguidos, propone descansar lo mismo que has tocado.
 - La pantalla no se apaga mientras suena el drone o está activo el afinador.
 
 ## Archivos
