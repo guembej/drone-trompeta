@@ -198,6 +198,33 @@
     font-weight: 600;
   }
   .notas button[aria-pressed="true"] { background: var(--acento); color: var(--acento-txt); border-color: var(--acento); }
+  .notas button { position: relative; }
+  /* Atajos de teclado: solo se muestran en ordenador (ratón y teclado) */
+  .tecla, .atajos { display: none; }
+  @media (hover: hover) and (pointer: fine) and (min-width: 520px) {
+    .tecla {
+      display: block;
+      position: absolute;
+      top: 3px; right: 6px;
+      font-size: .62rem;
+      font-weight: 600;
+      opacity: .55;
+    }
+    .atajos { display: block; color: var(--suave); font-size: .8rem; margin: 12px 0 0; }
+    .atajos kbd {
+      display: inline-block;
+      min-width: 1.5em;
+      padding: 0 5px;
+      border: 1px solid var(--borde);
+      border-bottom-width: 2px;
+      border-radius: 5px;
+      background: var(--panel-2);
+      color: var(--texto);
+      font: inherit;
+      font-size: .75rem;
+      text-align: center;
+    }
+  }
   @media (min-width: 900px) { .notas { grid-template-columns: repeat(6, 1fr); } }
 
   /* Afinador */
@@ -351,6 +378,7 @@
         <button data-v="trompeta">Trompeta</button>
       </div>
     </div>
+    <p class="atajos">Teclado: <kbd>C</kbd>–<kbd>B</kbd> notas (<kbd>H</kbd> = Si) · <kbd>⇧</kbd>+letra = ♯ · <kbd>Espacio</kbd> drone · <kbd>↑</kbd><kbd>↓</kbd> octava</p>
   </section>
 
   <section class="panel" id="panelAfinador" role="tabpanel" aria-labelledby="tabAfinador" hidden>
@@ -854,7 +882,7 @@ function pintar() {
 
   const pcMostrado = mod12(st.raiz + transp());
   document.querySelectorAll('#notas button').forEach((b, i) => {
-    b.textContent = NOMBRES[i];
+    b.firstChild.textContent = NOMBRES[i];
     b.setAttribute('aria-pressed', String(i === pcMostrado));
   });
   document.getElementById('droneNota').textContent = nombreNota(st.raiz);
@@ -899,10 +927,41 @@ function elegirNota(pcMostrado) {
 
 // Construir botones de nota
 const contNotas = document.getElementById('notas');
+const TECLAS = ['C', '⇧C', 'D', '⇧D', 'E', 'F', '⇧F', 'G', '⇧G', 'A', '⇧A', 'B'];
 NOMBRES.forEach((_, i) => {
   const b = document.createElement('button');
+  b.append(document.createTextNode(''));
+  const t = document.createElement('span');
+  t.className = 'tecla';
+  t.textContent = TECLAS[i];
+  b.append(t);
   b.addEventListener('click', () => elegirNota(i));
   contNotas.appendChild(b);
+});
+
+// ---------- Atajos de teclado (ordenador) ----------
+// Letras en cifrado inglés (B = Si) y también H = Si, como en alemán. Mayúsculas sube un semitono.
+const LETRAS = { KeyC: 0, KeyD: 2, KeyE: 4, KeyF: 5, KeyG: 7, KeyA: 9, KeyB: 11, KeyH: 11 };
+const ORDEN_OCTAVAS = ['grave', 'media', 'aguda'];
+
+document.addEventListener('keydown', (e) => {
+  if (e.ctrlKey || e.metaKey || e.altKey || e.repeat) return;
+  if (aviso.open) return;
+  if (e.code in LETRAS) {
+    e.preventDefault();
+    elegirNota(mod12(LETRAS[e.code] + (e.shiftKey ? 1 : 0)));
+  } else if (e.code === 'Space') {
+    e.preventDefault();
+    if (document.activeElement) document.activeElement.blur();   // que no "pulse" también el botón con foco
+    alternarDrone();
+  } else if (e.code === 'ArrowUp' || e.code === 'ArrowDown') {
+    e.preventDefault();
+    const i = ORDEN_OCTAVAS.indexOf(st.octava) + (e.code === 'ArrowUp' ? 1 : -1);
+    if (i >= 0 && i < ORDEN_OCTAVAS.length) {
+      st.octava = ORDEN_OCTAVAS[i];
+      elegirNota(mod12(st.raiz + transp()));
+    }
+  }
 });
 
 function segmento(id, fn) {
