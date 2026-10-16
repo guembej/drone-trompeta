@@ -5,7 +5,7 @@ App web instalable (PWA) con un drone de afinación y un afinador para trompeta,
 - **Drone**: 12 notas, octava grave/media/aguda, quinta justa y octava opcionales, y timbres puro, órgano y trompeta. La trompeta usa grabaciones reales.
 - **Afinador**: nota y desviación en cents. Mide contra el temperamento igual o contra la afinación justa respecto al drone.
 - **Notación**: Si♭ (escrita para trompeta) o Do (sonido real).
-- **Diapasón**: La4 ajustable de 415 a 460 Hz desde el botón «La» de la cabecera (442 por defecto).
+- **Diapasón**: ajustable de 415 a 460 Hz (442 por defecto) desde el botón de la cabecera. En notación Si♭ se muestra como Si4 (el La4 real escrito para trompeta) y en Do como La4.
 - **Filtro anti-drone**: quita del micrófono la frecuencia del drone y sus armónicos para que el afinador detecte tu nota. Con auriculares puedes desactivarlo.
 - La pantalla no se apaga mientras suena el drone o está activo el afinador.
 

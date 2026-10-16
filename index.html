@@ -368,7 +368,7 @@
 <header class="top">
   <h1>Drone <span>Trompeta</span></h1>
   <div class="derecha">
-    <button class="btn-la" id="btnLa" aria-label="Diapasón">La <b id="laValor">442</b></button>
+    <button class="btn-la" id="btnLa" aria-label="Diapasón"><span id="laNombre">Si</span> <b id="laValor">442</b></button>
     <div class="seg" id="segNotacion" role="group" aria-label="Notación">
       <button data-v="bb">Si♭</button>
       <button data-v="do">Do</button>
@@ -378,7 +378,7 @@
 
 <dialog class="aviso dlg-la" id="dlgLa">
   <h3>Diapasón</h3>
-  <p>Frecuencia del La4 para el drone y el afinador.</p>
+  <p id="laTexto"></p>
   <div class="ajuste">
     <button id="laMenos" aria-label="Bajar 1 Hz">−</button>
     <div class="valor"><span id="laGrande">442</span> <small>Hz</small></div>
@@ -947,7 +947,13 @@ function pintar() {
   });
   document.getElementById('droneNota').textContent = nombreNota(st.raiz);
   document.getElementById('droneOct').textContent = octavaNota(st.raiz);
+  // El diapasón es el La real (MIDI 69); en notación Si♭ se escribe Si4
+  const notaLa = nombreNota(69) + octavaNota(69);
+  document.getElementById('laNombre').textContent = nombreNota(69);
   document.getElementById('laValor').textContent = st.la;
+  document.getElementById('laTexto').textContent = st.notacion === 'bb'
+    ? 'Frecuencia del Si4 escrito (La4 real) para el drone y el afinador.'
+    : 'Frecuencia del La4 para el drone y el afinador.';
   document.getElementById('laGrande').textContent = st.la;
   document.querySelectorAll('#laPresets button').forEach((b) => b.setAttribute('aria-pressed', String(Number(b.dataset.v) === st.la)));
   document.getElementById('droneHz').textContent = fmt(frecuencia(st.raiz), 1) + ' Hz';
@@ -978,7 +984,7 @@ function pintar() {
     hint.textContent = 'Drone y afinador a la vez sin filtro: usa auriculares o activa el filtro.';
   }
 
-  document.getElementById('pie').textContent = 'La4 = ' + st.la + ' Hz · ' + (st.notacion === 'bb'
+  document.getElementById('pie').textContent = notaLa + ' = ' + st.la + ' Hz · ' + (st.notacion === 'bb'
     ? 'Notación para trompeta en Si♭: las notas aparecen escritas (suenan un tono más grave).'
     : 'Notación en Do: las notas aparecen en sonido real.');
 }
