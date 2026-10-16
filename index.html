@@ -82,16 +82,6 @@
     font-size: 1.6rem;
     font-weight: 700;
   }
-  .dlg-la .presets { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 16px; }
-  .dlg-la .presets button {
-    min-height: 44px;
-    border: 1px solid var(--borde);
-    border-radius: 10px;
-    background: var(--panel-2);
-    color: var(--suave);
-    font-weight: 600;
-  }
-  .dlg-la .presets button[aria-pressed="true"] { border-color: var(--acento); color: var(--acento); }
   .top h1 span { color: var(--acento); }
 
   /* Aviso de auriculares */
@@ -134,14 +124,18 @@
   @media (min-width: 672px) { .pestanas { margin: 0 auto 10px; } }
   .pestanas button {
     flex: 1;
+    min-width: 0;
     min-height: 44px;
+    padding: 0 2px;
     border: 0;
     border-radius: 10px;
     background: transparent;
     color: var(--suave);
-    font-size: 1.05rem;
+    font-size: .95rem;
     font-weight: 700;
+    white-space: nowrap;
   }
+  @media (max-width: 400px) { .pestanas button { font-size: .84rem; } .pestanas .punto { margin-left: 4px; } }
   .pestanas button[aria-selected="true"] { background: var(--panel-2); color: var(--texto); box-shadow: inset 0 -3px 0 var(--acento); }
   .pestanas .punto {
     display: inline-block;
@@ -274,11 +268,11 @@
   .esfera .num { fill: var(--suave); font-size: 13px; font-family: inherit; }
   .esfera .signo { fill: var(--suave); font-size: 17px; }
   .esfera .banda { fill: none; stroke-width: 10; }
-  #aguja { color: var(--suave); opacity: .35; transition: color .2s, opacity .3s; }
-  .medidor.activo #aguja { opacity: 1; }
-  .medidor.ok #aguja { color: var(--ok); }
-  .medidor.casi #aguja { color: var(--casi); }
-  .medidor.lejos #aguja { color: var(--lejos); }
+  .aguja-g { color: var(--suave); opacity: .35; transition: color .2s, opacity .3s; }
+  .medidor.activo .aguja-g { opacity: 1; }
+  .medidor.ok .aguja-g { color: var(--ok); }
+  .medidor.casi .aguja-g { color: var(--casi); }
+  .medidor.lejos .aguja-g { color: var(--lejos); }
   .lectura-af { display: flex; justify-content: center; align-items: baseline; gap: 6px; margin-top: -6px; }
   .lectura-af .nota-grande { font-size: 3.6rem; }
   .cents { font-size: 1.6rem; font-weight: 700; margin-top: 6px; font-variant-numeric: tabular-nums; }
@@ -291,7 +285,92 @@
   .error { color: var(--lejos); font-size: .92rem; margin: 10px 0 0; }
 
 
-  /* Barra inferior con los dos botones principales */
+  /* Metrónomo */
+  .tempo { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .redondo {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    border: 1px solid var(--borde);
+    background: var(--panel-2);
+    font-size: 1.8rem;
+    font-weight: 700;
+  }
+  .bpm { text-align: center; line-height: 1; }
+  .bpm span { display: block; font-size: 4rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .bpm small { color: var(--suave); font-size: .9rem; }
+  input[type=range] { width: 100%; margin: 14px 0 4px; accent-color: var(--acento); }
+  .pulsos { display: flex; justify-content: center; gap: 12px; margin: 10px 0 2px; }
+  .pulsos i { width: 18px; height: 18px; border-radius: 50%; background: var(--panel-2); border: 1px solid var(--borde); transition: background .06s; }
+  .pulsos i.uno { width: 22px; height: 22px; margin-top: -2px; }
+  .pulsos i.on { background: var(--acento); border-color: var(--acento); }
+  .seg button:disabled { opacity: .35; }
+  button:disabled { cursor: default; }
+
+  /* Calentamiento */
+  .ej-cabeza { display: flex; gap: 6px; }
+  select, input[type=text], textarea {
+    font: inherit;
+    color: var(--texto);
+    background: var(--panel-2);
+    border: 1px solid var(--borde);
+    border-radius: 12px;
+    padding: 0 10px;
+    min-height: 44px;
+  }
+  .ej-cabeza select { flex: 1; min-width: 0; }
+  .icono-btn {
+    width: 44px; min-height: 44px;
+    border: 1px solid var(--borde);
+    border-radius: 12px;
+    background: var(--panel-2);
+    font-size: 1.1rem;
+  }
+  .ej-estado { display: flex; align-items: center; gap: 8px; margin: 10px 0 4px; font-weight: 600; }
+  .ej-estado .fase { padding: 3px 10px; border-radius: 99px; background: var(--panel-2); color: var(--suave); font-size: .85rem; }
+  .ej-estado .fase.escucha { background: #2e2918; color: var(--acento); }
+  .ej-estado .fase.turno { background: #173326; color: var(--ok); }
+  .ej-estado #ejCiclo { margin-left: auto; color: var(--suave); font-size: .85rem; font-variant-numeric: tabular-nums; }
+  .pentagrama { overflow-x: auto; background: #f4f1ea; border-radius: 12px; padding: 4px 0; scroll-behavior: smooth; }
+  .pentagrama svg { display: block; height: 100px; }
+  .penta { color: #1c1a17; }
+  .penta .linea { stroke: #1c1a17; stroke-width: 1; }
+  .penta .actual { color: #b07a10; }
+  .penta .turno { color: #1f8a57; }
+  .ej-turno { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+  .ej-esperada { flex: 1; text-align: center; }
+  .ej-esperada .etq { display: block; }
+  .ej-esperada .nota-grande { font-size: 2.8rem; }
+  .medidor.mini { width: 52%; }
+  .fila-h { flex-direction: row; align-items: center; flex-wrap: wrap; gap: 8px; }
+  .contador { display: flex; align-items: center; gap: 6px; }
+  .contador button { width: 40px; min-height: 40px; border: 1px solid var(--borde); border-radius: 10px; background: var(--panel-2); font-weight: 700; }
+  .contador b { min-width: 1.6em; text-align: center; font-variant-numeric: tabular-nums; }
+  .fila-h .chip { flex: 1; }
+  .grande-btn {
+    width: 100%;
+    min-height: 52px;
+    margin-top: 12px;
+    border: 2px solid var(--acento);
+    border-radius: 14px;
+    background: var(--acento);
+    color: var(--acento-txt);
+    font-weight: 700;
+    font-size: 1.05rem;
+  }
+  .grande-btn.parar { background: transparent; color: var(--acento); }
+
+  /* Editor de ejercicios */
+  .dlg-ej { text-align: left; width: min(520px, calc(100vw - 24px)); }
+  .dlg-ej label { display: flex; flex-direction: column; gap: 4px; margin-top: 10px; }
+  .dlg-ej textarea { padding: 8px 10px; resize: vertical; font-family: ui-monospace, Consolas, monospace; font-size: .95rem; }
+  .dlg-ej .ayuda { font-size: .8rem; margin: 8px 0; }
+  .dlg-ej code { color: var(--acento); }
+  .dlg-ej .pentagrama { margin-top: 4px; }
+  .dlg-botones { display: flex; gap: 8px; margin-top: 12px; }
+  .dlg-botones button { flex: 1; }
+  .aviso button.sec { background: var(--panel-2); color: var(--texto); border: 1px solid var(--borde); }
+
+  /* Barra de transporte: drone, metrónomo y afinador desde cualquier pestaña */
   .barra {
     position: fixed;
     left: 0; right: 0; bottom: 0;
@@ -306,15 +385,21 @@
   }
   .barra button {
     flex: 1;
-    max-width: 420px;
+    max-width: 220px;
+    min-width: 0;
     min-height: 56px;
+    padding: 0 4px;
     border-radius: 16px;
     border: 2px solid var(--acento);
     background: transparent;
     color: var(--acento);
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: 700;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+    transition: box-shadow .08s;
   }
+  .barra button.latido { box-shadow: 0 0 0 4px rgba(224, 176, 74, .45); }
   .barra button[aria-pressed="true"] { background: var(--acento); color: var(--acento-txt); }
 
   @media (max-width: 380px) { .seg button { padding: 0 6px; } }
@@ -355,12 +440,6 @@
     <div class="valor"><span id="laGrande">442</span> <small>Hz</small></div>
     <button id="laMas" aria-label="Subir 1 Hz">+</button>
   </div>
-  <div class="presets" id="laPresets">
-    <button data-v="440">440</button>
-    <button data-v="441">441</button>
-    <button data-v="442">442</button>
-    <button data-v="443">443</button>
-  </div>
   <button id="laOk">Listo</button>
 </dialog>
 
@@ -371,9 +450,26 @@
   <button id="avisoOk">Entendido</button>
 </dialog>
 
+<dialog class="aviso dlg-ej" id="dlgEj">
+  <h3 id="edTitulo">Nuevo ejercicio</h3>
+  <label class="etq">Nombre<input type="text" id="edNombre" maxlength="40"></label>
+  <label class="etq">Compás<select id="edCompas"><option>2/4</option><option>3/4</option><option>4/4</option></select></label>
+  <label class="etq">Notas (en Do mayor; la app lo transporta)<textarea id="edNotas" rows="3" spellcheck="false" autocapitalize="off"></textarea></label>
+  <p class="peq ayuda">Separa las notas con espacios: <code>Do4 Sol4 Do5:2</code>. Tras «:» va la duración en tiempos (1 por defecto; <code>0.5</code> corchea, <code>2</code> blanca, <code>4</code> redonda). Alteraciones: <code>Fa#4</code>, <code>Sib4</code>. Silencio: <code>_:1</code>. También vale cifrado inglés (<code>C4 G4</code>, <code>H4</code> = Si). La barra <code>|</code> es opcional.</p>
+  <div class="pentagrama"><svg id="edPenta" class="penta"></svg></div>
+  <p class="error" id="edError" hidden></p>
+  <div class="dlg-botones">
+    <button class="sec" id="edBorrar">Borrar</button>
+    <button class="sec" id="edCancelar">Cancelar</button>
+    <button id="edGuardar">Guardar</button>
+  </div>
+</dialog>
+
 <nav class="pestanas" role="tablist" aria-label="Secciones">
   <button role="tab" id="tabDrone" data-v="drone" aria-controls="panelDrone">Drone<span class="punto" id="puntoDrone" hidden></span></button>
   <button role="tab" id="tabAfinador" data-v="afinador" aria-controls="panelAfinador">Afinador<span class="punto" id="puntoAfinador" hidden></span></button>
+  <button role="tab" id="tabMetro" data-v="metro" aria-controls="panelMetro">Metrónomo<span class="punto" id="puntoMetro" hidden></span></button>
+  <button role="tab" id="tabEj" data-v="ej" aria-controls="panelEj">Calentar<span class="punto" id="puntoEj" hidden></span></button>
 </nav>
 
 <main>
@@ -407,12 +503,12 @@
         <button data-v="trompeta">Trompeta</button>
       </div>
     </div>
-    <p class="atajos">Teclado: <kbd>C</kbd>–<kbd>B</kbd> notas (<kbd>H</kbd> = Si) · <kbd>⇧</kbd>+letra = ♯ · <kbd>Espacio</kbd> drone · <kbd>↑</kbd><kbd>↓</kbd> octava</p>
+    <p class="atajos">Teclado: <kbd>C</kbd>–<kbd>B</kbd> notas (<kbd>H</kbd> = Si) · <kbd>⇧</kbd>+letra = ♯ · <kbd>Espacio</kbd> drone · <kbd>↑</kbd><kbd>↓</kbd> octava · <kbd>M</kbd> metrónomo · <kbd>←</kbd><kbd>→</kbd> tempo · <kbd>T</kbd> afinador</p>
   </section>
 
   <section class="panel" id="panelAfinador" role="tabpanel" aria-labelledby="tabAfinador" hidden>
     <div class="medidor" id="medidor">
-      <svg class="esfera" id="esfera" viewBox="0 26 380 214" aria-hidden="true"></svg>
+      <svg class="esfera" id="esfera1" viewBox="0 26 380 214" aria-hidden="true"></svg>
       <div class="lectura-af"><span class="nota-grande" id="afNota">–</span><span class="oct" id="afOct"></span></div>
       <div class="cents" id="afCents">&nbsp;</div>
       <div class="info" id="afInfo">Pulsa «Afinador» y toca una nota.</div>
@@ -431,11 +527,69 @@
     <p class="peq" id="afHint"></p>
     <p class="error" id="afError" hidden></p>
   </section>
+
+  <section class="panel" id="panelMetro" role="tabpanel" aria-labelledby="tabMetro" hidden>
+    <div class="tempo">
+      <button class="redondo" id="bpmMenos" aria-label="Más lento">−</button>
+      <div class="bpm"><span id="bpmValor">80</span><small id="bpmNombre">Andante</small></div>
+      <button class="redondo" id="bpmMas" aria-label="Más rápido">+</button>
+    </div>
+    <input type="range" id="bpmSlider" min="30" max="250" aria-label="Tempo">
+    <div class="pulsos" id="pulsos" aria-hidden="true"></div>
+    <div class="fila">
+      <span class="etq">Compás</span>
+      <div class="seg" id="segCompas" role="group" aria-label="Compás">
+        <button data-v="2/4">2/4</button><button data-v="3/4">3/4</button><button data-v="4/4">4/4</button><button data-v="6/8">6/8</button>
+      </div>
+    </div>
+    <div class="fila">
+      <span class="etq">Subdivisión</span>
+      <div class="seg" id="segSubdiv" role="group" aria-label="Subdivisión">
+        <button data-v="1" aria-label="Negras">♩</button><button data-v="2" aria-label="Corcheas">♫</button><button data-v="3" aria-label="Tresillos">3</button><button data-v="4" aria-label="Semicorcheas">♬</button>
+      </div>
+    </div>
+    <div class="fila">
+      <div class="chips">
+        <button class="chip" id="chAcento">Acento en el 1</button>
+        <button class="chip" id="btnTap">Tap tempo</button>
+      </div>
+    </div>
+    <p class="peq" id="metroInfo"></p>
+  </section>
+
+  <section class="panel" id="panelEj" role="tabpanel" aria-labelledby="tabEj" hidden>
+    <div class="ej-cabeza">
+      <select id="ejSel" aria-label="Ejercicio"></select>
+      <button class="icono-btn" id="ejEditar" aria-label="Editar ejercicio">✎</button>
+      <button class="icono-btn" id="ejNuevo" aria-label="Nuevo ejercicio">＋</button>
+    </div>
+    <div class="ej-estado"><span id="ejTono">Do mayor</span><span class="fase" id="ejFase">Listo</span><span id="ejCiclo"></span></div>
+    <div class="pentagrama" id="ejPentaCont"><svg id="ejPenta" class="penta"></svg></div>
+    <div class="ej-turno">
+      <div class="ej-esperada"><span class="etq" id="ejNotaEtq">Toca</span><span class="nota-grande" id="ejNota">–</span><span class="oct" id="ejOct"></span><div class="peq" id="ejTocas">&nbsp;</div></div>
+      <div class="medidor mini" id="medidor2"><svg class="esfera" id="esfera2" viewBox="0 26 380 214" aria-hidden="true"></svg></div>
+    </div>
+    <div class="fila">
+      <span class="etq">Al repetir</span>
+      <div class="seg" id="segEjDir" role="group" aria-label="Transposición">
+        <button data-v="baja">Baja ½ tono</button><button data-v="sube">Sube ½ tono</button><button data-v="igual">Igual</button>
+      </div>
+    </div>
+    <div class="fila fila-h">
+      <span class="etq">Tonalidades</span>
+      <div class="contador"><button id="ejNMenos" aria-label="Menos">−</button><b id="ejN">6</b><button id="ejNMas" aria-label="Más">+</button></div>
+      <button class="chip" id="chEjDrone">Drone en la tónica</button>
+    </div>
+    <p class="peq" id="ejInfo"></p>
+    <p class="error" id="ejError" hidden></p>
+    <button class="grande-btn" id="btnEj">▶ Empezar</button>
+  </section>
 </main>
 
 
-<nav class="barra">
+<nav class="barra" aria-label="Transporte">
   <button id="btnDrone" aria-pressed="false">▶ Drone</button>
+  <button id="btnMetro" aria-pressed="false">♩ 80</button>
   <button id="btnAfinador" aria-pressed="false">🎤 Afinador</button>
 </nav>
 
@@ -465,12 +619,23 @@ const PREDETERMINADO = {
   filtro: true,
   la: 442,           // diapasón (Hz)
   avisoVisto: false,
-  pestana: 'drone'
+  pestana: 'drone',
+  bpm: 80,
+  compas: '4/4',
+  subdiv: 1,
+  acento: true,
+  ejSel: 'flex2',
+  ejDir: 'baja',
+  ejN: 6,
+  ejDrone: true,
+  ejercicios: []     // ejercicios propios: { id, nombre, compas, notas }
 };
 let st = { ...PREDETERMINADO };
 try { Object.assign(st, JSON.parse(localStorage.getItem('droneTrompeta') || '{}')); } catch (e) {}
 if (!['pura', 'organo', 'trompeta'].includes(st.timbre)) st.timbre = 'organo'; // el timbre «cuerda» ya no existe
 if (!(st.la >= LA_MIN && st.la <= LA_MAX)) st.la = 442;
+if (!(st.bpm >= 30 && st.bpm <= 250)) st.bpm = 80;
+if (!Array.isArray(st.ejercicios)) st.ejercicios = [];
 function guardar() { try { localStorage.setItem('droneTrompeta', JSON.stringify(st)); } catch (e) {} }
 
 const transp = () => (st.notacion === 'bb' ? 2 : 0);   // Si♭: escrito = real + 2 semitonos
@@ -526,15 +691,16 @@ function saturacion() {
 
 // ---------- Muestras reales de trompeta ----------
 // Universidad de Iowa, Musical Instrument Samples (trompeta en Si♭, sin vibrato, mf), uso libre.
-// Cada archivo es un bucle de la parte sostenida de la nota; f = frecuencia medida de la muestra.
+// Cada archivo = ataque real de la nota + bucle de la parte sostenida (bucle = [inicio, fin] en segundos);
+// f = frecuencia medida de la muestra.
 const MUESTRAS = [
-  { archivo: 'trompeta-E3.wav', f: 165.775 },
-  { archivo: 'trompeta-A3.wav', f: 218.053 },
-  { archivo: 'trompeta-D4.wav', f: 293.104 },
-  { archivo: 'trompeta-G4.wav', f: 389.444 },
-  { archivo: 'trompeta-C5.wav', f: 521.661 },
-  { archivo: 'trompeta-F5.wav', f: 702.507 },
-  { archivo: 'trompeta-Bb5.wav', f: 929.881 }
+  { archivo: 'trompeta-E3.wav', f: 165.666, bucle: [0.51998, 2.31878] },
+  { archivo: 'trompeta-A3.wav', f: 217.955, bucle: [0.51998, 2.3185] },
+  { archivo: 'trompeta-D4.wav', f: 293.124, bucle: [0.51998, 2.32127] },
+  { archivo: 'trompeta-G4.wav', f: 389.743, bucle: [0.51998, 2.32116] },
+  { archivo: 'trompeta-C5.wav', f: 521.636, bucle: [0.51998, 2.32009] },
+  { archivo: 'trompeta-F5.wav', f: 702.24, bucle: [0.51998, 2.31993] },
+  { archivo: 'trompeta-Bb5.wav', f: 930.657, bucle: [0.51998, 2.31977] }
 ];
 let muestras = null, cargandoMuestras = null;
 
@@ -545,7 +711,7 @@ function cargarMuestras() {
       fetch('audio/' + m.archivo)
         .then((r) => { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); })
         .then((b) => c.decodeAudioData(b))
-        .then((buffer) => ({ f: m.f, buffer }))
+        .then((buffer) => ({ f: m.f, bucle: m.bucle, buffer }))
     )).then((lista) => (muestras = lista))
       .catch((e) => { cargandoMuestras = null; throw e; });
   }
@@ -590,11 +756,13 @@ function crearGrupo() {
       const src = c.createBufferSource();
       src.buffer = m.buffer;
       src.loop = true;
+      [src.loopStart, src.loopEnd] = m.bucle;   // el drone solo usa la parte sostenida
       src.playbackRate.value = v.f / m.f;   // ajuste exacto a la nota del drone (La = 442)
       const g = c.createGain();
       g.gain.value = (v.g / total) * 3.5;
       src.connect(g).connect(salida);
-      src.start(t, Math.random() * m.buffer.duration);   // cada voz arranca en un punto distinto del bucle
+      // cada voz arranca en un punto distinto del bucle
+      src.start(t, m.bucle[0] + Math.random() * (m.bucle[1] - m.bucle[0]));
       return src;
     }
     const o = c.createOscillator();
@@ -800,9 +968,12 @@ function reiniciarDeteccion() {
   suelo = 0.002; abierta = false; historial = []; centsSuave = 0; notaActual = null; ultimaVez = 0;
 }
 
+let micPausa = false;   // en el calentamiento el micro no escucha mientras toca la app
+
 function bucle() {
   if (!afOn) return;
   raf = requestAnimationFrame(bucle);
+  if (micPausa) return;
   analizador.getFloatTimeDomainData(buf);
 
   let rms = 0;
@@ -831,10 +1002,15 @@ function bucle() {
 
 function procesar(f) {
   const midiF = 69 + 12 * Math.log2(f / st.la);
-  const n = Math.round(midiF);
+  let n = Math.round(midiF);
   let cents = (midiF - n) * 100;
   let intervalo = null;
-  if (st.modo === 'justo') {
+  const esperada = ej.activo && ej.fase === 'turno' && ej.esperada ? ej.esperada.midi - transp() : null;
+  if (esperada !== null && Math.abs(1200 * Math.log2(f / frecuencia(esperada))) < 60) {
+    // en tu turno del calentamiento, la aguja mide respecto a la nota que toca
+    n = esperada;
+    cents = 1200 * Math.log2(f / frecuencia(esperada));
+  } else if (st.modo === 'justo') {
     intervalo = mod12(n - st.raiz);
     cents -= JUSTO[intervalo];
   }
@@ -851,7 +1027,7 @@ function polar(cents, r) {
   const a = (cents * ESF.grados / 50 - 90) * Math.PI / 180;
   return [ESF.cx + r * Math.cos(a), ESF.cy + r * Math.sin(a)];
 }
-function dibujarEsfera() {
+function dibujarEsfera(idSvg) {
   const arco = (c1, c2) => {
     const [x1, y1] = polar(c1, ESF.r), [x2, y2] = polar(c2, ESF.r);
     return `M${x1} ${y1} A${ESF.r} ${ESF.r} 0 0 1 ${x2} ${y2}`;
@@ -875,13 +1051,13 @@ function dibujarEsfera() {
   svg += `<text class="signo" x="${bx - 6}" y="${by}" text-anchor="middle">♭</text>`;
   svg += `<text class="signo" x="${sx + 6}" y="${sy}" text-anchor="middle">♯</text>`;
   // aguja (apunta hacia arriba; se gira alrededor del eje)
-  svg += `<g id="aguja" transform="rotate(0 ${ESF.cx} ${ESF.cy})">
+  svg += `<g class="aguja-g" transform="rotate(0 ${ESF.cx} ${ESF.cy})">
     <line x1="${ESF.cx}" y1="${ESF.cy}" x2="${ESF.cx}" y2="${ESF.cy - ESF.r + 6}" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
     <line x1="${ESF.cx}" y1="${ESF.cy}" x2="${ESF.cx}" y2="${ESF.cy + 20}" stroke="currentColor" stroke-width="7" stroke-linecap="round"/>
     <circle cx="${ESF.cx}" cy="${ESF.cy}" r="11" fill="var(--panel-2)" stroke="currentColor" stroke-width="3"/>
     <circle cx="${ESF.cx}" cy="${ESF.cy}" r="3.5" fill="currentColor"/>
   </g>`;
-  document.getElementById('esfera').innerHTML = svg;
+  document.getElementById(idSvg).innerHTML = svg;
 }
 
 // Movimiento amortiguado: la aguja persigue el valor medido sin saltos, como un afinador analógico
@@ -893,14 +1069,17 @@ function moverAguja(cents) {
 function pasoAguja() {
   agujaPos += (agujaObj - agujaPos) * 0.16;
   if (Math.abs(agujaObj - agujaPos) < 0.05) agujaPos = agujaObj;
-  document.getElementById('aguja').setAttribute('transform', `rotate(${agujaPos * ESF.grados / 50} ${ESF.cx} ${ESF.cy})`);
+  const giro = `rotate(${agujaPos * ESF.grados / 50} ${ESF.cx} ${ESF.cy})`;
+  document.querySelectorAll('.aguja-g').forEach((a) => a.setAttribute('transform', giro));
   agujaAnim = agujaPos === agujaObj ? 0 : requestAnimationFrame(pasoAguja);
 }
 
 function mostrarLectura(l) {
-  const med = document.getElementById('medidor');
-  med.classList.remove('ok', 'casi', 'lejos', 'activo');
+  const meds = [document.getElementById('medidor'), document.getElementById('medidor2')];
+  meds.forEach((m) => m.classList.remove('ok', 'casi', 'lejos', 'activo'));
+  const tocas = document.getElementById('ejTocas');
   if (!l) {
+    tocas.innerHTML = '&nbsp;';
     document.getElementById('afNota').textContent = '–';
     document.getElementById('afOct').textContent = '';
     document.getElementById('afCents').innerHTML = '&nbsp;';
@@ -909,12 +1088,13 @@ function mostrarLectura(l) {
     return;
   }
   const abs = Math.abs(l.cents);
-  med.classList.add('activo', abs <= 5 ? 'ok' : abs <= 15 ? 'casi' : 'lejos');
+  meds.forEach((m) => m.classList.add('activo', abs <= 5 ? 'ok' : abs <= 15 ? 'casi' : 'lejos'));
   moverAguja(l.cents);
   document.getElementById('afNota').textContent = nombreNota(l.n);
   document.getElementById('afOct').textContent = octavaNota(l.n);
   const r = Math.round(l.cents);
   document.getElementById('afCents').textContent = (r > 0 ? '+' : r < 0 ? '−' : '') + Math.abs(r) + ' c';
+  tocas.textContent = 'Tocas ' + nombreNota(l.n) + octavaNota(l.n) + ' · ' + document.getElementById('afCents').textContent;
   let info = fmt(l.f, 1) + ' Hz (real)';
   if (l.intervalo !== null) {
     const off = JUSTO[l.intervalo];
@@ -923,12 +1103,622 @@ function mostrarLectura(l) {
   }
   document.getElementById('afInfo').innerHTML = info;
 }
-dibujarEsfera();
+dibujarEsfera('esfera1');
+dibujarEsfera('esfera2');
+
+// ---------- Metrónomo ----------
+// Se programa con el reloj de audio (no con temporizadores) para que no se desfase.
+const COMPASES = { '2/4': [2, 0], '3/4': [3, 0], '4/4': [4, 0], '6/8': [2, 3] };   // [pulsos, subdivisión fija]
+let metroOn = false, metroProx = 0, metroTick = 0, metroTimer = 0, metroGain = null, ruido = null;
+let eventos = [];   // cambios de interfaz programados en el reloj de audio: { t, tipo, ... }
+
+const metroCompas = () => COMPASES[st.compas] || COMPASES['4/4'];
+const ticksPorPulso = () => metroCompas()[1] || st.subdiv;
+
+// Golpe de "madera": ruido filtrado muy corto. Al no tener altura definida, el afinador no lo confunde con una nota.
+function sonidoClick(t, tipo) {
+  if (!metroGain) {
+    metroGain = ctx.createGain();
+    metroGain.gain.value = 3;
+    metroGain.connect(ctx.destination);
+  }
+  if (!ruido) {
+    ruido = ctx.createBuffer(1, Math.round(ctx.sampleRate * 0.05), ctx.sampleRate);
+    const d = ruido.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  }
+  const src = ctx.createBufferSource();
+  src.buffer = ruido;
+  const bp = ctx.createBiquadFilter();
+  bp.type = 'bandpass';
+  bp.frequency.value = tipo === 'acento' ? 2800 : tipo === 'pulso' ? 2000 : 1500;
+  bp.Q.value = 2.5;
+  const g = ctx.createGain();
+  const v = tipo === 'acento' ? 1 : tipo === 'pulso' ? 0.6 : 0.28;
+  g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(v, t + 0.001);
+  g.gain.exponentialRampToValueAtTime(0.001, t + 0.04);
+  src.connect(bp).connect(g).connect(metroGain);
+  src.start(t);
+  src.stop(t + 0.05);
+}
+
+function programar() {
+  if (!metroOn) return;
+  const margen = document.hidden ? 1.2 : 0.15;   // en segundo plano los temporizadores van más lentos
+  const [pulsos] = metroCompas();
+  const tpp = ticksPorPulso();
+  while (metroProx < ctx.currentTime + margen) {
+    const enCompas = metroTick % (pulsos * tpp);
+    const esPulso = enCompas % tpp === 0;
+    const tipo = enCompas === 0 && st.acento ? 'acento' : esPulso ? 'pulso' : 'sub';
+    sonidoClick(metroProx, tipo);
+    if (esPulso) eventos.push({ t: metroProx, tipo: 'pulso', pulso: enCompas / tpp });
+    metroProx += 60 / st.bpm / tpp;
+    metroTick++;
+  }
+  programarEjercicio();
+}
+
+function iniciarMetronomo(t0) {
+  audio();
+  metroOn = true;
+  metroProx = t0 !== undefined ? t0 : ctx.currentTime + 0.08;
+  metroTick = 0;
+  clearInterval(metroTimer);
+  metroTimer = setInterval(programar, 25);
+  programar();
+  bucleUI();
+  pintar();
+  wakeLock();
+}
+
+function pararMetronomo() {
+  metroOn = false;
+  clearInterval(metroTimer);
+  eventos = eventos.filter((e) => e.tipo !== 'pulso');
+  if (ej.activo) pararEjercicio();
+  pintarPulsos(-1);
+  pintar();
+  wakeLock();
+}
+
+function alternarMetronomo() { metroOn ? pararMetronomo() : iniciarMetronomo(); }
+
+function ponerBpm(v) {
+  if (ej.activo) return;   // durante un ejercicio el tempo queda fijo
+  st.bpm = Math.max(30, Math.min(250, Math.round(v)));
+  guardar();
+  pintar();
+}
+
+const nombreTempo = (b) => b < 60 ? 'Largo' : b < 76 ? 'Adagio' : b < 108 ? 'Andante' : b < 120 ? 'Moderato' : b < 168 ? 'Allegro' : 'Presto';
+
+let taps = [];
+function tapTempo() {
+  const ahora = performance.now();
+  if (taps.length && ahora - taps[taps.length - 1] > 2000) taps = [];
+  taps.push(ahora);
+  if (taps.length > 5) taps.shift();
+  if (taps.length >= 2) {
+    const media = (taps[taps.length - 1] - taps[0]) / (taps.length - 1);
+    ponerBpm(60000 / media);
+  }
+}
+
+// Interfaz al compás del audio: procesa los eventos cuyo momento ya ha llegado
+let uiAnim = 0;
+function bucleUI() {
+  if (uiAnim) return;
+  const paso = () => {
+    const ahora = ctx.currentTime;
+    const listos = eventos.filter((e) => e.t <= ahora);
+    if (listos.length) {
+      eventos = eventos.filter((e) => e.t > ahora);
+      listos.sort((a, b) => a.t - b.t).forEach((e) => (e.tipo === 'pulso' ? pintarPulsos(e.pulso) : eventoEjercicio(e)));
+    }
+    uiAnim = metroOn || ej.activo || eventos.length ? requestAnimationFrame(paso) : 0;
+  };
+  uiAnim = requestAnimationFrame(paso);
+}
+
+function pintarPulsos(i) {
+  const cont = document.getElementById('pulsos');
+  const [pulsos] = metroCompas();
+  if (cont.children.length !== pulsos) {
+    cont.innerHTML = '';
+    for (let k = 0; k < pulsos; k++) cont.appendChild(Object.assign(document.createElement('i'), { className: k === 0 ? 'uno' : '' }));
+  }
+  [...cont.children].forEach((d, k) => d.classList.toggle('on', k === i));
+  if (i >= 0) {
+    const b = document.getElementById('btnMetro');
+    b.classList.add('latido');
+    setTimeout(() => b.classList.remove('latido'), 90);
+  }
+}
+
+function pintarMetronomo() {
+  document.getElementById('bpmValor').textContent = st.bpm;
+  document.getElementById('bpmNombre').textContent = nombreTempo(st.bpm);
+  const sl = document.getElementById('bpmSlider');
+  if (Number(sl.value) !== st.bpm) sl.value = st.bpm;
+  marcar('segCompas', st.compas);
+  marcar('segSubdiv', String(st.subdiv));
+  const compuesto = metroCompas()[1] > 0;
+  document.querySelectorAll('#segSubdiv button').forEach((b) => { b.disabled = compuesto; });
+  document.getElementById('chAcento').setAttribute('aria-pressed', st.acento);
+  ['bpmMenos', 'bpmMas', 'bpmSlider', 'btnTap'].forEach((id) => { document.getElementById(id).disabled = ej.activo; });
+  document.querySelectorAll('#segCompas button').forEach((b) => { b.disabled = ej.activo; });
+  document.getElementById('metroInfo').textContent = ej.activo
+    ? 'Tempo y compás fijos mientras dura el ejercicio de calentamiento.'
+    : compuesto ? 'En 6/8 el tempo es la negra con puntillo y suenan las tres corcheas.' : '';
+  if (!metroOn) pintarPulsos(-1);
+}
+
+// Pulsar y mantener para repetir (botones − / +)
+function repetir(boton, fn) {
+  let espera = 0, ritmo = 0;
+  const parar = () => { clearTimeout(espera); clearInterval(ritmo); };
+  boton.addEventListener('pointerdown', (e) => {
+    if (boton.disabled) return;
+    e.preventDefault();
+    fn();
+    espera = setTimeout(() => { ritmo = setInterval(fn, 70); }, 400);
+  });
+  ['pointerup', 'pointerleave', 'pointercancel'].forEach((ev) => boton.addEventListener(ev, parar));
+  boton.addEventListener('keydown', (e) => { if (e.key === 'Enter') fn(); });
+}
+
+repetir(document.getElementById('bpmMenos'), () => ponerBpm(st.bpm - 1));
+repetir(document.getElementById('bpmMas'), () => ponerBpm(st.bpm + 1));
+document.getElementById('bpmSlider').addEventListener('input', (e) => ponerBpm(Number(e.target.value)));
+document.getElementById('btnTap').addEventListener('click', tapTempo);
+document.getElementById('chAcento').addEventListener('click', () => { st.acento = !st.acento; guardar(); pintar(); });
+segmento('segCompas', (v) => { if (ej.activo) return; st.compas = v; metroTick = 0; guardar(); pintar(); });
+segmento('segSubdiv', (v) => { st.subdiv = Number(v); guardar(); pintar(); });
+
+// ---------- Calentamiento: la app toca la frase, tú la repites ----------
+const LETRAS_ES = ['Do', 'Re', 'Mi', 'Fa', 'Sol', 'La', 'Si'];
+const NAT = [0, 2, 4, 5, 7, 9, 11];
+const ALT_TXT = { '-2': '𝄫', '-1': '♭', 0: '', 1: '♯', 2: '𝄪' };
+// Tónica de cada tonalidad (letra, alteración) y su armadura (+ sostenidos, − bemoles)
+const TONICAS = [[0, 0], [1, -1], [1, 0], [2, -1], [2, 0], [3, 0], [3, 1], [4, 0], [5, -1], [5, 0], [6, -1], [6, 0]];
+const ARMADURA = [0, -5, 2, -3, 4, -1, 6, 1, -4, 3, -2, 5];
+const ORDEN_SOST = [3, 0, 4, 1, 5, 2, 6], ORDEN_BEM = [6, 2, 5, 1, 4, 0, 3];
+const PASO_SOST = [10, 7, 11, 8, 5, 9, 6], PASO_BEM = [6, 9, 5, 8, 4, 7, 3];   // posición en clave de sol (Do4 = 0)
+
+const BIBLIOTECA = [
+  { id: 'largas', nombre: 'Notas largas', compas: '4/4', notas: 'Sol4:4' },
+  { id: 'flex1', nombre: 'Flexibilidad: Do–Sol', compas: '4/4', notas: 'Do4:2 Sol4:2 | Do4:4' },
+  { id: 'flex2', nombre: 'Flexibilidad: Do–Sol–Do–Mi', compas: '4/4', notas: 'Do4 Sol4 Do5 Mi5 | Do5 Sol4 Do4:2' },
+  { id: 'escala5', nombre: 'Escala de 5 notas', compas: '4/4', notas: 'Do4 Re4 Mi4 Fa4 | Sol4 Fa4 Mi4 Re4 | Do4:4' },
+  { id: 'terceras', nombre: 'Terceras', compas: '4/4', notas: 'Do4 Mi4 Re4 Fa4 | Mi4 Sol4 Fa4 Re4 | Do4:4' },
+  { id: 'arpegio', nombre: 'Arpegio', compas: '4/4', notas: 'Do4 Mi4 Sol4 Do5 | Sol4 Mi4 Do4:2' }
+];
+
+const todosEjercicios = () => BIBLIOTECA.concat(st.ejercicios);
+const ejercicioActual = () => todosEjercicios().find((e) => e.id === st.ejSel) || BIBLIOTECA[0];
+
+// Texto → notas. Admite Do/Re/Mi… y C/D/E… (H = Si), # ♯ b ♭, octava y «:duración» en tiempos.
+function parsear(texto) {
+  const res = [];
+  const leerDur = (d) => {
+    if (d === undefined) return 1;
+    const v = parseFloat(d.replace(',', '.'));
+    if (!(v > 0) || Math.abs(v * 4 - Math.round(v * 4)) > 1e-9 || v > 16) throw new Error('Duración no válida: «' + d + '» (usa múltiplos de 0.25)');
+    return v;
+  };
+  for (const tok of texto.trim().split(/\s+/)) {
+    if (!tok || tok === '|') continue;
+    let m = tok.match(/^(?:_|-)(?::([\d.,]+))?$/);
+    if (m) { res.push({ silencio: true, dur: leerDur(m[1]) }); continue; }
+    m = tok.match(/^(do|re|mi|fa|sol|la|si|[a-h])(#|♯|b|♭)?(\d)(?::([\d.,]+))?$/i);
+    if (!m) throw new Error('No entiendo «' + tok + '». Ejemplo: Do4 Sol4:2 Sib4');
+    const nom = m[1].toLowerCase();
+    const letra = { do: 0, re: 1, mi: 2, fa: 3, sol: 4, la: 5, si: 6, c: 0, d: 1, e: 2, f: 3, g: 4, a: 5, b: 6, h: 6 }[nom];
+    const alt = !m[2] ? 0 : m[2] === '#' || m[2] === '♯' ? 1 : -1;
+    const oct = Number(m[3]);
+    res.push({ letra, alt, oct, midi: 12 * (oct + 1) + NAT[letra] + alt, dur: leerDur(m[4]) });
+  }
+  if (!res.some((n) => !n.silencio)) throw new Error('Escribe al menos una nota.');
+  return res;
+}
+
+// Transporta la frase (escrita en Do) a la tonalidad que está s semitonos por encima, con la ortografía correcta.
+function transponer(base, s) {
+  const pc = mod12(s);
+  const [tl, ta] = TONICAS[pc];
+  const notas = base.map((n) => {
+    if (n.silencio) return n;
+    const midi = n.midi + s;
+    const letra = (n.letra + tl) % 7;
+    let oct = Math.floor(midi / 12) - 1;
+    let alt = midi - (12 * (oct + 1) + NAT[letra]);
+    if (alt > 6) { oct++; alt -= 12; } else if (alt < -6) { oct--; alt += 12; }
+    return { ...n, letra, oct, alt, midi };
+  });
+  return { pc, tonica: LETRAS_ES[tl] + ALT_TXT[ta], armadura: ARMADURA[pc], notas };
+}
+
+const registro = () => (st.notacion === 'bb' ? [54, 86] : [52, 84]);   // trompeta: Fa♯3–Re6 escrito
+const enRegistro = (fr) => fr.notas.every((n) => n.silencio || (n.midi >= registro()[0] && n.midi <= registro()[1]));
+const despl = (k) => (st.ejDir === 'baja' ? -k : st.ejDir === 'sube' ? k : 0);
+
+const ej = { activo: false, fase: '', frase: null, idx: -1, esperada: null, ciclo: 0, cicloVis: 0, fuentes: [] };
+let fraseGain = null;
+
+// Una nota de la frase con la trompeta real: ataque grabado y luego el bucle sostenido
+function tocarNota(midiReal, t, d) {
+  if (!fraseGain) { fraseGain = ctx.createGain(); fraseGain.gain.value = 1; fraseGain.connect(master); }
+  const f = frecuencia(midiReal);
+  const g = ctx.createGain();
+  const fin = t + Math.max(d - 0.03, 0.08);
+  let src;
+  if (muestras) {
+    const m = muestraPara(f);
+    src = ctx.createBufferSource();
+    src.buffer = m.buffer;
+    src.loop = true;
+    [src.loopStart, src.loopEnd] = m.bucle;
+    src.playbackRate.value = f / m.f;
+    g.gain.setValueAtTime(3.2, t);
+  } else {
+    src = ctx.createOscillator();
+    src.setPeriodicWave(onda('trompeta'));
+    src.frequency.value = f;
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(0.5, t + 0.03);
+  }
+  g.gain.setValueAtTime(muestras ? 3.2 : 0.5, fin - 0.06);
+  g.gain.linearRampToValueAtTime(0, fin);
+  src.connect(g).connect(fraseGain);
+  src.start(t);
+  src.stop(fin + 0.02);
+  ej.fuentes.push(src);
+}
+
+async function empezarEjercicio() {
+  const err = document.getElementById('ejError');
+  err.hidden = true;
+  const def = ejercicioActual();
+  let base;
+  try { base = parsear(def.notas); } catch (e) { err.textContent = e.message; err.hidden = false; return; }
+  audio();
+  try { await cargarMuestras(); } catch (e) { /* sin muestras: trompeta sintética */ }
+  if (!afOn) await alternarAfinador();   // el micro escucha en tu turno
+  st.compas = def.compas;
+  const [pulsos] = metroCompas();
+  const spb = 60 / st.bpm;
+  const t0 = ctx.currentTime + 0.2;
+  Object.assign(ej, {
+    activo: true, def, base, pulsos, spb, ciclo: 0, cicloVis: 0, total: st.ejN, fin: false,
+    proxT: t0 + pulsos * spb,   // un compás de entrada con el metrónomo
+    fase: 'preparados', frase: transponer(base, 0), idx: -1, esperada: null, fuentes: []
+  });
+  micPausa = true;
+  iniciarMetronomo(t0);
+}
+
+function programarEjercicio() {
+  if (!ej.activo || ej.fin) return;
+  while (!ej.fin && ej.proxT < ctx.currentTime + 0.6) {
+    const fr = ej.ciclo < ej.total ? transponer(ej.base, despl(ej.ciclo)) : null;
+    if (!fr || !enRegistro(fr)) {
+      eventos.push({ t: ej.proxT, tipo: 'fin', motivo: fr ? 'registro' : 'completo' });
+      ej.fin = true;
+      break;
+    }
+    const tiempos = fr.notas.reduce((a, n) => a + n.dur, 0);
+    const P = Math.ceil(tiempos / ej.pulsos - 1e-9) * ej.pulsos * ej.spb;   // la frase ocupa compases enteros
+    const t0 = ej.proxT;
+    eventos.push({ t: t0, tipo: 'escucha', frase: fr, ciclo: ej.ciclo });
+    eventos.push({ t: t0 + P, tipo: 'turno' });
+    let off = 0;
+    fr.notas.forEach((n, i) => {
+      if (!n.silencio) tocarNota(n.midi - transp(), t0 + off * ej.spb, n.dur * ej.spb);
+      eventos.push({ t: t0 + off * ej.spb, tipo: 'nota', idx: i });
+      eventos.push({ t: t0 + P + off * ej.spb, tipo: 'esperada', idx: i });
+      off += n.dur;
+    });
+    ej.proxT = t0 + 2 * P;
+    ej.ciclo++;
+  }
+}
+
+function eventoEjercicio(e) {
+  if (!ej.activo) return;
+  if (e.tipo === 'escucha') {
+    Object.assign(ej, { fase: 'escucha', frase: e.frase, cicloVis: e.ciclo, idx: -1, esperada: null });
+    micPausa = true;
+    mostrarLectura(null);
+    if (droneOn && st.ejDrone) {   // el drone pasa a la tónica de la nueva tonalidad
+      st.raiz = e.frase.pc + 12 * (OCTAVA_NUM[st.octava] + 1) - transp();
+      actualizarDrone();
+    }
+  } else if (e.tipo === 'nota') {
+    ej.idx = e.idx;
+  } else if (e.tipo === 'turno') {
+    ej.fase = 'turno';
+    ej.idx = -1;
+    reiniciarDeteccion();
+    micPausa = false;
+  } else if (e.tipo === 'esperada') {
+    ej.idx = e.idx;
+    const n = ej.frase.notas[e.idx];
+    ej.esperada = n.silencio ? null : n;
+  } else if (e.tipo === 'fin') {
+    pararEjercicio(e.motivo);
+    return;
+  }
+  pintar();
+}
+
+function pararEjercicio(motivo) {
+  if (!ej.activo) return;
+  ej.activo = false;
+  const t = ctx.currentTime;
+  ej.fuentes.forEach((f) => { try { f.stop(t + 0.03); } catch (e) {} });
+  ej.fuentes = [];
+  eventos = eventos.filter((e) => e.tipo === 'pulso');
+  micPausa = false;
+  Object.assign(ej, { fase: motivo === 'registro' ? 'registro' : motivo === 'completo' ? 'completo' : '', idx: -1, esperada: null });
+  if (metroOn) pararMetronomo();
+  pintar();
+}
+
+function pintarEjercicio() {
+  const sel = document.getElementById('ejSel');
+  const firma = st.ejSel + '|' + todosEjercicios().map((e) => e.id + e.nombre).join();
+  if (sel.dataset.firma !== firma) {
+    sel.innerHTML = '';
+    const grupo = (titulo, lista) => {
+      if (!lista.length) return;
+      const g = document.createElement('optgroup');
+      g.label = titulo;
+      lista.forEach((e) => g.appendChild(new Option(e.nombre, e.id)));
+      sel.appendChild(g);
+    };
+    grupo('Incluidos', BIBLIOTECA);
+    grupo('Míos', st.ejercicios);
+    sel.value = ejercicioActual().id;
+    sel.dataset.firma = firma;
+  }
+  sel.disabled = ej.activo;
+  document.getElementById('ejEditar').disabled = ej.activo;
+  document.getElementById('ejNuevo').disabled = ej.activo;
+
+  let frase = ej.activo ? ej.frase : null;
+  if (!frase) {
+    try { frase = transponer(parsear(ejercicioActual().notas), 0); } catch (e) { frase = null; }
+  }
+  const fase = document.getElementById('ejFase');
+  const textos = { preparados: 'Preparados…', escucha: 'Escucha', turno: 'Tu turno', registro: 'Fin: fuera de registro', completo: 'Terminado' };
+  fase.textContent = textos[ej.fase] || 'Listo';
+  fase.className = 'fase ' + (ej.activo ? ej.fase : '');
+  document.getElementById('ejTono').textContent = frase ? frase.tonica + ' mayor' : '';
+  document.getElementById('ejCiclo').textContent = ej.activo && ej.fase !== 'preparados' ? (ej.cicloVis + 1) + ' / ' + ej.total : '';
+
+  const svg = document.getElementById('ejPenta');
+  const xs = frase ? dibujarPentagrama(svg, frase, ejercicioActual().compas, ej.activo ? ej.idx : -1, ej.fase === 'turno' ? 'turno' : 'actual') : [];
+  if (ej.activo && ej.idx >= 0 && xs[ej.idx] !== undefined) {
+    const cont = document.getElementById('ejPentaCont');
+    const objetivo = xs[ej.idx] - cont.clientWidth / 3;
+    if (Math.abs(cont.scrollLeft - objetivo) > cont.clientWidth / 3) cont.scrollLeft = objetivo;
+  }
+
+  const n = ej.activo ? (ej.fase === 'turno' ? ej.esperada : ej.frase && ej.idx >= 0 ? ej.frase.notas[ej.idx] : null) : null;
+  document.getElementById('ejNotaEtq').textContent = ej.fase === 'turno' ? 'Toca' : ej.activo ? 'Escucha' : 'Toca';
+  document.getElementById('ejNota').textContent = n && !n.silencio ? LETRAS_ES[n.letra] + ALT_TXT[n.alt] : '–';
+  document.getElementById('ejOct').textContent = n && !n.silencio ? n.oct : '';
+
+  marcar('segEjDir', st.ejDir);
+  document.querySelectorAll('#segEjDir button').forEach((b) => { b.disabled = ej.activo; });
+  document.getElementById('ejN').textContent = st.ejN;
+  document.getElementById('ejNMenos').disabled = ej.activo;
+  document.getElementById('ejNMas').disabled = ej.activo;
+  document.getElementById('chEjDrone').setAttribute('aria-pressed', st.ejDrone);
+  document.getElementById('ejInfo').textContent = '♩ = ' + st.bpm + ' · compás ' + ejercicioActual().compas
+    + ' · el tempo se cambia en Metrónomo' + (st.ejDrone && !droneOn ? ' · enciende el drone para oír la tónica' : '');
+  const b = document.getElementById('btnEj');
+  b.textContent = ej.activo ? '■ Parar' : '▶ Empezar';
+  b.classList.toggle('parar', ej.activo);
+}
+
+document.getElementById('btnEj').addEventListener('click', () => (ej.activo ? pararEjercicio() : empezarEjercicio()));
+document.getElementById('ejSel').addEventListener('change', (e) => { st.ejSel = e.target.value; guardar(); pintar(); });
+segmento('segEjDir', (v) => { st.ejDir = v; guardar(); pintar(); });
+document.getElementById('ejNMenos').addEventListener('click', () => { st.ejN = Math.max(1, st.ejN - 1); guardar(); pintar(); });
+document.getElementById('ejNMas').addEventListener('click', () => { st.ejN = Math.min(12, st.ejN + 1); guardar(); pintar(); });
+document.getElementById('chEjDrone').addEventListener('click', () => { st.ejDrone = !st.ejDrone; guardar(); pintar(); });
+
+// ---------- Pentagrama (SVG propio, sin librerías) ----------
+const ESP = 10;                                    // separación entre líneas
+const yPaso = (paso) => 70 - (paso - 2) * ESP / 2; // paso diatónico: Do4 = 0, Mi4 (1ª línea) = 2
+const CLAVE_SOL = 'M15 61 C9 61 8 53 14 51 C22 49 26 58 22 65 C18 72 4 70 3 60 C2 50 12 42 20 34 '
+  + 'C26 27 25 16 20 16 C14 16 12 26 14 40 L19 82 C20 90 12 92 9 87';
+const FIGURAS = [4, 3, 2, 1.5, 1, 0.75, 0.5, 0.25];
+
+// Devuelve la x de cada nota (índice de la frase) para poder seguirla con el scroll
+function dibujarPentagrama(svg, frase, compas, idxResalte, claseResalte) {
+  const pulsos = Number(compas.split('/')[0]);
+  const arm = frase.armadura;
+  let o = '';
+  let x = 6;
+  o += `<path d="${CLAVE_SOL}" transform="translate(${x} 0)" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>`;
+  o += `<circle cx="${x + 9}" cy="87" r="3.2" fill="currentColor"/>`;
+  x += 34;
+  for (let i = 0; i < Math.abs(arm); i++) {
+    const paso = arm > 0 ? PASO_SOST[i] : PASO_BEM[i];
+    o += `<text x="${x}" y="${yPaso(paso) + (arm > 0 ? 5 : 3)}" font-size="17" fill="currentColor">${arm > 0 ? '♯' : '♭'}</text>`;
+    x += 9;
+  }
+  x += 6;
+  const [num, den] = compas.split('/');
+  o += `<text x="${x + 8}" y="47" font-size="22" font-weight="700" font-family="Georgia, serif" text-anchor="middle" fill="currentColor">${num}</text>`;
+  o += `<text x="${x + 8}" y="67" font-size="22" font-weight="700" font-family="Georgia, serif" text-anchor="middle" fill="currentColor">${den}</text>`;
+  x += 30;
+
+  const altArm = (letra) => {
+    if (arm > 0) return ORDEN_SOST.indexOf(letra) < arm ? 1 : 0;
+    if (arm < 0) return ORDEN_BEM.indexOf(letra) < -arm ? -1 : 0;
+    return 0;
+  };
+  const xs = [];
+  let pos = 0;
+  let vigentes = {};   // alteraciones accidentales vigentes en el compás: "letra-octava" → alteración
+  let anterior = null; // última figura dibujada (para las ligaduras)
+  frase.notas.forEach((n, i) => {
+    let resto = n.dur;
+    let primera = true;
+    while (resto > 1e-9) {
+      const hueco = pulsos - (pos % pulsos);
+      let trozo = Math.min(resto, hueco);
+      const v = FIGURAS.find((f) => f <= trozo + 1e-9) || 0.25;
+      const clase = i === idxResalte ? claseResalte : '';
+      if (primera) xs[i] = x;
+      if (n.silencio) {
+        o += silencioSVG(x, v, clase);
+        anterior = null;
+      } else {
+        const paso = n.letra + 7 * (n.oct - 4);
+        const y = yPaso(paso);
+        const clave = n.letra + '-' + n.oct;
+        const vigente = clave in vigentes ? vigentes[clave] : altArm(n.letra);
+        if (primera && n.alt !== vigente) {
+          x += 9;   // hueco para la alteración
+          xs[i] = x;
+          o += `<text x="${x - 2}" y="${y + 5}" font-size="16" text-anchor="end" class="${clase}" fill="currentColor">${n.alt === 0 ? '♮' : ALT_TXT[n.alt]}</text>`;
+          vigentes[clave] = n.alt;
+        }
+        o += figuraSVG(x, paso, v, clase);
+        if (!primera && anterior) {
+          const abajo = paso < 6;
+          const yy = y + (abajo ? 7 : -7);
+          o += `<path d="M${anterior + 4} ${yy} Q${(anterior + x) / 2} ${yy + (abajo ? 8 : -8)} ${x - 4} ${yy}" fill="none" stroke="currentColor" stroke-width="1.3"/>`;
+        }
+        anterior = x;
+      }
+      x += 18 + 13 * Math.sqrt(v);
+      pos += v;
+      resto -= v;
+      primera = false;
+      const ultima = i === frase.notas.length - 1 && resto <= 1e-9;
+      if (Math.abs(pos % pulsos) < 1e-9 && !ultima) {   // barra de compás (la última la pone la doble barra)
+        o += `<line class="linea" x1="${x - 6}" y1="30" x2="${x - 6}" y2="70"/>`;
+        vigentes = {};
+        x += 6;
+      }
+    }
+  });
+  // doble barra final
+  x -= 4;
+  o += `<line class="linea" x1="${x}" y1="30" x2="${x}" y2="70"/><line x1="${x + 5}" y1="30" x2="${x + 5}" y2="70" stroke="currentColor" stroke-width="3"/>`;
+  x += 10;
+  let lineas = '';
+  for (let k = 0; k < 5; k++) lineas += `<line class="linea" x1="2" y1="${30 + k * ESP}" x2="${x}" y2="${30 + k * ESP}"/>`;
+  svg.setAttribute('viewBox', `0 0 ${x + 4} 116`);
+  svg.setAttribute('width', (x + 4) * 100 / 116);   // misma escala que la altura en CSS (100 px)
+  svg.innerHTML = lineas + o;
+  return xs;
+}
+
+function figuraSVG(x, paso, v, clase) {
+  const y = yPaso(paso);
+  let o = `<g class="${clase}" fill="currentColor" stroke="currentColor">`;
+  // líneas adicionales
+  for (let p = 0; p >= paso; p -= 2) o += `<line x1="${x - 9}" y1="${yPaso(p)}" x2="${x + 9}" y2="${yPaso(p)}" stroke-width="1.2"/>`;
+  for (let p = 12; p <= paso; p += 2) o += `<line x1="${x - 9}" y1="${yPaso(p)}" x2="${x + 9}" y2="${yPaso(p)}" stroke-width="1.2"/>`;
+  const hueca = v >= 2;
+  o += `<ellipse cx="${x}" cy="${y}" rx="5.8" ry="4.1" transform="rotate(-20 ${x} ${y})" ${hueca ? 'fill="none" stroke-width="1.7"' : 'stroke="none"'}/>`;
+  if (v < 4) {
+    const arriba = paso < 6;
+    const sx = arriba ? x + 5.2 : x - 5.2;
+    const sy = arriba ? Math.min(y - 30, 50) : Math.max(y + 30, 50);   // con líneas adicionales, la plica llega a la línea central
+    o += `<line x1="${sx}" y1="${y + (arriba ? -1 : 1)}" x2="${sx}" y2="${sy}" stroke-width="1.4"/>`;
+    const banderas = v <= 0.25 ? 2 : v <= 0.75 ? 1 : 0;
+    for (let k = 0; k < banderas; k++) {
+      const by = sy + (arriba ? 1 : -1) * k * 7;
+      o += arriba
+        ? `<path d="M${sx} ${by} c1 5 9 7 8 15 c-1 -5 -4 -7 -8 -8 z" stroke="none"/>`
+        : `<path d="M${sx} ${by} c1 -5 9 -7 8 -15 c-1 5 -4 7 -8 8 z" stroke="none"/>`;
+    }
+  }
+  if ([3, 1.5, 0.75].includes(v)) o += `<circle cx="${x + 10}" cy="${(paso - 2) % 2 === 0 ? y - 4 : y}" r="1.9" stroke="none"/>`;
+  return o + '</g>';
+}
+
+function silencioSVG(x, v, clase) {
+  let o = `<g class="${clase}" fill="currentColor" stroke="currentColor">`;
+  if (v >= 4) o += `<rect x="${x - 6}" y="40" width="12" height="5" stroke="none"/>`;
+  else if (v >= 2) o += `<rect x="${x - 6}" y="45" width="12" height="5" stroke="none"/>`;
+  else if (v >= 1) o += `<path d="M${x - 2} 37 l5 6 l-4 5 l5 6 q-6 -2 -5 4 q-5 -5 1 -7 l-5 -6 l4 -5 z" stroke="none"/>`;
+  else o += `<circle cx="${x - 2}" cy="47" r="2.4" stroke="none"/><path d="M${x - 2} 47 q4 1 6 -2 l-5 15" fill="none" stroke-width="1.4"/>`;
+  if ([3, 1.5, 0.75].includes(v)) o += `<circle cx="${x + 9}" cy="45" r="1.9" stroke="none"/>`;
+  return o + '</g>';
+}
+
+// ---------- Editor de ejercicios ----------
+const dlgEj = document.getElementById('dlgEj');
+let editando = null;   // id del ejercicio propio que se edita (null = nuevo)
+
+function abrirEditor(nuevo) {
+  const actual = ejercicioActual();
+  const propio = !nuevo && st.ejercicios.some((e) => e.id === actual.id);
+  editando = propio ? actual.id : null;
+  document.getElementById('edTitulo').textContent = propio ? 'Editar ejercicio' : nuevo ? 'Nuevo ejercicio' : 'Copiar ejercicio';
+  document.getElementById('edNombre').value = nuevo ? '' : propio ? actual.nombre : actual.nombre + ' (mío)';
+  document.getElementById('edCompas').value = nuevo ? '4/4' : actual.compas;
+  document.getElementById('edNotas').value = nuevo ? 'Do4 Re4 Mi4 Fa4 | Sol4:4' : actual.notas;
+  document.getElementById('edBorrar').hidden = !propio;
+  previsualizar();
+  dlgEj.showModal();
+}
+
+function previsualizar() {
+  const err = document.getElementById('edError');
+  try {
+    const notas = parsear(document.getElementById('edNotas').value);
+    dibujarPentagrama(document.getElementById('edPenta'), transponer(notas, 0), document.getElementById('edCompas').value, -1, '');
+    err.hidden = true;
+    return true;
+  } catch (e) {
+    err.textContent = e.message;
+    err.hidden = false;
+    return false;
+  }
+}
+
+document.getElementById('ejEditar').addEventListener('click', () => abrirEditor(false));
+document.getElementById('ejNuevo').addEventListener('click', () => abrirEditor(true));
+document.getElementById('edNotas').addEventListener('input', previsualizar);
+document.getElementById('edCompas').addEventListener('change', previsualizar);
+document.getElementById('edCancelar').addEventListener('click', () => dlgEj.close());
+document.getElementById('edGuardar').addEventListener('click', () => {
+  if (!previsualizar()) return;
+  const datos = {
+    nombre: document.getElementById('edNombre').value.trim() || 'Mi ejercicio',
+    compas: document.getElementById('edCompas').value,
+    notas: document.getElementById('edNotas').value.trim().replace(/\s+/g, ' ')
+  };
+  if (editando) Object.assign(st.ejercicios.find((e) => e.id === editando), datos);
+  else { const id = 'u' + Date.now(); st.ejercicios.push({ id, ...datos }); st.ejSel = id; }
+  guardar();
+  dlgEj.close();
+  pintar();
+});
+document.getElementById('edBorrar').addEventListener('click', () => {
+  if (!editando || !confirm('¿Borrar este ejercicio?')) return;
+  st.ejercicios = st.ejercicios.filter((e) => e.id !== editando);
+  st.ejSel = BIBLIOTECA[0].id;
+  guardar();
+  dlgEj.close();
+  pintar();
+});
 
 // ---------- Pantalla siempre encendida ----------
 let bloqueo = null;
 async function wakeLock() {
-  const quiero = droneOn || afOn;
+  const quiero = droneOn || afOn || metroOn;
   if (quiero && !bloqueo && 'wakeLock' in navigator && document.visibilityState === 'visible') {
     try {
       bloqueo = await navigator.wakeLock.request('screen');
@@ -941,7 +1731,7 @@ async function wakeLock() {
 }
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible') {
-    if (ctx && (droneOn || afOn)) ctx.resume();
+    if (ctx && (droneOn || afOn || metroOn)) ctx.resume();
     wakeLock();
   }
 });
@@ -975,21 +1765,30 @@ function pintar() {
     ? 'Frecuencia del Si4 escrito (La4 real) para el drone y el afinador.'
     : 'Frecuencia del La4 para el drone y el afinador.';
   document.getElementById('laGrande').textContent = st.la;
-  document.querySelectorAll('#laPresets button').forEach((b) => b.setAttribute('aria-pressed', String(Number(b.dataset.v) === st.la)));
   document.getElementById('droneHz').textContent = fmt(frecuencia(st.raiz), 1) + ' Hz';
 
   document.querySelectorAll('.pestanas button').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.v === st.pestana)));
   document.getElementById('panelDrone').hidden = st.pestana !== 'drone';
   document.getElementById('panelAfinador').hidden = st.pestana !== 'afinador';
-  document.getElementById('puntoDrone').hidden = !droneOn;      // indica que suena aunque estés en la otra pestaña
+  document.getElementById('panelMetro').hidden = st.pestana !== 'metro';
+  document.getElementById('panelEj').hidden = st.pestana !== 'ej';
+  document.getElementById('puntoDrone').hidden = !droneOn;      // indica que suena aunque estés en otra pestaña
   document.getElementById('puntoAfinador').hidden = !afOn;
+  document.getElementById('puntoMetro').hidden = !metroOn;
+  document.getElementById('puntoEj').hidden = !ej.activo;
 
   const bd = document.getElementById('btnDrone');
   bd.setAttribute('aria-pressed', droneOn);
-  bd.textContent = droneOn ? '■ Parar drone' : '▶ Drone';
+  bd.textContent = droneOn ? '■ Drone' : '▶ Drone';
+  const bm = document.getElementById('btnMetro');
+  bm.setAttribute('aria-pressed', metroOn);
+  bm.textContent = (metroOn ? '■ ' : '♩ ') + st.bpm;
   const ba = document.getElementById('btnAfinador');
   ba.setAttribute('aria-pressed', afOn);
-  ba.textContent = afOn ? '■ Parar afinador' : '🎤 Afinador';
+  ba.textContent = afOn ? '■ Afinador' : '🎤 Afinador';
+
+  pintarMetronomo();
+  pintarEjercicio();
 
   const hint = document.getElementById('afHint');
   if (st.modo === 'justo') {
@@ -1043,6 +1842,13 @@ document.addEventListener('keydown', (e) => {
     e.preventDefault();
     if (document.activeElement) document.activeElement.blur();   // que no "pulse" también el botón con foco
     alternarDrone();
+  } else if (e.code === 'KeyM') {
+    alternarMetronomo();
+  } else if (e.code === 'KeyT') {
+    alternarAfinador();
+  } else if (e.code === 'ArrowLeft' || e.code === 'ArrowRight') {
+    e.preventDefault();
+    ponerBpm(st.bpm + (e.code === 'ArrowRight' ? 1 : -1) * (e.shiftKey ? 5 : 1));
   } else if (e.code === 'ArrowUp' || e.code === 'ArrowDown') {
     e.preventDefault();
     const i = ORDEN_OCTAVAS.indexOf(st.octava) + (e.code === 'ArrowUp' ? 1 : -1);
@@ -1074,6 +1880,7 @@ document.getElementById('chOctava').addEventListener('click', () => { st.octavaS
 document.getElementById('chFiltro').addEventListener('click', () => { st.filtro = !st.filtro; guardar(); conectarFiltros(); pintar(); });
 document.getElementById('btnDrone').addEventListener('click', alternarDrone);
 document.getElementById('btnAfinador').addEventListener('click', alternarAfinador);
+document.getElementById('btnMetro').addEventListener('click', alternarMetronomo);
 
 // Aviso de auriculares: ventana emergente la primera vez que se activa el drone
 const aviso = document.getElementById('aviso');
@@ -1099,7 +1906,6 @@ function ponerLa(hz) {
 document.getElementById('btnLa').addEventListener('click', () => dlgLa.showModal());
 document.getElementById('laMenos').addEventListener('click', () => ponerLa(st.la - 1));
 document.getElementById('laMas').addEventListener('click', () => ponerLa(st.la + 1));
-document.querySelectorAll('#laPresets button').forEach((b) => b.addEventListener('click', () => ponerLa(Number(b.dataset.v))));
 document.getElementById('laOk').addEventListener('click', () => dlgLa.close());
 dlgLa.addEventListener('click', (e) => { if (e.target === dlgLa) dlgLa.close(); });
 

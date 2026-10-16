@@ -1,12 +1,17 @@
 # Drone Trompeta
 
-App web instalable (PWA) con un drone de afinación y un afinador para trompeta, cada uno en su pestaña. Funciona sin conexión en Android y en Windows.
+App web instalable (PWA) para estudiar trompeta: drone, afinador, metrónomo y calentamiento de pregunta y respuesta. Funciona sin conexión en Android y en Windows.
 
 - **Drone**: 12 notas, octava grave/media/aguda, quinta justa y octava opcionales, y timbres puro, órgano y trompeta. La trompeta usa grabaciones reales.
 - **Afinador**: aguja clásica (−50 a +50 cents, verde ±5 c, ámbar ±15 c) con movimiento amortiguado, nota y desviación en cents. Mide contra el temperamento igual o contra la afinación justa respecto al drone.
 - **Notación**: Si♭ (escrita para trompeta) o Do (sonido real).
 - **Diapasón**: ajustable de 415 a 460 Hz (442 por defecto) desde el botón de la cabecera. En notación Si♭ se muestra como Si4 (el La4 real escrito para trompeta) y en Do como La4.
 - **Filtro anti-drone**: quita del micrófono la frecuencia del drone y sus armónicos para que el afinador detecte tu nota. Con auriculares puedes desactivarlo.
+- **Metrónomo**: de 30 a 250 bpm, con − / + (mantén pulsado), deslizador y tap tempo. Compases 2/4, 3/4, 4/4 y 6/8, subdivisiones y acento en el primer tiempo.
+- **Calentamiento**: la app toca la frase con trompeta real y tú la repites en los compases siguientes. Después se transporta medio tono (bajando, subiendo o igual). El pentagrama muestra la frase con clave de sol, armadura y alteraciones. En tu turno, la aguja mide respecto a la nota que toca. El drone puede seguir la tónica.
+- **Editor de ejercicios**: escribe tus frases en texto (`Do4 Sol4 Do5:2 | Mi5:4`) con vista previa en el pentagrama.
+- **Barra de transporte**: drone, metrónomo y afinador se encienden y apagan desde cualquier pestaña.
+- **Teclado** (ordenador): C–B notas, Mayús = ♯, Espacio drone, ↑↓ octava, M metrónomo, ←→ tempo, T afinador.
 - La pantalla no se apaga mientras suena el drone o está activo el afinador.
 
 ## Archivos
@@ -16,7 +21,7 @@ index.html          app completa (HTML + CSS + JS)
 manifest.json       nombre, iconos, modo standalone y vertical
 service-worker.js   caché para usarla sin conexión
 icons/              icon.svg, icon-192.png, icon-512.png
-audio/              bucles de trompeta real (7 notas, Mi3–Si♭5)
+audio/              trompeta real: ataque + bucle sostenido (7 notas, Mi3–Si♭5)
 ```
 
 ---
