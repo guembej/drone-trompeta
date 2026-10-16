@@ -877,6 +877,7 @@ async function alternarDrone() {
   wakeLock();
   if (droneOn) {
     mostrarAviso();
+    if (droneSigueEjercicio()) st.raiz = tonicaDrone();   // con un ejercicio en marcha, arranca ya en la tónica
     await prepararTimbre();
     if (!droneOn || grupo) return;   // se paró (o ya arrancó) mientras cargaban las muestras
     grupo = crearGrupo();
@@ -1498,7 +1499,7 @@ function eventoEjercicio(e) {
     micPausa = true;
     mostrarLectura(null);
     if (droneOn && st.ejDrone) {   // el drone pasa a la tónica de la nueva tonalidad
-      st.raiz = e.frase.pc + 12 * (OCTAVA_NUM[st.octava] + 1) - transp();
+      st.raiz = tonicaDrone();
       actualizarDrone();
     }
   } else if (e.tipo === 'nota') {
@@ -1518,6 +1519,18 @@ function eventoEjercicio(e) {
   }
   pintar();
 }
+
+// Tónica de la tonalidad en curso, en la octava más cercana a la nota que tenía el drone (sin saltos de octava)
+function tonicaDrone() {
+  const actual = st.raiz + transp();   // en la notación que se muestra
+  let mejor = null;
+  for (let k = 3; k <= 6; k++) {
+    const c = ej.frase.pc + 12 * k;
+    if (mejor === null || Math.abs(c - actual) < Math.abs(mejor - actual)) mejor = c;
+  }
+  return mejor - transp();
+}
+const droneSigueEjercicio = () => ej.activo && ej.frase && st.ejDrone;
 
 function pararEjercicio(motivo) {
   if (!ej.activo) return;
@@ -1596,7 +1609,12 @@ repetir(document.getElementById('ejBpmMenos'), () => ponerBpm(st.bpm - 1));
 repetir(document.getElementById('ejBpmMas'), () => ponerBpm(st.bpm + 1));
 document.getElementById('ejNMenos').addEventListener('click', () => { st.ejN = Math.max(1, st.ejN - 1); guardar(); pintar(); });
 document.getElementById('ejNMas').addEventListener('click', () => { st.ejN = Math.min(12, st.ejN + 1); guardar(); pintar(); });
-document.getElementById('chEjDrone').addEventListener('click', () => { st.ejDrone = !st.ejDrone; guardar(); pintar(); });
+document.getElementById('chEjDrone').addEventListener('click', () => {
+  st.ejDrone = !st.ejDrone;
+  if (droneOn && droneSigueEjercicio()) { st.raiz = tonicaDrone(); actualizarDrone(); }   // efecto inmediato
+  guardar();
+  pintar();
+});
 
 // ---------- Pentagrama (SVG propio, sin librerías) ----------
 const ESP = 10;                                    // separación entre líneas
