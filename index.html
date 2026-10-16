@@ -54,6 +54,44 @@
     margin: 0 auto;
   }
   .top h1 { font-size: 1.25rem; margin: 0; font-weight: 700; letter-spacing: .01em; }
+  .top .derecha { display: flex; align-items: center; gap: 8px; }
+  .btn-la {
+    min-height: 46px;
+    padding: 0 10px;
+    border: 1px solid var(--borde);
+    border-radius: 12px;
+    background: var(--panel-2);
+    color: var(--suave);
+    font-weight: 600;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+  .btn-la b { color: var(--texto); }
+  @media (max-width: 400px) { .top h1 { font-size: 1.05rem; } }
+
+  /* Ventana del diapasón */
+  .dlg-la .valor { font-size: 3rem; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1; }
+  .dlg-la .valor small { font-size: 1.1rem; color: var(--suave); font-weight: 600; }
+  .dlg-la .ajuste { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 14px 0; }
+  .dlg-la .ajuste button {
+    width: 64px; min-height: 56px;
+    border: 1px solid var(--borde);
+    border-radius: 14px;
+    background: var(--panel-2);
+    color: var(--texto);
+    font-size: 1.6rem;
+    font-weight: 700;
+  }
+  .dlg-la .presets { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 16px; }
+  .dlg-la .presets button {
+    min-height: 44px;
+    border: 1px solid var(--borde);
+    border-radius: 10px;
+    background: var(--panel-2);
+    color: var(--suave);
+    font-weight: 600;
+  }
+  .dlg-la .presets button[aria-pressed="true"] { border-color: var(--acento); color: var(--acento); }
   .top h1 span { color: var(--acento); }
 
   /* Aviso de auriculares */
@@ -329,11 +367,31 @@
 
 <header class="top">
   <h1>Drone <span>Trompeta</span></h1>
-  <div class="seg" id="segNotacion" role="group" aria-label="Notación">
-    <button data-v="bb">Si♭</button>
-    <button data-v="do">Do</button>
+  <div class="derecha">
+    <button class="btn-la" id="btnLa" aria-label="Diapasón">La <b id="laValor">442</b></button>
+    <div class="seg" id="segNotacion" role="group" aria-label="Notación">
+      <button data-v="bb">Si♭</button>
+      <button data-v="do">Do</button>
+    </div>
   </div>
 </header>
+
+<dialog class="aviso dlg-la" id="dlgLa">
+  <h3>Diapasón</h3>
+  <p>Frecuencia del La4 para el drone y el afinador.</p>
+  <div class="ajuste">
+    <button id="laMenos" aria-label="Bajar 1 Hz">−</button>
+    <div class="valor"><span id="laGrande">442</span> <small>Hz</small></div>
+    <button id="laMas" aria-label="Subir 1 Hz">+</button>
+  </div>
+  <div class="presets" id="laPresets">
+    <button data-v="440">440</button>
+    <button data-v="441">441</button>
+    <button data-v="442">442</button>
+    <button data-v="443">443</button>
+  </div>
+  <button id="laOk">Listo</button>
+</dialog>
 
 <dialog class="aviso" id="aviso">
   <div class="icono" aria-hidden="true">🎧</div>
@@ -416,7 +474,7 @@
 'use strict';
 
 // ---------- Constantes musicales ----------
-const LA4 = 442;
+const LA_MIN = 415, LA_MAX = 460;
 const NOMBRES = ['Do', 'Do♯', 'Re', 'Mi♭', 'Mi', 'Fa', 'Fa♯', 'Sol', 'La♭', 'La', 'Si♭', 'Si'];
 const INTERVALOS = ['unísono', '2ª m', '2ª M', '3ª m', '3ª M', '4ª J', 'tritono', '5ª J', '6ª m', '6ª M', '7ª m', '7ª M'];
 // Desviación (cents) del intervalo justo respecto al temperado: 16/15, 9/8, 6/5, 5/4, 4/3, 45/32, 3/2, 8/5, 5/3, 9/5, 15/8
@@ -424,7 +482,7 @@ const JUSTO = [0, 11.73, 3.91, 15.64, -13.69, -1.96, -9.78, 1.96, 13.69, -15.64,
 const OCTAVA_NUM = { grave: 3, media: 4, aguda: 5 }; // octava en la notación que se muestra
 
 const mod12 = (n) => ((n % 12) + 12) % 12;
-const frecuencia = (midi) => LA4 * Math.pow(2, (midi - 69) / 12);
+const frecuencia = (midi) => st.la * Math.pow(2, (midi - 69) / 12);
 
 // ---------- Estado persistente ----------
 const PREDETERMINADO = {
@@ -436,12 +494,14 @@ const PREDETERMINADO = {
   timbre: 'organo',
   modo: 'temperado',
   filtro: true,
+  la: 442,           // diapasón (Hz)
   avisoVisto: false,
   pestana: 'drone'
 };
 let st = { ...PREDETERMINADO };
 try { Object.assign(st, JSON.parse(localStorage.getItem('droneTrompeta') || '{}')); } catch (e) {}
 if (!['pura', 'organo', 'trompeta'].includes(st.timbre)) st.timbre = 'organo'; // el timbre «cuerda» ya no existe
+if (!(st.la >= LA_MIN && st.la <= LA_MAX)) st.la = 442;
 function guardar() { try { localStorage.setItem('droneTrompeta', JSON.stringify(st)); } catch (e) {} }
 
 const transp = () => (st.notacion === 'bb' ? 2 : 0);   // Si♭: escrito = real + 2 semitonos
@@ -801,7 +861,7 @@ function bucle() {
 }
 
 function procesar(f) {
-  const midiF = 69 + 12 * Math.log2(f / LA4);
+  const midiF = 69 + 12 * Math.log2(f / st.la);
   const n = Math.round(midiF);
   let cents = (midiF - n) * 100;
   let intervalo = null;
@@ -887,6 +947,9 @@ function pintar() {
   });
   document.getElementById('droneNota').textContent = nombreNota(st.raiz);
   document.getElementById('droneOct').textContent = octavaNota(st.raiz);
+  document.getElementById('laValor').textContent = st.la;
+  document.getElementById('laGrande').textContent = st.la;
+  document.querySelectorAll('#laPresets button').forEach((b) => b.setAttribute('aria-pressed', String(Number(b.dataset.v) === st.la)));
   document.getElementById('droneHz').textContent = fmt(frecuencia(st.raiz), 1) + ' Hz';
 
   document.querySelectorAll('.pestanas button').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.v === st.pestana)));
@@ -915,7 +978,7 @@ function pintar() {
     hint.textContent = 'Drone y afinador a la vez sin filtro: usa auriculares o activa el filtro.';
   }
 
-  document.getElementById('pie').textContent = 'La4 = ' + LA4 + ' Hz · ' + (st.notacion === 'bb'
+  document.getElementById('pie').textContent = 'La4 = ' + st.la + ' Hz · ' + (st.notacion === 'bb'
     ? 'Notación para trompeta en Si♭: las notas aparecen escritas (suenan un tono más grave).'
     : 'Notación en Do: las notas aparecen en sonido real.');
 }
@@ -946,7 +1009,7 @@ const ORDEN_OCTAVAS = ['grave', 'media', 'aguda'];
 
 document.addEventListener('keydown', (e) => {
   if (e.ctrlKey || e.metaKey || e.altKey || e.repeat) return;
-  if (aviso.open) return;
+  if (document.querySelector('dialog[open]')) return;
   if (e.code in LETRAS) {
     e.preventDefault();
     elegirNota(mod12(LETRAS[e.code] + (e.shiftKey ? 1 : 0)));
@@ -999,6 +1062,20 @@ function cerrarAviso() {
 document.getElementById('avisoOk').addEventListener('click', cerrarAviso);
 aviso.addEventListener('click', (e) => { if (e.target === aviso) cerrarAviso(); }); // tocar fuera también cierra
 aviso.addEventListener('cancel', () => { st.avisoVisto = true; guardar(); });
+
+// Diapasón
+const dlgLa = document.getElementById('dlgLa');
+function ponerLa(hz) {
+  st.la = Math.max(LA_MIN, Math.min(LA_MAX, Math.round(hz)));
+  notaActual = null;
+  guardar(); actualizarDrone(); pintar();
+}
+document.getElementById('btnLa').addEventListener('click', () => dlgLa.showModal());
+document.getElementById('laMenos').addEventListener('click', () => ponerLa(st.la - 1));
+document.getElementById('laMas').addEventListener('click', () => ponerLa(st.la + 1));
+document.querySelectorAll('#laPresets button').forEach((b) => b.addEventListener('click', () => ponerLa(Number(b.dataset.v))));
+document.getElementById('laOk').addEventListener('click', () => dlgLa.close());
+dlgLa.addEventListener('click', (e) => { if (e.target === dlgLa) dlgLa.close(); });
 
 // Pestañas
 function elegirPestana(v) { st.pestana = v; guardar(); pintar(); }
