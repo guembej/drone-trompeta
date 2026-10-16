@@ -267,49 +267,20 @@
 
   /* Afinador */
   .medidor { text-align: center; }
-  .lectura-af { display: flex; justify-content: center; align-items: baseline; gap: 6px; min-height: 90px; }
-  .lectura-af .nota-grande { font-size: 5rem; }
-  .escala {
-    position: relative;
-    height: 56px;
-    margin: 10px 4px 0;
-    border-radius: 10px;
-    background:
-      repeating-linear-gradient(to right, var(--borde) 0 2px, transparent 2px 10%) 0 0 / 100% 14px no-repeat,
-      var(--panel-2);
-    overflow: hidden;
-  }
-  .zona {
-    position: absolute;
-    top: 0; bottom: 0;
-    left: 45%; width: 10%;
-    background: rgba(76, 195, 138, .18);
-    border-left: 1px solid rgba(76, 195, 138, .5);
-    border-right: 1px solid rgba(76, 195, 138, .5);
-  }
-  .aguja {
-    position: absolute;
-    top: 6px; bottom: 6px;
-    left: 50%;
-    width: 6px;
-    margin-left: -3px;
-    border-radius: 3px;
-    background: var(--suave);
-    opacity: .25;
-    transition: left .08s linear, background-color .15s;
-  }
-  .medidor.activo .aguja { opacity: 1; }
-  .medidor.ok .aguja { background: var(--ok); }
-  .medidor.casi .aguja { background: var(--casi); }
-  .medidor.lejos .aguja { background: var(--lejos); }
-  .escala-etq {
-    display: flex;
-    justify-content: space-between;
-    color: var(--suave);
-    font-size: .8rem;
-    margin: 4px 4px 0;
-    font-variant-numeric: tabular-nums;
-  }
+  /* Esfera de aguja */
+  .esfera { display: block; width: 100%; max-height: 200px; margin: 0 auto; }
+  .esfera .marca { stroke: var(--suave); }
+  .esfera .marca.cero { stroke: var(--texto); }
+  .esfera .num { fill: var(--suave); font-size: 13px; font-family: inherit; }
+  .esfera .signo { fill: var(--suave); font-size: 17px; }
+  .esfera .banda { fill: none; stroke-width: 10; }
+  #aguja { color: var(--suave); opacity: .35; transition: color .2s, opacity .3s; }
+  .medidor.activo #aguja { opacity: 1; }
+  .medidor.ok #aguja { color: var(--ok); }
+  .medidor.casi #aguja { color: var(--casi); }
+  .medidor.lejos #aguja { color: var(--lejos); }
+  .lectura-af { display: flex; justify-content: center; align-items: baseline; gap: 6px; margin-top: -6px; }
+  .lectura-af .nota-grande { font-size: 3.6rem; }
   .cents { font-size: 1.6rem; font-weight: 700; margin-top: 6px; font-variant-numeric: tabular-nums; }
   .medidor.ok .cents { color: var(--ok); }
   .medidor.casi .cents { color: var(--casi); }
@@ -353,9 +324,8 @@
     .seg button, .chip { min-height: 40px; }
     .pestanas button { min-height: 40px; }
     .lectura .nota-grande { font-size: 2.2rem; }
-    .lectura-af { min-height: 70px; }
-    .lectura-af .nota-grande { font-size: 4rem; }
-    .escala { height: 44px; }
+    .esfera { max-height: 150px; }
+    .lectura-af .nota-grande { font-size: 3.2rem; }
     .info { min-height: 0; }
     .cents { font-size: 1.3rem; margin-top: 2px; }
     .peq, .error { margin-top: 6px; }
@@ -379,6 +349,7 @@
 <dialog class="aviso dlg-la" id="dlgLa">
   <h3>Diapasón</h3>
   <p id="laTexto"></p>
+  <p class="peq" id="pie"></p>
   <div class="ajuste">
     <button id="laMenos" aria-label="Bajar 1 Hz">−</button>
     <div class="valor"><span id="laGrande">442</span> <small>Hz</small></div>
@@ -441,9 +412,8 @@
 
   <section class="panel" id="panelAfinador" role="tabpanel" aria-labelledby="tabAfinador" hidden>
     <div class="medidor" id="medidor">
+      <svg class="esfera" id="esfera" viewBox="0 26 380 214" aria-hidden="true"></svg>
       <div class="lectura-af"><span class="nota-grande" id="afNota">–</span><span class="oct" id="afOct"></span></div>
-      <div class="escala" aria-hidden="true"><div class="zona"></div><div class="aguja" id="aguja"></div></div>
-      <div class="escala-etq" aria-hidden="true"><span>−50</span><span>−25</span><span>0</span><span>+25</span><span>+50</span></div>
       <div class="cents" id="afCents">&nbsp;</div>
       <div class="info" id="afInfo">Pulsa «Afinador» y toca una nota.</div>
     </div>
@@ -460,7 +430,6 @@
     </div>
     <p class="peq" id="afHint"></p>
     <p class="error" id="afError" hidden></p>
-    <p class="peq" id="pie"></p>
   </section>
 </main>
 
@@ -876,22 +845,72 @@ function procesar(f) {
 
 const fmt = (x, d) => x.toLocaleString('es-ES', { minimumFractionDigits: d, maximumFractionDigits: d });
 
+// --- Esfera de aguja: ±50 cents ocupan ±60° alrededor del eje ---
+const ESF = { cx: 190, cy: 214, r: 176, grados: 60 };
+function polar(cents, r) {
+  const a = (cents * ESF.grados / 50 - 90) * Math.PI / 180;
+  return [ESF.cx + r * Math.cos(a), ESF.cy + r * Math.sin(a)];
+}
+function dibujarEsfera() {
+  const arco = (c1, c2) => {
+    const [x1, y1] = polar(c1, ESF.r), [x2, y2] = polar(c2, ESF.r);
+    return `M${x1} ${y1} A${ESF.r} ${ESF.r} 0 0 1 ${x2} ${y2}`;
+  };
+  let svg = '';
+  // bandas: rojo fuera de ±15, ámbar de 5 a 15, verde ±5
+  for (const [c1, c2, col, op] of [[-50, -15, 'var(--lejos)', .55], [15, 50, 'var(--lejos)', .55],
+    [-15, -5, 'var(--casi)', .7], [5, 15, 'var(--casi)', .7], [-5, 5, 'var(--ok)', 1]]) {
+    svg += `<path class="banda" d="${arco(c1, c2)}" stroke="${col}" stroke-opacity="${op}"/>`;
+  }
+  for (let k = -50; k <= 50; k += 5) {
+    const mayor = k % 10 === 0;
+    const [x1, y1] = polar(k, ESF.r - 9), [x2, y2] = polar(k, ESF.r - (k === 0 ? 34 : mayor ? 24 : 16));
+    svg += `<line class="marca${k === 0 ? ' cero' : ''}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke-width="${k === 0 ? 3 : mayor ? 2 : 1}"/>`;
+  }
+  for (const k of [-50, -25, 0, 25, 50]) {
+    const [x, y] = polar(k, ESF.r - 48);
+    svg += `<text class="num" x="${x}" y="${y + 5}" text-anchor="middle">${k > 0 ? '+' + k : k < 0 ? '−' + -k : '0'}</text>`;
+  }
+  const [bx, by] = polar(-56, ESF.r + 4), [sx, sy] = polar(56, ESF.r + 4);
+  svg += `<text class="signo" x="${bx - 6}" y="${by}" text-anchor="middle">♭</text>`;
+  svg += `<text class="signo" x="${sx + 6}" y="${sy}" text-anchor="middle">♯</text>`;
+  // aguja (apunta hacia arriba; se gira alrededor del eje)
+  svg += `<g id="aguja" transform="rotate(0 ${ESF.cx} ${ESF.cy})">
+    <line x1="${ESF.cx}" y1="${ESF.cy}" x2="${ESF.cx}" y2="${ESF.cy - ESF.r + 6}" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+    <line x1="${ESF.cx}" y1="${ESF.cy}" x2="${ESF.cx}" y2="${ESF.cy + 20}" stroke="currentColor" stroke-width="7" stroke-linecap="round"/>
+    <circle cx="${ESF.cx}" cy="${ESF.cy}" r="11" fill="var(--panel-2)" stroke="currentColor" stroke-width="3"/>
+    <circle cx="${ESF.cx}" cy="${ESF.cy}" r="3.5" fill="currentColor"/>
+  </g>`;
+  document.getElementById('esfera').innerHTML = svg;
+}
+
+// Movimiento amortiguado: la aguja persigue el valor medido sin saltos, como un afinador analógico
+let agujaPos = 0, agujaObj = 0, agujaAnim = 0;
+function moverAguja(cents) {
+  agujaObj = Math.max(-50, Math.min(50, cents));
+  if (!agujaAnim) agujaAnim = requestAnimationFrame(pasoAguja);
+}
+function pasoAguja() {
+  agujaPos += (agujaObj - agujaPos) * 0.16;
+  if (Math.abs(agujaObj - agujaPos) < 0.05) agujaPos = agujaObj;
+  document.getElementById('aguja').setAttribute('transform', `rotate(${agujaPos * ESF.grados / 50} ${ESF.cx} ${ESF.cy})`);
+  agujaAnim = agujaPos === agujaObj ? 0 : requestAnimationFrame(pasoAguja);
+}
+
 function mostrarLectura(l) {
   const med = document.getElementById('medidor');
-  const aguja = document.getElementById('aguja');
   med.classList.remove('ok', 'casi', 'lejos', 'activo');
   if (!l) {
     document.getElementById('afNota').textContent = '–';
     document.getElementById('afOct').textContent = '';
     document.getElementById('afCents').innerHTML = '&nbsp;';
-    aguja.style.left = '50%';
+    moverAguja(0);
     document.getElementById('afInfo').textContent = afOn ? 'Escuchando… toca una nota.' : 'Pulsa «Afinador» y toca una nota.';
     return;
   }
-  const c = Math.max(-50, Math.min(50, l.cents));
   const abs = Math.abs(l.cents);
   med.classList.add('activo', abs <= 5 ? 'ok' : abs <= 15 ? 'casi' : 'lejos');
-  aguja.style.left = (50 + c) + '%';
+  moverAguja(l.cents);
   document.getElementById('afNota').textContent = nombreNota(l.n);
   document.getElementById('afOct').textContent = octavaNota(l.n);
   const r = Math.round(l.cents);
@@ -904,6 +923,7 @@ function mostrarLectura(l) {
   }
   document.getElementById('afInfo').innerHTML = info;
 }
+dibujarEsfera();
 
 // ---------- Pantalla siempre encendida ----------
 let bloqueo = null;
@@ -977,7 +997,7 @@ function pintar() {
     hint.textContent = 'Mide contra el intervalo puro sobre ' + nombreNota(st.raiz) + ' (la nota del drone).';
   } else {
     hint.className = 'peq';
-    hint.textContent = st.filtro ? 'Si usas auriculares puedes desactivar el filtro.' : '';
+    hint.textContent = '';
   }
   if (droneOn && afOn && !st.filtro) {
     hint.className = 'peq alerta';
