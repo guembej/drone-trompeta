@@ -8,7 +8,8 @@ App web instalable (PWA) para estudiar trompeta: drone, afinador, metrónomo y c
 - **Diapasón**: ajustable de 415 a 460 Hz (442 por defecto) desde el botón de la cabecera. En notación Si♭ se muestra como Si4 (el La4 real escrito para trompeta) y en Do como La4.
 - **Filtro anti-drone**: quita del micrófono la frecuencia del drone y sus armónicos para que el afinador detecte tu nota. Con auriculares puedes desactivarlo.
 - **Metrónomo**: de 30 a 250 bpm, con − / + (mantén pulsado), deslizador y tap tempo. Compases 2/4, 3/4, 4/4 y 6/8, subdivisiones y acento en el primer tiempo.
-- **Calentamiento**: la app toca la frase con trompeta real y tú la repites en los compases siguientes. Después se transporta medio tono (bajando, subiendo o igual). El pentagrama muestra la frase con clave de sol, armadura y alteraciones. En tu turno, la aguja mide respecto a la nota que toca. El drone puede seguir la tónica.
+- **Calentamiento**: la app toca la frase con trompeta real y tú la repites en los compases siguientes. Después se transporta medio tono (bajando, subiendo o igual). El pentagrama muestra la frase con clave de sol, armadura y alteraciones. En tu turno, la aguja mide respecto a la nota que toca. El drone puede seguir la tónica. Tempo, transposición, número de tonalidades y drone se ajustan en vivo; el tempo nuevo entra en la siguiente repetición para que no se descuadre la frase.
+- **En el PC**: el afinador queda fijo a la derecha y cada pestaña aprovecha el ancho (el pentagrama del calentamiento ocupa toda la línea).
 - **Editor de ejercicios**: escribe tus frases en texto (`Do4 Sol4 Do5:2 | Mi5:4`) con vista previa en el pentagrama.
 - **Barra de transporte**: drone, metrónomo y afinador se encienden y apagan desde cualquier pestaña.
 - **Teclado** (ordenador): C–B notas, Mayús = ♯, Espacio drone, ↑↓ octava, M metrónomo, ←→ tempo, T afinador.

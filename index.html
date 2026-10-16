@@ -342,8 +342,12 @@
   .fila-h { flex-direction: row; align-items: center; flex-wrap: wrap; gap: 8px; }
   .contador { display: flex; align-items: center; gap: 6px; }
   .contador button { width: 40px; min-height: 40px; border: 1px solid var(--borde); border-radius: 10px; background: var(--panel-2); font-weight: 700; }
-  .contador b { min-width: 1.6em; text-align: center; font-variant-numeric: tabular-nums; }
-  .fila-h .chip { flex: 1; }
+  .contador b { min-width: 2em; text-align: center; font-variant-numeric: tabular-nums; }
+  .fila-h { flex-wrap: nowrap; justify-content: space-between; }
+  .fila-h .etq { white-space: nowrap; }
+  .fila-cab { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .chip.mini { flex: none; min-height: 30px; padding: 0 10px; font-size: .8rem; border-radius: 99px; }
+  @media (max-width: 420px) { .contador button { width: 36px; } .contador { gap: 4px; } }
   .grande-btn {
     width: 100%;
     min-height: 52px;
@@ -614,15 +618,16 @@
     </div>
     <div class="ej-ajustes">
     <div class="fila">
-      <span class="etq">Al repetir</span>
+      <div class="fila-cab"><span class="etq">Al repetir</span><button class="chip mini" id="chEjDrone">Drone en la tónica</button></div>
       <div class="seg" id="segEjDir" role="group" aria-label="Transposición">
         <button data-v="baja">Baja ½ tono</button><button data-v="sube">Sube ½ tono</button><button data-v="igual">Igual</button>
       </div>
     </div>
     <div class="fila fila-h">
-      <span class="etq">Tonalidades</span>
+      <span class="etq">Tempo</span>
+      <div class="contador"><button id="ejBpmMenos" aria-label="Más lento">−</button><b id="ejBpm">80</b><button id="ejBpmMas" aria-label="Más rápido">+</button></div>
+      <span class="etq">Tonos</span>
       <div class="contador"><button id="ejNMenos" aria-label="Menos">−</button><b id="ejN">6</b><button id="ejNMas" aria-label="Más">+</button></div>
-      <button class="chip" id="chEjDrone">Drone en la tónica</button>
     </div>
     <p class="peq" id="ejInfo"></p>
     <p class="error" id="ejError" hidden></p>
@@ -1204,10 +1209,18 @@ function programar() {
     const tipo = enCompas === 0 && st.acento ? 'acento' : esPulso ? 'pulso' : 'sub';
     sonidoClick(metroProx, tipo);
     if (esPulso) eventos.push({ t: metroProx, tipo: 'pulso', pulso: enCompas / tpp });
-    metroProx += 60 / st.bpm / tpp;
+    metroProx += 60 / bpmEn(metroProx) / tpp;
     metroTick++;
   }
   programarEjercicio();
+}
+
+// Tempo vigente en el instante t: en un ejercicio cambia solo al empezar cada repetición, para no descuadrar la frase
+function bpmEn(t) {
+  if (!ej.activo || !ej.tramos.length) return st.bpm;
+  let b = ej.tramos[0].bpm;
+  for (const tr of ej.tramos) if (tr.desde <= t + 1e-4) b = tr.bpm;
+  return b;
 }
 
 function iniciarMetronomo(t0) {
@@ -1236,7 +1249,6 @@ function pararMetronomo() {
 function alternarMetronomo() { metroOn ? pararMetronomo() : iniciarMetronomo(); }
 
 function ponerBpm(v) {
-  if (ej.activo) return;   // durante un ejercicio el tempo queda fijo
   st.bpm = Math.max(30, Math.min(250, Math.round(v)));
   guardar();
   pintar();
@@ -1297,10 +1309,9 @@ function pintarMetronomo() {
   const compuesto = metroCompas()[1] > 0;
   document.querySelectorAll('#segSubdiv button').forEach((b) => { b.disabled = compuesto; });
   document.getElementById('chAcento').setAttribute('aria-pressed', st.acento);
-  ['bpmMenos', 'bpmMas', 'bpmSlider', 'btnTap'].forEach((id) => { document.getElementById(id).disabled = ej.activo; });
   document.querySelectorAll('#segCompas button').forEach((b) => { b.disabled = ej.activo; });
   document.getElementById('metroInfo').textContent = ej.activo
-    ? 'Tempo y compás fijos mientras dura el ejercicio de calentamiento.'
+    ? 'Compás fijo mientras dura el ejercicio. Los cambios de tempo entran en la siguiente repetición.'
     : compuesto ? 'En 6/8 el tempo es la negra con puntillo y suenan las tres corcheas.' : '';
   if (!metroOn) pintarPulsos(-1);
 }
@@ -1392,7 +1403,7 @@ function transponer(base, s) {
 
 const registro = () => (st.notacion === 'bb' ? [54, 86] : [52, 84]);   // trompeta: Fa♯3–Re6 escrito
 const enRegistro = (fr) => fr.notas.every((n) => n.silencio || (n.midi >= registro()[0] && n.midi <= registro()[1]));
-const despl = (k) => (st.ejDir === 'baja' ? -k : st.ejDir === 'sube' ? k : 0);
+const pasoDir = () => (st.ejDir === 'baja' ? -1 : st.ejDir === 'sube' ? 1 : 0);
 
 const ej = { activo: false, fase: '', frase: null, idx: -1, esperada: null, ciclo: 0, cicloVis: 0, fuentes: [] };
 let fraseGain = null;
@@ -1441,7 +1452,7 @@ async function empezarEjercicio() {
   const spb = 60 / st.bpm;
   const t0 = ctx.currentTime + 0.2;
   Object.assign(ej, {
-    activo: true, def, base, pulsos, spb, ciclo: 0, cicloVis: 0, total: st.ejN, fin: false,
+    activo: true, def, base, pulsos, spb, ciclo: 0, cicloVis: 0, desp: 0, fin: false, tramos: [{ desde: t0, bpm: st.bpm }],
     proxT: t0 + pulsos * spb,   // un compás de entrada con el metrónomo
     fase: 'preparados', frase: transponer(base, 0), idx: -1, esperada: null, fuentes: []
   });
@@ -1452,12 +1463,17 @@ async function empezarEjercicio() {
 function programarEjercicio() {
   if (!ej.activo || ej.fin) return;
   while (!ej.fin && ej.proxT < ctx.currentTime + 0.6) {
-    const fr = ej.ciclo < ej.total ? transponer(ej.base, despl(ej.ciclo)) : null;
+    // ajustes en vivo: «Al repetir» y tonalidades se leen en cada repetición, el transporte se acumula
+    const desp = ej.ciclo === 0 ? 0 : ej.desp + pasoDir();
+    const fr = ej.ciclo < st.ejN ? transponer(ej.base, desp) : null;
     if (!fr || !enRegistro(fr)) {
       eventos.push({ t: ej.proxT, tipo: 'fin', motivo: fr ? 'registro' : 'completo' });
       ej.fin = true;
       break;
     }
+    ej.desp = desp;
+    ej.spb = 60 / st.bpm;   // el tempo nuevo entra aquí, al empezar la repetición
+    ej.tramos.push({ desde: ej.proxT, bpm: st.bpm });
     const tiempos = fr.notas.reduce((a, n) => a + n.dur, 0);
     const P = Math.ceil(tiempos / ej.pulsos - 1e-9) * ej.pulsos * ej.spb;   // la frase ocupa compases enteros
     const t0 = ej.proxT;
@@ -1546,7 +1562,7 @@ function pintarEjercicio() {
   fase.textContent = textos[ej.fase] || 'Listo';
   fase.className = 'fase ' + (ej.activo ? ej.fase : '');
   document.getElementById('ejTono').textContent = frase ? frase.tonica + ' mayor' : '';
-  document.getElementById('ejCiclo').textContent = ej.activo && ej.fase !== 'preparados' ? (ej.cicloVis + 1) + ' / ' + ej.total : '';
+  document.getElementById('ejCiclo').textContent = ej.activo && ej.fase !== 'preparados' ? (ej.cicloVis + 1) + ' / ' + st.ejN : '';
 
   const svg = document.getElementById('ejPenta');
   const xs = frase ? dibujarPentagrama(svg, frase, ejercicioActual().compas, ej.activo ? ej.idx : -1, ej.fase === 'turno' ? 'turno' : 'actual') : [];
@@ -1562,13 +1578,12 @@ function pintarEjercicio() {
   document.getElementById('ejOct').textContent = n && !n.silencio ? n.oct : '';
 
   marcar('segEjDir', st.ejDir);
-  document.querySelectorAll('#segEjDir button').forEach((b) => { b.disabled = ej.activo; });
   document.getElementById('ejN').textContent = st.ejN;
-  document.getElementById('ejNMenos').disabled = ej.activo;
-  document.getElementById('ejNMas').disabled = ej.activo;
+  document.getElementById('ejBpm').textContent = st.bpm;
   document.getElementById('chEjDrone').setAttribute('aria-pressed', st.ejDrone);
-  document.getElementById('ejInfo').textContent = '♩ = ' + st.bpm + ' · compás ' + ejercicioActual().compas
-    + ' · el tempo se cambia en Metrónomo' + (st.ejDrone && !droneOn ? ' · enciende el drone para oír la tónica' : '');
+  document.getElementById('ejInfo').textContent = ej.activo && Math.round(60 / ej.spb) !== st.bpm
+    ? 'El tempo nuevo (' + st.bpm + ') entra en la siguiente repetición.'
+    : st.ejDrone && !droneOn ? 'Enciende el drone para oír la tónica.' : '';
   const b = document.getElementById('btnEj');
   b.textContent = ej.activo ? '■ Parar' : '▶ Empezar';
   b.classList.toggle('parar', ej.activo);
@@ -1577,6 +1592,8 @@ function pintarEjercicio() {
 document.getElementById('btnEj').addEventListener('click', () => (ej.activo ? pararEjercicio() : empezarEjercicio()));
 document.getElementById('ejSel').addEventListener('change', (e) => { st.ejSel = e.target.value; guardar(); pintar(); });
 segmento('segEjDir', (v) => { st.ejDir = v; guardar(); pintar(); });
+repetir(document.getElementById('ejBpmMenos'), () => ponerBpm(st.bpm - 1));
+repetir(document.getElementById('ejBpmMas'), () => ponerBpm(st.bpm + 1));
 document.getElementById('ejNMenos').addEventListener('click', () => { st.ejN = Math.max(1, st.ejN - 1); guardar(); pintar(); });
 document.getElementById('ejNMas').addEventListener('click', () => { st.ejN = Math.min(12, st.ejN + 1); guardar(); pintar(); });
 document.getElementById('chEjDrone').addEventListener('click', () => { st.ejDrone = !st.ejDrone; guardar(); pintar(); });
