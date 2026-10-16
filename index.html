@@ -114,14 +114,12 @@
   .pestanas {
     display: flex;
     gap: 4px;
-    max-width: 608px;
-    margin: 0 16px 10px;
+    margin: 0 0 10px;
     padding: 4px;
     background: var(--panel);
     border: 1px solid var(--borde);
     border-radius: 14px;
   }
-  @media (min-width: 672px) { .pestanas { margin: 0 auto 10px; } }
   .pestanas button {
     flex: 1;
     min-width: 0;
@@ -152,7 +150,7 @@
     max-width: 640px;
     margin: 0 auto;
   }
-  .panel[hidden] { display: none; }
+  .panel[hidden] { display: none !important; }   /* también frente a las rejillas de escritorio */
 
   .panel {
     background: var(--panel);
@@ -403,6 +401,49 @@
   .barra button[aria-pressed="true"] { background: var(--acento); color: var(--acento-txt); }
 
   @media (max-width: 380px) { .seg button { padding: 0 6px; } }
+  .solo-pc { display: none; }
+
+  /* ===== Ordenador: afinador fijo a la derecha y cada pestaña a lo ancho ===== */
+  @media (min-width: 1000px) {
+    .top, main { max-width: 1240px; }
+    main {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 380px;
+      grid-template-rows: auto 1fr;
+      column-gap: 16px;
+      align-items: start;
+    }
+    .pestanas { grid-column: 1; grid-row: 1; }
+    #tabAfinador { display: none; }
+    main > .panel { grid-column: 1; grid-row: 2; }
+    main > #panelAfinador { grid-column: 2; grid-row: 1 / span 2; position: sticky; top: 12px; }
+    .solo-pc { display: block; }
+    #panelAfinador .esfera { max-height: 240px; }
+
+    /* Drone: notas a la izquierda, opciones a la derecha */
+    #panelDrone { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); column-gap: 20px; grid-auto-flow: row dense; align-items: start; }
+    #panelDrone > .lectura, #panelDrone > .notas { grid-column: 1; }
+    #panelDrone > .notas { grid-row: span 2; }
+    #panelDrone > .fila { grid-column: 2; margin-top: 0; margin-bottom: 10px; }
+    #panelDrone > .atajos { grid-column: 1 / -1; }
+    #panelDrone .notas button { min-height: 64px; font-size: 1.3rem; }
+
+    /* Metrónomo: tempo a la izquierda, opciones a la derecha */
+    #panelMetro { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 24px; grid-auto-flow: row dense; align-items: center; }
+    #panelMetro > .tempo, #panelMetro > input, #panelMetro > .pulsos { grid-column: 1; }
+    #panelMetro > .fila { grid-column: 2; margin-top: 0; margin-bottom: 10px; }
+    #panelMetro > .peq { grid-column: 1 / -1; }
+    #panelMetro .bpm span { font-size: 5rem; }
+
+    /* Calentamiento: pentagrama grande a todo el ancho y controles en una fila */
+    .pentagrama svg { margin: 0 auto; }
+    .ej-controles { display: grid; grid-template-columns: 170px minmax(0, 1fr) 190px; gap: 16px; align-items: center; margin-top: 12px; }
+    .ej-turno { margin-top: 0; }
+    .medidor.mini { display: none; }
+    .ej-esperada .nota-grande { font-size: 4rem; }
+    .ej-ajustes .fila:first-child { margin-top: 0; }
+    .ej-controles .grande-btn { margin-top: 0; min-height: 72px; font-size: 1.2rem; }
+  }
   /* Móviles bajos: todo un poco más compacto para que no haga falta scroll */
   @media (max-height: 740px) {
     .notas button { min-height: 44px; }
@@ -465,14 +506,14 @@
   </div>
 </dialog>
 
+
+<main>
 <nav class="pestanas" role="tablist" aria-label="Secciones">
   <button role="tab" id="tabDrone" data-v="drone" aria-controls="panelDrone">Drone<span class="punto" id="puntoDrone" hidden></span></button>
   <button role="tab" id="tabAfinador" data-v="afinador" aria-controls="panelAfinador">Afinador<span class="punto" id="puntoAfinador" hidden></span></button>
   <button role="tab" id="tabMetro" data-v="metro" aria-controls="panelMetro">Metrónomo<span class="punto" id="puntoMetro" hidden></span></button>
   <button role="tab" id="tabEj" data-v="ej" aria-controls="panelEj">Calentar<span class="punto" id="puntoEj" hidden></span></button>
 </nav>
-
-<main>
 
   <section class="panel" id="panelDrone" role="tabpanel" aria-labelledby="tabDrone">
     <div class="lectura">
@@ -507,6 +548,7 @@
   </section>
 
   <section class="panel" id="panelAfinador" role="tabpanel" aria-labelledby="tabAfinador" hidden>
+    <h2 class="solo-pc">Afinador</h2>
     <div class="medidor" id="medidor">
       <svg class="esfera" id="esfera1" viewBox="0 26 380 214" aria-hidden="true"></svg>
       <div class="lectura-af"><span class="nota-grande" id="afNota">–</span><span class="oct" id="afOct"></span></div>
@@ -565,10 +607,12 @@
     </div>
     <div class="ej-estado"><span id="ejTono">Do mayor</span><span class="fase" id="ejFase">Listo</span><span id="ejCiclo"></span></div>
     <div class="pentagrama" id="ejPentaCont"><svg id="ejPenta" class="penta"></svg></div>
+    <div class="ej-controles">
     <div class="ej-turno">
       <div class="ej-esperada"><span class="etq" id="ejNotaEtq">Toca</span><span class="nota-grande" id="ejNota">–</span><span class="oct" id="ejOct"></span><div class="peq" id="ejTocas">&nbsp;</div></div>
       <div class="medidor mini" id="medidor2"><svg class="esfera" id="esfera2" viewBox="0 26 380 214" aria-hidden="true"></svg></div>
     </div>
+    <div class="ej-ajustes">
     <div class="fila">
       <span class="etq">Al repetir</span>
       <div class="seg" id="segEjDir" role="group" aria-label="Transposición">
@@ -582,7 +626,9 @@
     </div>
     <p class="peq" id="ejInfo"></p>
     <p class="error" id="ejError" hidden></p>
+    </div>
     <button class="grande-btn" id="btnEj">▶ Empezar</button>
+    </div>
   </section>
 </main>
 
@@ -637,6 +683,10 @@ if (!(st.la >= LA_MIN && st.la <= LA_MAX)) st.la = 442;
 if (!(st.bpm >= 30 && st.bpm <= 250)) st.bpm = 80;
 if (!Array.isArray(st.ejercicios)) st.ejercicios = [];
 function guardar() { try { localStorage.setItem('droneTrompeta', JSON.stringify(st)); } catch (e) {} }
+
+const esPC = window.matchMedia('(min-width: 1000px)');   // en PC el afinador queda fijo a la derecha
+esPC.addEventListener('change', () => pintar());
+window.addEventListener('resize', () => { if (st.pestana === 'ej') pintarEjercicio(); });
 
 const transp = () => (st.notacion === 'bb' ? 2 : 0);   // Si♭: escrito = real + 2 semitonos
 const nombreNota = (midiReal) => NOMBRES[mod12(midiReal + transp())];
@@ -1539,7 +1589,7 @@ const CLAVE_SOL = 'M15 61 C9 61 8 53 14 51 C22 49 26 58 22 65 C18 72 4 70 3 60 C
 const FIGURAS = [4, 3, 2, 1.5, 1, 0.75, 0.5, 0.25];
 
 // Devuelve la x de cada nota (índice de la frase) para poder seguirla con el scroll
-function dibujarPentagrama(svg, frase, compas, idxResalte, claseResalte) {
+function dibujarPentagrama(svg, frase, compas, idxResalte, claseResalte, esc = 1) {
   const pulsos = Number(compas.split('/')[0]);
   const arm = frase.armadura;
   let o = '';
@@ -1564,6 +1614,7 @@ function dibujarPentagrama(svg, frase, compas, idxResalte, claseResalte) {
     return 0;
   };
   const xs = [];
+  let avance = 0;      // espacio horizontal ocupado por las figuras (lo que se estira para llenar el ancho)
   let pos = 0;
   let vigentes = {};   // alteraciones accidentales vigentes en el compás: "letra-octava" → alteración
   let anterior = null; // última figura dibujada (para las ligaduras)
@@ -1598,7 +1649,9 @@ function dibujarPentagrama(svg, frase, compas, idxResalte, claseResalte) {
         }
         anterior = x;
       }
-      x += 18 + 13 * Math.sqrt(v);
+      const paso = (18 + 13 * Math.sqrt(v)) * esc;
+      x += paso;
+      avance += paso;
       pos += v;
       resto -= v;
       primera = false;
@@ -1616,8 +1669,19 @@ function dibujarPentagrama(svg, frase, compas, idxResalte, claseResalte) {
   x += 10;
   let lineas = '';
   for (let k = 0; k < 5; k++) lineas += `<line class="linea" x1="2" y1="${30 + k * ESP}" x2="${x}" y2="${30 + k * ESP}"/>`;
+  // en PC el pentagrama del ejercicio crece (120–170 px de alto) y, si la frase es corta, reparte las notas a todo el ancho
+  let alto = 100;
+  if (svg.id === 'ejPenta' && esPC.matches) {
+    const ancho = svg.parentElement.clientWidth - 16;
+    alto = Math.max(110, Math.min(window.innerHeight < 760 ? 125 : 170, ancho * 116 / (x + 4)));   // más bajo en portátiles
+    const objetivo = ancho * 116 / alto - 4;
+    if (esc === 1 && x < objetivo - 2 && avance > 0) {
+      return dibujarPentagrama(svg, frase, compas, idxResalte, claseResalte, (objetivo - (x - avance)) / avance);
+    }
+  }
   svg.setAttribute('viewBox', `0 0 ${x + 4} 116`);
-  svg.setAttribute('width', (x + 4) * 100 / 116);   // misma escala que la altura en CSS (100 px)
+  svg.style.height = alto + 'px';
+  svg.setAttribute('width', (x + 4) * alto / 116);
   svg.innerHTML = lineas + o;
   return xs;
 }
@@ -1767,11 +1831,12 @@ function pintar() {
   document.getElementById('laGrande').textContent = st.la;
   document.getElementById('droneHz').textContent = fmt(frecuencia(st.raiz), 1) + ' Hz';
 
-  document.querySelectorAll('.pestanas button').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.v === st.pestana)));
-  document.getElementById('panelDrone').hidden = st.pestana !== 'drone';
-  document.getElementById('panelAfinador').hidden = st.pestana !== 'afinador';
-  document.getElementById('panelMetro').hidden = st.pestana !== 'metro';
-  document.getElementById('panelEj').hidden = st.pestana !== 'ej';
+  const pest = esPC.matches && st.pestana === 'afinador' ? 'drone' : st.pestana;
+  document.querySelectorAll('.pestanas button').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.v === pest)));
+  document.getElementById('panelDrone').hidden = pest !== 'drone';
+  document.getElementById('panelAfinador').hidden = pest !== 'afinador' && !esPC.matches;
+  document.getElementById('panelMetro').hidden = pest !== 'metro';
+  document.getElementById('panelEj').hidden = pest !== 'ej';
   document.getElementById('puntoDrone').hidden = !droneOn;      // indica que suena aunque estés en otra pestaña
   document.getElementById('puntoAfinador').hidden = !afOn;
   document.getElementById('puntoMetro').hidden = !metroOn;
