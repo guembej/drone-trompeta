@@ -320,10 +320,9 @@
   .entra-izq { animation: entraIzq .2s ease-out; }
   @keyframes entraDer { from { transform: translateX(40px); opacity: .3; } }
   @keyframes entraIzq { from { transform: translateX(-40px); opacity: .3; } }
-  .metro-zona { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--borde); }
-  .metro-zona .redondo { width: 54px; height: 54px; font-size: 1.6rem; }
-  .metro-zona .bpm span { font-size: 3.2rem; }
-  .metro-zona .pulsos { margin: 8px 0 0; }
+  .caja-metro .redondo { width: 54px; height: 54px; font-size: 1.6rem; }
+  .caja-metro .bpm span { font-size: 3.2rem; }
+  .caja-metro .pulsos { margin: 8px 0 0; min-height: 22px; }
   .resumen:empty { visibility: hidden; }
   .resumen { color: var(--acento); font-size: .85rem; }
   .hoja h4 { margin: 22px 0 0; font-size: .78rem; text-transform: uppercase; letter-spacing: .1em; color: var(--suave); }
@@ -368,8 +367,17 @@
   .barra #btnAfinador[aria-pressed="true"].lejos { background: var(--lejos); border-color: var(--lejos); color: #2a0f0a; }
 
   /* Afinador: panel teñido de verde cuando estás afinado */
-  #panelAfinador { transition: background-color .25s, border-color .25s; }
-  #panelAfinador:has(#medidor.ok) { background: #16271e; border-color: #2c5a41; }
+  #panelAfinador.panel { background: none; border: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+  #panelAfinador.panel[hidden] { display: none; }
+  .caja { background: var(--panel); border: 1px solid var(--borde); border-radius: 18px; padding: 14px; }
+  .caja-af { transition: background-color .25s, border-color .25s; }
+  .caja-af:has(#medidor.ok) { background: #16271e; border-color: #2c5a41; }
+  .caja-metro { position: relative; }
+  /* en la caja del metrónomo, el ⚙ va en la esquina para no añadir otra fila */
+  .caja-metro .pie-panel { position: absolute; left: 14px; right: 14px; bottom: 10px; margin: 0; pointer-events: none; }
+  .caja-metro .pie-panel > * { pointer-events: auto; }
+  .caja-metro .resumen { flex: 0 1 34%; }
+  .caja-metro .engranaje { width: 36px; height: 36px; font-size: 1.05rem; }
   .cents small { font-size: .9rem; font-weight: 600; margin-left: 6px; opacity: .85; }
   .fila.dos { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .fila.dos > div { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
@@ -591,7 +599,7 @@
 
 <dialog class="hoja" id="opAf">
   <h3 tabindex="-1" autofocus>Afinador y metrónomo</h3>
-  <h4>Afinador</h4>
+  <h4 id="secAf">Afinador</h4>
   <div class="fila"><span class="etq">Referencia</span>
     <div class="seg" id="segModo" role="group" aria-label="Referencia de afinación">
       <button data-v="temperado">Temperado</button><button data-v="justo">Justo (drone)</button>
@@ -606,7 +614,7 @@
       <button class="chip" id="chHz">Mostrar la frecuencia (Hz)</button>
     </div></div>
   <p class="peq" id="labioTxt"></p>
-  <h4>Metrónomo</h4>
+  <h4 id="secMetro">Metrónomo</h4>
   <p class="peq">Toca el número del tempo al pulso para marcarlo.</p>
   <div class="fila"><span class="etq">Tempo</span><input type="range" id="bpmSlider" min="30" max="250" aria-label="Tempo"></div>
   <div class="fila"><span class="etq">Compás</span>
@@ -686,7 +694,8 @@
     <p class="atajos">Teclado: <kbd>C</kbd>–<kbd>B</kbd> notas (<kbd>H</kbd> = Si) · <kbd>⇧</kbd>+letra = ♯ · <kbd>Espacio</kbd> drone · <kbd>↑</kbd><kbd>↓</kbd> octava · <kbd>M</kbd> metrónomo · <kbd>←</kbd><kbd>→</kbd> tempo · <kbd>T</kbd> afinador</p>
   </section>
 
-  <section class="panel" id="panelAfinador" role="tabpanel" aria-labelledby="tabAfinador" hidden>
+  <section class="panel doble" id="panelAfinador" role="tabpanel" aria-labelledby="tabAfinador" hidden>
+    <div class="caja caja-af">
     <h2 class="solo-pc">Afinador</h2>
     <div class="medidor" id="medidor">
       <svg class="esfera" id="esfera1" viewBox="0 26 380 214" aria-hidden="true"></svg>
@@ -696,7 +705,10 @@
     </div>
     <p class="peq" id="afHint"></p>
     <p class="error" id="afError" hidden></p>
-    <div class="metro-zona">
+    <div class="pie-panel"><button class="resumen" id="afResumen" data-hoja="opAf"></button><button class="engranaje" data-hoja="opAf" aria-label="Opciones del afinador">⚙</button></div>
+    </div>
+    <div class="caja caja-metro">
+      <h2 class="solo-pc">Metrónomo</h2>
       <div class="tempo">
         <button class="redondo" id="bpmMenos" aria-label="Más lento">−</button>
         <button class="bpm" id="bpmTap" aria-label="Tempo: toca al pulso para marcarlo"><span id="bpmValor">80</span><small id="bpmNombre">Andante</small></button>
@@ -704,8 +716,8 @@
       </div>
       <div class="pulsos" id="pulsos" aria-hidden="true"></div>
       <p class="peq centro" id="metroInfo"></p>
+      <div class="pie-panel"><button class="resumen" id="metroResumen" data-hoja="opAf" data-seccion="secMetro"></button><button class="engranaje" data-hoja="opAf" data-seccion="secMetro" aria-label="Opciones del metrónomo">⚙</button></div>
     </div>
-    <div class="pie-panel"><button class="resumen" id="afResumen" data-hoja="opAf"></button><button class="engranaje" data-hoja="opAf" aria-label="Opciones del afinador y del metrónomo">⚙</button></div>
   </section>
 
 
@@ -2088,15 +2100,16 @@ function pintar() {
     .filter(Boolean).join(' · ');
   const subdivs = { 1: '♩', 2: '♫', 3: 'tresillos', 4: '♬' };
   // Solo se indica lo que no es lo habitual (la configuración completa está en ⚙)
-  const marcas = [];
-  if (st.modo === 'justo') marcas.push('Justo');
-  if (st.tol !== 5) marcas.push('±' + st.tol + ' c');
-  if (!st.filtro) marcas.push('sin filtro');
-  if (st.compas !== '4/4') marcas.push(st.compas);
-  if (!metroCompas()[1] && st.subdiv !== 1) marcas.push(subdivs[st.subdiv]);
-  if (st.metroSube.on) marcas.push('sube a ' + st.metroSube.tope);
-  if (st.metroMudo.on) marcas.push('mudos ' + st.metroMudo.suenan + '+' + st.metroMudo.callan);
-  document.getElementById('afResumen').textContent = marcas.join(' · ');
+  const marcasAf = [], marcasMetro = [];
+  if (st.modo === 'justo') marcasAf.push('Justo');
+  if (st.tol !== 5) marcasAf.push('±' + st.tol + ' c');
+  if (!st.filtro) marcasAf.push('sin filtro');
+  if (st.compas !== '4/4') marcasMetro.push(st.compas);
+  if (!metroCompas()[1] && st.subdiv !== 1) marcasMetro.push(subdivs[st.subdiv]);
+  if (st.metroSube.on) marcasMetro.push('sube a ' + st.metroSube.tope);
+  if (st.metroMudo.on) marcasMetro.push('mudos ' + st.metroMudo.suenan + '+' + st.metroMudo.callan);
+  document.getElementById('afResumen').textContent = marcasAf.join(' · ');
+  document.getElementById('metroResumen').textContent = marcasMetro.join(' · ');
   const io = ORDEN_OCTAVAS.indexOf(st.octava);
   document.getElementById('octMenos').disabled = io <= 0;
   document.getElementById('octMas').disabled = io >= ORDEN_OCTAVAS.length - 1;
@@ -2253,7 +2266,10 @@ document.getElementById('laOk').addEventListener('click', () => dlgLa.close());
 dlgLa.addEventListener('click', (e) => { if (e.target === dlgLa) dlgLa.close(); });
 
 // Paneles de opciones (⚙): se abren desde el resumen o el engranaje y se cierran con «Listo» o tocando fuera
-document.querySelectorAll('[data-hoja]').forEach((b) => b.addEventListener('click', () => document.getElementById(b.dataset.hoja).showModal()));
+document.querySelectorAll('[data-hoja]').forEach((b) => b.addEventListener('click', () => {
+  document.getElementById(b.dataset.hoja).showModal();
+  if (b.dataset.seccion) setTimeout(() => document.getElementById(b.dataset.seccion).scrollIntoView({ block: 'start' }), 0);
+}));
 document.querySelectorAll('dialog.hoja').forEach((d) => {
   d.addEventListener('click', (e) => { if (e.target === d) d.close(); });
   d.querySelectorAll('[data-cerrar]').forEach((b) => b.addEventListener('click', () => d.close()));

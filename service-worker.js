@@ -1,5 +1,5 @@
 // Cambia la versión cada vez que publiques cambios para que los móviles se actualicen.
-const CACHE = 'drone-trompeta-v20';
+const CACHE = 'drone-trompeta-v21';
 
 const ARCHIVOS = [
   './',
