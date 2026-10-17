@@ -648,6 +648,80 @@
   /* esfera: números y ♭/♯ más legibles */
   .esfera .num { font-size: 15px; fill: #aeb4bf; }
   .esfera .signo { font-size: 21px; fill: #aeb4bf; }
+
+  /* ===== Móvil en horizontal: pestañas en la cabecera, barra de transporte a la derecha y cada pestaña en columnas ===== */
+  @media (orientation: landscape) and (max-height: 500px) and (max-width: 999px) {
+    body {
+      height: 100vh; height: 100dvh; overflow: hidden;
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      grid-template-rows: auto minmax(0, 1fr);
+      gap: 6px 10px;
+      padding: calc(6px + env(safe-area-inset-top)) calc(96px + env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) calc(12px + env(safe-area-inset-left));
+    }
+    .top, main { display: contents; }
+    .top h1 { grid-column: 1; grid-row: 1; align-self: center; }
+    #btnLa { grid-column: 3; grid-row: 1; align-self: center; }
+    .pestanas { grid-column: 2; grid-row: 1; margin: 0; padding: 3px; }
+    .pestanas button { min-height: 38px; }
+    main > .panel { grid-column: 1 / -1; grid-row: 2; min-height: 0; overflow-y: auto; padding: 12px; }
+    .atajos, .tecla { display: none !important; }
+
+    .barra {
+      top: 0; bottom: 0; left: auto; right: 0;
+      width: calc(88px + env(safe-area-inset-right));
+      flex-direction: column; justify-content: center; gap: 8px;
+      padding: calc(8px + env(safe-area-inset-top)) calc(8px + env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) 8px;
+      border-top: 0; border-left: 1px solid var(--linea);
+    }
+    .barra button { flex: 1; max-width: none; max-height: 112px; flex-direction: column; gap: 4px; font-size: var(--t2); border-radius: 14px; }
+
+    /* Drone: nota grande a la izquierda y las 12 notas en 6 × 2 */
+    #panelDrone { display: grid; grid-template-columns: minmax(150px, 30%) minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; gap: 8px 12px; overflow: hidden; }
+    #panelDrone .lectura { grid-column: 1; grid-row: 1; margin: 0; flex-wrap: wrap; justify-content: center; align-content: center; }
+    #panelDrone .lectura .nota-grande { font-size: 3.4rem; }
+    #panelDrone .hz { flex-basis: 100%; margin: 6px 0 0; text-align: center; }
+    #panelDrone .notas { grid-column: 2; grid-row: 1 / span 2; grid-template-columns: repeat(6, 1fr); grid-auto-rows: 1fr; }
+    #panelDrone .notas button { min-height: 0; }
+    #panelDrone .pie-panel { grid-column: 1; grid-row: 2; margin: 0; }
+
+    /* Afinador y metrónomo, uno al lado del otro */
+    #panelAfinador.panel { flex-direction: row; gap: 10px; padding: 0; }
+    #panelAfinador .caja { display: flex; flex-direction: column; justify-content: center; min-width: 0; padding: 10px 12px; }
+    .caja-af { flex: 1.45; }
+    .caja-metro { flex: 1; }
+    #medidor { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); align-items: center; column-gap: 6px; }
+    #medidor .esfera { grid-column: 1; grid-row: 1 / span 3; max-height: 180px; }
+    #medidor .lectura-af { margin: 0; }
+    #medidor .lectura-af .nota-grande { font-size: 3.4rem; }
+    #medidor .info { font-size: var(--t1); }
+    .caja-af .pie-panel { margin-top: 4px; }
+    .caja-metro .redondo { width: 48px; height: 48px; }
+    .caja-metro .bpm span { font-size: 3rem; }
+
+    /* Calentar: pentagrama a todo el ancho y una fila de controles debajo */
+    #panelEj { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 6px 12px; align-content: start; }
+    #panelEj .ej-cabeza { grid-column: 1; }
+    #panelEj .ej-estado { grid-column: 2; margin: 0; }
+    #panelEj .penta-env, #panelEj .ej-controles, #panelEj .peq, #panelEj .error { grid-column: 1 / -1; }
+    #panelEj .ej-controles { grid-template-columns: 1fr 1fr 1.2fr; gap: 12px; margin: 0; }
+    #panelEj .ej-controles .grande-btn { grid-column: auto; min-height: 56px; }
+    #panelEj .ej-esperada .nota-grande { font-size: 2.2rem; }
+    #panelEj #ejTocas { margin-top: 2px; }
+    #panelEj .peq { margin-top: 0; }
+
+    /* Paneles de opciones: entran por la derecha, a toda la altura */
+    .hoja {
+      margin: 0 0 0 auto; width: min(440px, 62vw); height: 100dvh; max-height: 100dvh;
+      border-radius: 20px 0 0 20px;
+      padding: calc(14px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) calc(14px + env(safe-area-inset-bottom)) 16px;
+    }
+    .hoja[open] { animation: deLado .22s ease-out; }
+    .hoja::before { display: none; }
+    .cerrar { top: calc(10px + env(safe-area-inset-top)); right: calc(12px + env(safe-area-inset-right)); }
+    .aviso { max-height: calc(100dvh - 16px); overflow-y: auto; }
+  }
+  @keyframes deLado { from { transform: translateX(40px); opacity: 0; } }
 </style>
 </head>
 <body>
@@ -934,7 +1008,9 @@ st.labio = { ...PREDETERMINADO.labio, ...st.labio };
 function guardar() { try { localStorage.setItem('droneTrompeta', JSON.stringify(st)); } catch (e) {} }
 
 const esPC = window.matchMedia('(min-width: 1000px)');   // en PC el afinador queda fijo a la derecha
+const esApaisado = window.matchMedia('(orientation: landscape) and (max-height: 500px) and (max-width: 999px)');   // móvil en horizontal
 esPC.addEventListener('change', () => pintar());
+esApaisado.addEventListener('change', () => pintar());   // al girar el móvil se redibuja (el sonido sigue)
 window.addEventListener('resize', () => { if (st.pestana === 'ej') pintarEjercicio(); });
 
 // ♯ y ♭ en superíndice, bien alineados con el nombre de la nota (la fuente del sistema los dibuja pequeños)
@@ -2056,9 +2132,10 @@ function dibujarPentagrama(svg, frase, compas, idxResalte, claseResalte, esc = 1
   for (let k = 0; k < 5; k++) lineas += `<line class="linea" x1="2" y1="${30 + k * ESP}" x2="${x}" y2="${30 + k * ESP}"/>`;
   // en PC el pentagrama del ejercicio crece (120–170 px de alto) y, si la frase es corta, reparte las notas a todo el ancho
   let alto = 118;
-  if (svg.id === 'ejPenta' && esPC.matches) {
+  const apaisado = svg.id === 'ejPenta' && esApaisado.matches;   // móvil en horizontal: algo más bajo y a todo el ancho
+  if (svg.id === 'ejPenta' && (esPC.matches || apaisado)) {
     const ancho = svg.parentElement.clientWidth - 16;
-    alto = Math.max(110, Math.min(window.innerHeight < 760 ? 125 : 170, ancho * 116 / (x + 4)));   // más bajo en portátiles
+    alto = apaisado ? 100 : Math.max(110, Math.min(window.innerHeight < 760 ? 125 : 170, ancho * 116 / (x + 4)));   // más bajo en portátiles
     const objetivo = ancho * 116 / alto - 4;
     if (esc === 1 && x < objetivo - 2 && avance > 0) {
       return dibujarPentagrama(svg, frase, compas, idxResalte, claseResalte, (objetivo - (x - avance)) / avance);
