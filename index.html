@@ -375,28 +375,6 @@
   .fila.dos > div { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
   .fila.dos .seg button { padding: 0 4px; font-size: .88rem; }
 
-  /* Aviso de descanso (sobre la barra de transporte, visible en cualquier pestaña) */
-  .descanso {
-    position: fixed;
-    left: 50%;
-    transform: translateX(-50%);
-    bottom: calc(84px + env(safe-area-inset-bottom));
-    z-index: 11;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 8px 8px 8px 16px;
-    max-width: calc(100vw - 24px);
-    background: #173326;
-    border: 1px solid #2c6a49;
-    border-radius: 99px;
-    color: var(--texto);
-    font-weight: 600;
-    box-shadow: 0 6px 24px rgba(0, 0, 0, .4);
-  }
-  .descanso[hidden] { display: none; }
-  .descanso b { font-variant-numeric: tabular-nums; color: var(--ok); }
-  .descanso button { min-height: 36px; padding: 0 12px; border-radius: 99px; border: 1px solid #2c6a49; background: transparent; color: var(--ok); font-weight: 600; }
 
   /* Metrónomo */
   .tempo { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
@@ -625,7 +603,6 @@
   <div class="fila"><span class="etq">Micrófono</span>
     <div class="chips">
       <button class="chip" id="chFiltro">Filtrar el drone del micrófono</button>
-      <button class="chip" id="chDescanso">Avisar cuándo descansar</button>
       <button class="chip" id="chHz">Mostrar la frecuencia (Hz)</button>
     </div></div>
   <p class="peq" id="labioTxt"></p>
@@ -752,7 +729,6 @@
 </main>
 
 
-<div class="descanso" id="descanso" role="status" hidden><span id="descTxt"></span><button id="descSaltar">Saltar</button></div>
 
 <nav class="barra" aria-label="Transporte">
   <button id="btnDrone" aria-pressed="false">▶ Drone</button>
@@ -798,7 +774,6 @@ const PREDETERMINADO = {
   ejercicios: [],    // ejercicios propios: { id, nombre, compas, notas }
   tol: 5,            // tolerancia del afinador (± cents en verde)
   resp: 'normal',    // respuesta del afinador: lenta / normal / rapida
-  avisoDescanso: true,
   mostrarHz: false,
   labio: { fecha: '', seg: 0 },              // tiempo de trompeta sonando hoy
   metroSube: { on: false, paso: 2, cada: 4, tope: 120 },
@@ -2025,10 +2000,9 @@ document.getElementById('edBorrar').addEventListener('click', () => {
   pintar();
 });
 
-// ---------- Temporizador de labio y descanso («descansa tanto como tocas») ----------
-// Cuenta el tiempo que suena la trompeta (con el afinador activo). Tras un bloque de 30 s o más tocando,
-// al parar más de 4 s propone un descanso igual de largo.
-const labio = { bloque: 0, ultimoSonido: 0, ultimoFrame: 0, ultimoPinte: 0, ultimoGuardado: 0, descansoHasta: 0, timer: 0 };
+// ---------- Tiempo de labio ----------
+// Cuenta el tiempo que suena la trompeta (con el afinador activo); se ve en las opciones del afinador.
+const labio = { bloque: 0, ultimoSonido: 0, ultimoFrame: 0, ultimoPinte: 0, ultimoGuardado: 0 };
 const hoy = () => new Date().toLocaleDateString('sv');   // AAAA-MM-DD en hora local
 const mmss = (seg) => Math.floor(seg / 60) + ':' + String(Math.floor(seg % 60)).padStart(2, '0');
 
@@ -2041,9 +2015,7 @@ function contarLabio(sonando) {
     st.labio.seg += dt;
     labio.bloque += dt;
     labio.ultimoSonido = ahora;
-    if (labio.descansoHasta) terminarDescanso(false);
   } else if (labio.bloque > 0 && ahora - labio.ultimoSonido > 4000) {
-    if (labio.bloque >= 30 && st.avisoDescanso) empezarDescanso(labio.bloque);
     labio.bloque = 0;
     guardar();
   }
@@ -2059,30 +2031,6 @@ function pintarLabio() {
     : '';
 }
 
-function empezarDescanso(seg) {
-  labio.descansoHasta = performance.now() + seg * 1000;
-  document.getElementById('descanso').hidden = false;
-  clearInterval(labio.timer);
-  const paso = () => {
-    const quedan = (labio.descansoHasta - performance.now()) / 1000;
-    if (quedan <= 0) { terminarDescanso(true); return; }
-    document.getElementById('descTxt').innerHTML = 'Has tocado ' + mmss(seg) + ' seguidos. Descansa <b>' + mmss(Math.ceil(quedan)) + '</b>';
-  };
-  paso();
-  labio.timer = setInterval(paso, 250);
-}
-
-function terminarDescanso(completo) {
-  clearInterval(labio.timer);
-  labio.descansoHasta = 0;
-  const caja = document.getElementById('descanso');
-  if (!completo) { caja.hidden = true; return; }
-  document.getElementById('descTxt').innerHTML = '<b>✓ Descanso hecho.</b> Puedes seguir.';
-  if (navigator.vibrate) navigator.vibrate([150, 80, 150]);
-  labio.timer = setTimeout(() => { caja.hidden = true; }, 4000);
-}
-
-document.getElementById('descSaltar').addEventListener('click', () => terminarDescanso(false));
 
 // ---------- Pantalla siempre encendida ----------
 let bloqueo = null;
@@ -2118,7 +2066,6 @@ function pintar() {
   document.getElementById('chQuinta').setAttribute('aria-pressed', st.quinta);
   document.getElementById('chOctava').setAttribute('aria-pressed', st.octavaSup);
   document.getElementById('chFiltro').setAttribute('aria-pressed', st.filtro);
-  document.getElementById('chDescanso').setAttribute('aria-pressed', st.avisoDescanso);
   document.getElementById('chHz').setAttribute('aria-pressed', st.mostrarHz);
   marcar('segTol', String(st.tol));
   marcar('segResp', st.resp);
@@ -2272,11 +2219,6 @@ document.getElementById('chQuinta').addEventListener('click', () => { st.quinta 
 document.getElementById('chOctava').addEventListener('click', () => { st.octavaSup = !st.octavaSup; guardar(); actualizarDrone(); pintar(); });
 document.getElementById('chFiltro').addEventListener('click', () => { st.filtro = !st.filtro; guardar(); conectarFiltros(); pintar(); });
 document.getElementById('chHz').addEventListener('click', () => { st.mostrarHz = !st.mostrarHz; guardar(); pintar(); });
-document.getElementById('chDescanso').addEventListener('click', () => {
-  st.avisoDescanso = !st.avisoDescanso;
-  if (!st.avisoDescanso && labio.descansoHasta) terminarDescanso(false);
-  guardar(); pintar();
-});
 segmento('segTol', (v) => { st.tol = Number(v); guardar(); dibujarEsfera('esfera1'); dibujarEsfera('esfera2'); agujaAnim = 0; moverAguja(agujaObj); pintar(); });
 segmento('segResp', (v) => { st.resp = v; guardar(); pintar(); });
 document.getElementById('btnDrone').addEventListener('click', alternarDrone);
