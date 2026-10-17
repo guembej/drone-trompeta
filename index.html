@@ -704,8 +704,7 @@
 </dialog>
 
 <dialog class="hoja" id="opAf">
-  <h3 tabindex="-1" autofocus>Afinador y metrónomo</h3>
-  <h4 id="secAf">Afinador</h4>
+  <h3 tabindex="-1" autofocus>Opciones del afinador</h3>
   <div class="fila"><span class="etq">Referencia</span>
     <div class="seg" id="segModo" role="group" aria-label="Referencia de afinación">
       <button data-v="temperado">Temperado</button><button data-v="justo">Justo (drone)</button>
@@ -720,7 +719,11 @@
       <button class="chip" id="chHz">Mostrar la frecuencia (Hz)</button>
     </div></div>
   <p class="peq" id="labioTxt"></p>
-  <h4 id="secMetro">Metrónomo</h4>
+  <button class="cerrar" data-cerrar aria-label="Cerrar"><svg class="ico" aria-hidden="true"><use href="#i-cerrar"/></svg></button>
+</dialog>
+
+<dialog class="hoja" id="opMetro">
+  <h3 tabindex="-1" autofocus>Opciones del metrónomo</h3>
   <p class="peq">Toca el número del tempo al pulso para marcarlo.</p>
   <div class="fila"><span class="etq">Tempo</span><input type="range" id="bpmSlider" min="30" max="250" aria-label="Tempo"></div>
   <div class="fila"><span class="etq">Compás</span>
@@ -820,9 +823,9 @@
         <button class="redondo" id="bpmMas" aria-label="Más rápido"><svg class="ico" aria-hidden="true"><use href="#i-mas"/></svg></button>
       </div>
       <div class="metro-pie">
-        <button class="resumen" id="metroResumen" data-hoja="opAf" data-seccion="secMetro"></button>
+        <button class="resumen" id="metroResumen" data-hoja="opMetro"></button>
         <div class="pulsos" id="pulsos" aria-hidden="true"></div>
-        <button class="engranaje" data-hoja="opAf" data-seccion="secMetro" aria-label="Opciones del metrónomo"><svg class="ico" aria-hidden="true"><use href="#i-ajustes"/></svg></button>
+        <button class="engranaje" data-hoja="opMetro" aria-label="Opciones del metrónomo"><svg class="ico" aria-hidden="true"><use href="#i-ajustes"/></svg></button>
       </div>
       <p class="peq centro" id="metroInfo"></p>
     </div>
