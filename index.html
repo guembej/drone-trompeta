@@ -548,14 +548,121 @@
     .peq, .error { margin-top: 6px; }
     .fila { margin-top: 8px; }
   }
+
+  /* ===== Diseño: iconos, color con significado y superficies sin bordes ===== */
+  :root {
+    --sup-1: #1b1e26;      /* paneles */
+    --sup-2: #252a34;      /* controles */
+    --sup-3: #303644;      /* control elegido (neutro) */
+    --linea: #2a2f3a;
+  }
+  .ico { width: 1.3em; height: 1.3em; flex: none; vertical-align: -0.28em; }
+  button { display: inline-flex; align-items: center; justify-content: center; gap: .45em; }
+  .bpm { flex-direction: column; gap: 0; }
+  .resumen { display: block; }
+
+  /* C: superficies por tono, no por línea */
+  .panel, .caja { background: var(--sup-1); border: 0; }
+  .pestanas { background: var(--sup-1); border: 0; }
+  .seg { background: var(--sup-2); border: 0; }
+  .chip, .notas button, .icono-btn, .engranaje, .redondo, .contador button, .oct-btn, .estado-btn, .dlg-la .ajuste button { border: 0; background: var(--sup-2); }
+  select, input[type=text], textarea { border: 0; background: var(--sup-2); }
+  .pentagrama { border: 0; background: var(--sup-2); }
+  .hoja { background: var(--sup-1); border: 0; }
+  .aviso { background: var(--sup-1); border: 0; }
+  .barra { background: rgba(17, 19, 24, .96); border-top: 1px solid var(--linea); }
+
+  /* B: el dorado solo para lo activo o la acción principal; elegir una opción es gris */
+  .seg button[aria-pressed="true"] { background: #3b4251; color: #fff; box-shadow: 0 1px 2px rgba(0, 0, 0, .35); }
+  .chip[aria-pressed="true"] { background: var(--sup-2); color: var(--acento); border: 0; }
+  .barra button { border: 0; background: var(--sup-2); color: var(--suave); }
+  .barra button[aria-pressed="true"] { background: var(--acento); color: var(--acento-txt); }
+  .barra button.latido { box-shadow: 0 0 0 3px rgba(224, 176, 74, .5); }
+  .engranaje, .estado-btn .engr { color: var(--suave); }
+  .estado-btn { color: var(--suave); }
+  .redondo, .oct-btn, .contador button, .dlg-la .ajuste button { color: var(--texto); }
+  .hoja .listo, .aviso button { background: var(--sup-3); color: var(--texto); }
+  .grande-btn { border: 0; }
+  .grande-btn.parar { background: var(--sup-3); color: var(--texto); }
+  .chip.accion { color: var(--texto); justify-content: flex-start; }
+  .aviso .icono .ico { width: 44px; height: 44px; color: var(--acento); }
+  .caja-af:has(#medidor.ok) { border: 0; }
+
+  /* D: escala tipográfica (4 tamaños de interfaz + tamaños de pantalla para notas y tempo) */
+  :root { --t1: .75rem; --t2: .875rem; --t3: 1rem; --t4: 1.2rem; }
+  .etq, .hoja h4 { font-size: var(--t1); letter-spacing: .02em; }
+  .hoja h4 { letter-spacing: .1em; }
+  .peq, .info, .resumen, .ej-estado .fase, .ej-estado #ejCiclo, .hz { font-size: var(--t2); }
+  .seg button, .chip, .barra button, select, .estado-btn { font-size: var(--t3); }
+  .pestanas button { font-size: var(--t3); }
+  .top h1, .hoja h3, .aviso h3 { font-size: var(--t4); }
+  @media (max-width: 400px) { .pestanas button { font-size: var(--t2); } .top h1 { font-size: var(--t3); } }
+  details.atajos summary { cursor: pointer; color: var(--suave); font-size: var(--t2); list-style: none; }
+  details.atajos summary::-webkit-details-marker { display: none; }
+  details.atajos summary::before { content: '⌨  '; }
+  details.atajos p { margin: 8px 0 0; line-height: 2; }
+  .pie-panel details.atajos { flex: none; }
+  .pie-panel:has(details.atajos) .resumen:empty { flex: 1; }
+  .alt { font-size: .8em; vertical-align: .26em; line-height: 0; margin-left: .03em; font-weight: inherit; }
+
+  /* E: pestaña activa con un único indicador (píldora) */
+  .pestanas button[aria-selected="true"] { background: var(--sup-3); color: var(--texto); box-shadow: none; }
+  .pestanas button { border-radius: 10px; transition: background-color .15s, color .15s; }
+
+  /* F: interruptores de verdad en los paneles de opciones */
+  .hoja .chips { gap: 2px; }
+  .hoja .chip[aria-pressed] { justify-content: space-between; background: none; padding: 0 2px; min-height: 48px; color: var(--texto); font-weight: 500; text-align: left; }
+  .hoja .chip[aria-pressed]::before { content: none; }
+  .hoja .chip[aria-pressed]::after {
+    content: ''; flex: none; width: 46px; height: 28px; border-radius: 14px;
+    background: radial-gradient(circle at 14px 50%, #c8cdd6 0 10px, transparent 10.5px), var(--sup-3);
+    transition: background .15s;
+  }
+  .hoja .chip[aria-pressed="true"]::after { background: radial-gradient(circle at 32px 50%, #1a1407 0 10px, transparent 10.5px), var(--acento); }
+  .hoja .chip.mini[aria-pressed] { min-height: 32px; padding: 0; }
+  .hoja .chip.accion { background: var(--sup-2); padding: 0 14px; min-height: 48px; }
+  /* cierre: asa arriba y ✕ en la esquina, en lugar de un botón «Listo» grande */
+  .hoja { padding-top: 12px; }
+  .hoja::before { content: ''; display: block; width: 40px; height: 4px; border-radius: 2px; background: var(--sup-3); margin: 0 auto 14px; }
+  .hoja h3 { padding-right: 48px; }
+  .cerrar { position: absolute; top: 20px; right: 14px; width: 38px; height: 38px; padding: 0; border: 0; border-radius: 50%; background: var(--sup-2); color: var(--suave); }
+
+  /* G: equilibrio vertical y tamaños con aire */
+  .lectura .nota-grande { font-size: 3rem; }
+  .notas { gap: 8px; }
+  .notas button { min-height: clamp(56px, 9.5vh, 88px); font-size: 1.3rem; font-weight: 600; }
+  #edGuardar { background: var(--acento); color: var(--acento-txt); }
+  .ej-tempo .contador button { width: 44px; min-height: 44px; }
+  .ej-tempo .contador b { font-size: 1.35rem; min-width: 2.2em; }
+  .ej-estado .fase { padding: 4px 12px; font-weight: 700; }
+  /* esfera: números y ♭/♯ más legibles */
+  .esfera .num { font-size: 15px; fill: #aeb4bf; }
+  .esfera .signo { font-size: 21px; fill: #aeb4bf; }
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.6v12.8l10.2-6.4z" fill="currentColor"/></symbol>
+    <symbol id="i-stop" viewBox="0 0 24 24"><rect x="6.5" y="6.5" width="11" height="11" rx="2.2" fill="currentColor"/></symbol>
+    <symbol id="i-metro" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9.6 3.5h4.8l3.6 17H6z"/><path d="M12 16.5l5.5-9"/><path d="M8.2 16.5h7.6"/></g></symbol>
+    <symbol id="i-mic" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0"/><path d="M12 17.5V21"/></g></symbol>
+    <symbol id="i-ajustes" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M4 7h9M17.5 7H20M4 17h2.5M11 17h9"/><circle cx="15.2" cy="7" r="2.2"/><circle cx="8.8" cy="17" r="2.2"/></g></symbol>
+    <symbol id="i-lapiz" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></g></symbol>
+    <symbol id="i-mas" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-menos" viewBox="0 0 24 24"><path d="M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-izq" viewBox="0 0 24 24"><path d="M14.5 5.5L8 12l6.5 6.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-der" viewBox="0 0 24 24"><path d="M9.5 5.5L16 12l-6.5 6.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-cascos" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15.5V12a8 8 0 0 1 16 0v3.5"/><rect x="3" y="14" width="4.5" height="7" rx="1.8"/><rect x="16.5" y="14" width="4.5" height="7" rx="1.8"/></g></symbol>
+    <symbol id="i-onda" viewBox="0 0 24 24"><path d="M2.5 12c2.4-6 4.8-6 7.1 0s4.8 6 7.2 0c1.2-3 2.4-4.5 4.7-4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-cerrar" viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  </defs>
+</svg>
 
 <header class="top">
   <h1>Drone <span>Trompeta</span></h1>
   <button class="estado-btn" id="btnLa" aria-label="Ajustes generales: notación y diapasón">
-    <span id="chipNot">Si♭</span> · <b id="laValor">442</b><span id="laNombre" hidden></span><span class="engr" aria-hidden="true">⚙</span>
+    <span id="chipNot">Si♭</span> · <b id="laValor">442</b><span id="laNombre" hidden></span><span class="engr"><svg class="ico" aria-hidden="true"><use href="#i-ajustes"/></svg></span>
   </button>
 </header>
 
@@ -564,21 +671,21 @@
   <div class="fila">
     <span class="etq">Notación</span>
     <div class="seg" id="segNotacion" role="group" aria-label="Notación">
-      <button data-v="bb">Trompeta en Si♭</button>
+      <button data-v="bb"><span>Trompeta en Si<span class="alt">♭</span></span></button>
       <button data-v="do">En Do (real)</button>
     </div>
   </div>
   <div class="fila">
     <span class="etq">Diapasón</span>
     <div class="ajuste">
-      <button id="laMenos" aria-label="Bajar 1 Hz">−</button>
+      <button id="laMenos" aria-label="Bajar 1 Hz"><svg class="ico" aria-hidden="true"><use href="#i-menos"/></svg></button>
       <div class="valor"><span id="laGrande">442</span> <small>Hz</small></div>
-      <button id="laMas" aria-label="Subir 1 Hz">+</button>
+      <button id="laMas" aria-label="Subir 1 Hz"><svg class="ico" aria-hidden="true"><use href="#i-mas"/></svg></button>
     </div>
   </div>
   <p class="peq" id="laTexto"></p>
   <p class="peq" id="pie"></p>
-  <button class="listo" id="laOk">Listo</button>
+  <button class="cerrar" id="laOk" aria-label="Cerrar"><svg class="ico" aria-hidden="true"><use href="#i-cerrar"/></svg></button>
 </dialog>
 
 <dialog class="hoja" id="opDrone">
@@ -593,7 +700,7 @@
     </div></div>
   <div class="fila"><span class="etq">Añadir</span>
     <div class="chips"><button class="chip" id="chQuinta">Quinta</button><button class="chip" id="chOctava">Octava</button></div></div>
-  <button class="listo" data-cerrar>Listo</button>
+  <button class="cerrar" data-cerrar aria-label="Cerrar"><svg class="ico" aria-hidden="true"><use href="#i-cerrar"/></svg></button>
 </dialog>
 
 <dialog class="hoja" id="opAf">
@@ -626,14 +733,14 @@
     </div></div>
   <div class="fila"><div class="chips"><button class="chip" id="chAcento">Acento en el 1</button><button class="chip" id="btnTap">Tap tempo</button></div></div>
   <div class="fila">
-    <div class="fila-cab"><span class="etq">Subir el tempo solo</span><button class="chip mini" id="chSube">Activar</button></div>
+    <div class="fila-cab"><span class="etq">Subir el tempo solo</span><button class="chip mini" id="chSube"></button></div>
     <div class="params" id="paramsSube">+<select id="subePaso" aria-label="Subida en bpm"></select> cada <select id="subeCada" aria-label="Cada cuántos compases"></select> comp. hasta <select id="subeTope" aria-label="Tempo máximo"></select></div>
   </div>
   <div class="fila">
-    <div class="fila-cab"><span class="etq">Compases mudos</span><button class="chip mini" id="chMudo">Activar</button></div>
+    <div class="fila-cab"><span class="etq">Compases mudos</span><button class="chip mini" id="chMudo"></button></div>
     <div class="params" id="paramsMudo">Suenan <select id="mudoSuenan" aria-label="Compases que suenan"></select> · callan <select id="mudoCallan" aria-label="Compases en silencio"></select></div>
   </div>
-  <button class="listo" data-cerrar>Listo</button>
+  <button class="cerrar" data-cerrar aria-label="Cerrar"><svg class="ico" aria-hidden="true"><use href="#i-cerrar"/></svg></button>
 </dialog>
 
 
@@ -644,15 +751,15 @@
       <button data-v="baja">Baja ½ tono</button><button data-v="sube">Sube ½ tono</button><button data-v="igual">Igual</button>
     </div></div>
   <div class="fila fila-h"><span class="etq">Tonalidades</span>
-    <div class="contador"><button id="ejNMenos" aria-label="Menos">−</button><b id="ejN">6</b><button id="ejNMas" aria-label="Más">+</button></div></div>
+    <div class="contador"><button id="ejNMenos" aria-label="Menos"><svg class="ico" aria-hidden="true"><use href="#i-menos"/></svg></button><b id="ejN">6</b><button id="ejNMas" aria-label="Más"><svg class="ico" aria-hidden="true"><use href="#i-mas"/></svg></button></div></div>
   <div class="fila"><div class="chips"><button class="chip" id="chEjDrone">El drone sigue la tónica</button></div></div>
   <div class="fila"><span class="etq">Ejercicio</span>
-    <div class="chips"><button class="chip" id="ejEditar">✎ Editar o copiar</button><button class="chip" id="ejNuevo">＋ Nuevo</button></div></div>
-  <button class="listo" data-cerrar>Listo</button>
+    <div class="chips"><button class="chip accion" id="ejEditar"><svg class="ico" aria-hidden="true"><use href="#i-lapiz"/></svg>Editar o copiar</button><button class="chip accion" id="ejNuevo"><svg class="ico" aria-hidden="true"><use href="#i-mas"/></svg>Nuevo ejercicio</button></div></div>
+  <button class="cerrar" data-cerrar aria-label="Cerrar"><svg class="ico" aria-hidden="true"><use href="#i-cerrar"/></svg></button>
 </dialog>
 
 <dialog class="aviso" id="aviso">
-  <div class="icono" aria-hidden="true">🎧</div>
+  <div class="icono"><svg class="ico" aria-hidden="true"><use href="#i-cascos"/></svg></div>
   <h3>Usa auriculares en el móvil</h3>
   <p>Si el drone sale por el altavoz, el micrófono lo capta y el afinador puede confundirlo con tu nota.</p>
   <button id="avisoOk">Entendido</button>
@@ -683,14 +790,13 @@
 
   <section class="panel" id="panelDrone" role="tabpanel" aria-labelledby="tabDrone">
     <div class="lectura">
-      <button class="oct-btn" id="octMenos" aria-label="Octava más grave">‹</button>
+      <button class="oct-btn" id="octMenos" aria-label="Octava más grave"><svg class="ico" aria-hidden="true"><use href="#i-izq"/></svg></button>
       <span class="nota-grande" id="droneNota">Do</span><span class="oct" id="droneOct">4</span>
-      <button class="oct-btn" id="octMas" aria-label="Octava más aguda">›</button>
+      <button class="oct-btn" id="octMas" aria-label="Octava más aguda"><svg class="ico" aria-hidden="true"><use href="#i-der"/></svg></button>
       <span class="hz" id="droneHz"></span>
     </div>
     <div class="notas" id="notas" role="group" aria-label="Nota del drone"></div>
-    <div class="pie-panel"><button class="resumen" id="droneResumen" data-hoja="opDrone"></button><button class="engranaje" data-hoja="opDrone" aria-label="Opciones del drone">⚙</button></div>
-    <p class="atajos">Teclado: <kbd>C</kbd>–<kbd>B</kbd> notas (<kbd>H</kbd> = Si) · <kbd>⇧</kbd>+letra = ♯ · <kbd>Espacio</kbd> drone · <kbd>↑</kbd><kbd>↓</kbd> octava · <kbd>M</kbd> metrónomo · <kbd>←</kbd><kbd>→</kbd> tempo · <kbd>T</kbd> afinador</p>
+    <div class="pie-panel"><details class="atajos"><summary>Atajos de teclado</summary><p><kbd>C</kbd>–<kbd>B</kbd> notas (<kbd>H</kbd> = Si) · <kbd>⇧</kbd>+letra = ♯ · <kbd>Espacio</kbd> drone · <kbd>↑</kbd><kbd>↓</kbd> octava · <kbd>M</kbd> metrónomo · <kbd>←</kbd><kbd>→</kbd> tempo · <kbd>T</kbd> afinador</p></details><button class="resumen" id="droneResumen" data-hoja="opDrone"></button><button class="engranaje" data-hoja="opDrone" aria-label="Opciones del drone"><svg class="ico" aria-hidden="true"><use href="#i-ajustes"/></svg></button></div>
   </section>
 
   <section class="panel doble" id="panelAfinador" role="tabpanel" aria-labelledby="tabAfinador" hidden>
@@ -704,19 +810,19 @@
     </div>
     <p class="peq" id="afHint"></p>
     <p class="error" id="afError" hidden></p>
-    <div class="pie-panel"><button class="resumen" id="afResumen" data-hoja="opAf"></button><button class="engranaje" data-hoja="opAf" aria-label="Opciones del afinador">⚙</button></div>
+    <div class="pie-panel"><button class="resumen" id="afResumen" data-hoja="opAf"></button><button class="engranaje" data-hoja="opAf" aria-label="Opciones del afinador"><svg class="ico" aria-hidden="true"><use href="#i-ajustes"/></svg></button></div>
     </div>
     <div class="caja caja-metro">
       <h2 class="solo-pc">Metrónomo</h2>
       <div class="tempo">
-        <button class="redondo" id="bpmMenos" aria-label="Más lento">−</button>
+        <button class="redondo" id="bpmMenos" aria-label="Más lento"><svg class="ico" aria-hidden="true"><use href="#i-menos"/></svg></button>
         <button class="bpm" id="bpmTap" aria-label="Tempo: toca al pulso para marcarlo"><span id="bpmValor">80</span><small id="bpmNombre">Andante</small></button>
-        <button class="redondo" id="bpmMas" aria-label="Más rápido">+</button>
+        <button class="redondo" id="bpmMas" aria-label="Más rápido"><svg class="ico" aria-hidden="true"><use href="#i-mas"/></svg></button>
       </div>
       <div class="metro-pie">
         <button class="resumen" id="metroResumen" data-hoja="opAf" data-seccion="secMetro"></button>
         <div class="pulsos" id="pulsos" aria-hidden="true"></div>
-        <button class="engranaje" data-hoja="opAf" data-seccion="secMetro" aria-label="Opciones del metrónomo">⚙</button>
+        <button class="engranaje" data-hoja="opAf" data-seccion="secMetro" aria-label="Opciones del metrónomo"><svg class="ico" aria-hidden="true"><use href="#i-ajustes"/></svg></button>
       </div>
       <p class="peq centro" id="metroInfo"></p>
     </div>
@@ -726,14 +832,14 @@
   <section class="panel" id="panelEj" role="tabpanel" aria-labelledby="tabEj" hidden>
     <div class="ej-cabeza">
       <select id="ejSel" aria-label="Ejercicio"></select>
-      <button class="engranaje" data-hoja="opEj" aria-label="Opciones del calentamiento">⚙</button>
+      <button class="engranaje" data-hoja="opEj" aria-label="Opciones del calentamiento"><svg class="ico" aria-hidden="true"><use href="#i-ajustes"/></svg></button>
     </div>
     <div class="ej-estado"><span id="ejTono">Do mayor</span><span class="fase" id="ejFase">Listo</span><span id="ejCiclo"></span></div>
     <div class="pentagrama" id="ejPentaCont"><svg id="ejPenta" class="penta"></svg></div>
     <div class="ej-controles">
       <div class="ej-esperada" id="ejEsperada"><span class="etq" id="ejNotaEtq">Toca</span><span class="nota-grande" id="ejNota">–</span><span class="oct" id="ejOct"></span><div class="peq" id="ejTocas">&nbsp;</div></div>
       <div class="ej-tempo"><span class="etq">Tempo</span>
-        <div class="contador"><button id="ejBpmMenos" aria-label="Más lento">−</button><b id="ejBpm">80</b><button id="ejBpmMas" aria-label="Más rápido">+</button></div></div>
+        <div class="contador"><button id="ejBpmMenos" aria-label="Más lento"><svg class="ico" aria-hidden="true"><use href="#i-menos"/></svg></button><b id="ejBpm">80</b><button id="ejBpmMas" aria-label="Más rápido"><svg class="ico" aria-hidden="true"><use href="#i-mas"/></svg></button></div></div>
       <button class="grande-btn" id="btnEj">▶ Empezar</button>
     </div>
     <p class="peq" id="ejInfo"></p>
@@ -747,7 +853,7 @@
 <nav class="barra" aria-label="Transporte">
   <button id="btnDrone" aria-pressed="false">▶ Drone</button>
   <button id="btnMetro" aria-pressed="false">♩ 80</button>
-  <button id="btnAfinador" aria-pressed="false" aria-label="Afinador">🎤 Afinar</button>
+  <button id="btnAfinador" aria-pressed="false" aria-label="Afinador">Afinar</button>
 </nav>
 
 <script>
@@ -808,6 +914,10 @@ function guardar() { try { localStorage.setItem('droneTrompeta', JSON.stringify(
 const esPC = window.matchMedia('(min-width: 1000px)');   // en PC el afinador queda fijo a la derecha
 esPC.addEventListener('change', () => pintar());
 window.addEventListener('resize', () => { if (st.pestana === 'ej') pintarEjercicio(); });
+
+// ♯ y ♭ en superíndice, bien alineados con el nombre de la nota (la fuente del sistema los dibuja pequeños)
+const conAlt = (txt) => String(txt).replace(/([♯♭𝄪𝄫])/g, '<span class="alt">$1</span>');
+const ico = (n) => '<svg class="ico" aria-hidden="true"><use href="#i-' + n + '"/></svg>';
 
 const transp = () => (st.notacion === 'bb' ? 2 : 0);   // Si♭: escrito = real + 2 semitonos
 const nombreNota = (midiReal) => NOMBRES[mod12(midiReal + transp())];
@@ -1286,7 +1396,7 @@ function mostrarLectura(l) {
   const estado = clasificar(abs);
   meds.forEach((m) => m.classList.add('activo', estado));
   moverAguja(l.cents);
-  document.getElementById('afNota').textContent = nombreNota(l.n);
+  document.getElementById('afNota').innerHTML = conAlt(nombreNota(l.n));
   document.getElementById('afOct').textContent = octavaNota(l.n);
   const r = Math.round(l.cents);
   const centsTxt = (r > 0 ? '+' : r < 0 ? '−' : '') + Math.abs(r) + ' c';
@@ -1468,9 +1578,9 @@ let ultimoMax = 0;
 function pintarMetronomo() {
   const sb = st.metroSube, md = st.metroMudo;
   document.getElementById('chSube').setAttribute('aria-pressed', sb.on);
-  document.getElementById('chSube').textContent = sb.on ? 'Activo' : 'Activar';
+  document.getElementById('chSube').setAttribute('aria-label', 'Subir el tempo solo');
   document.getElementById('chMudo').setAttribute('aria-pressed', md.on);
-  document.getElementById('chMudo').textContent = md.on ? 'Activo' : 'Activar';
+  document.getElementById('chMudo').setAttribute('aria-label', 'Compases mudos');
   document.getElementById('paramsSube').classList.toggle('apagado', !sb.on);
   document.getElementById('paramsMudo').classList.toggle('apagado', !md.on);
   for (const [id, v] of [['subePaso', sb.paso], ['subeCada', sb.cada], ['subeTope', sb.tope], ['mudoSuenan', md.suenan], ['mudoCallan', md.callan]]) {
@@ -1774,7 +1884,7 @@ function pintarEjercicio() {
   const textos = { preparados: 'Preparados…', escucha: 'Escucha', turno: 'Tu turno', registro: 'Fin: fuera de registro', completo: 'Terminado' };
   fase.textContent = textos[ej.fase] || 'Listo';
   fase.className = 'fase ' + (ej.activo ? ej.fase : '');
-  document.getElementById('ejTono').textContent = frase ? frase.tonica + ' mayor' : '';
+  document.getElementById('ejTono').innerHTML = frase ? conAlt(frase.tonica) + ' mayor' : '';
   document.getElementById('ejCiclo').textContent = ej.activo && ej.fase !== 'preparados' ? (ej.cicloVis + 1) + ' / ' + st.ejN : '';
 
   const svg = document.getElementById('ejPenta');
@@ -1787,7 +1897,7 @@ function pintarEjercicio() {
 
   const n = ej.activo ? (ej.fase === 'turno' ? ej.esperada : ej.frase && ej.idx >= 0 ? ej.frase.notas[ej.idx] : null) : null;
   document.getElementById('ejNotaEtq').textContent = ej.fase === 'turno' ? 'Toca' : ej.activo ? 'Escucha' : 'Toca';
-  document.getElementById('ejNota').textContent = n && !n.silencio ? LETRAS_ES[n.letra] + ALT_TXT[n.alt] : '–';
+  document.getElementById('ejNota').innerHTML = n && !n.silencio ? conAlt(LETRAS_ES[n.letra] + ALT_TXT[n.alt]) : '–';
   document.getElementById('ejOct').textContent = n && !n.silencio ? n.oct : '';
 
   marcar('segEjDir', st.ejDir);
@@ -1798,7 +1908,7 @@ function pintarEjercicio() {
     ? 'El tempo nuevo (' + st.bpm + ') entra en la siguiente repetición.'
     : st.ejDrone && !droneOn ? 'Enciende el drone para oír la tónica.' : '';
   const b = document.getElementById('btnEj');
-  b.textContent = ej.activo ? '■ Parar' : '▶ Empezar';
+  b.innerHTML = ico(ej.activo ? 'stop' : 'play') + '<span>' + (ej.activo ? 'Parar' : 'Empezar') + '</span>';
   b.classList.toggle('parar', ej.activo);
 }
 
@@ -2087,15 +2197,15 @@ function pintar() {
 
   const pcMostrado = mod12(st.raiz + transp());
   document.querySelectorAll('#notas button').forEach((b, i) => {
-    b.firstChild.textContent = NOMBRES[i];
+    b.firstChild.innerHTML = conAlt(NOMBRES[i]);
     b.setAttribute('aria-pressed', String(i === pcMostrado));
   });
-  document.getElementById('droneNota').textContent = nombreNota(st.raiz);
+  document.getElementById('droneNota').innerHTML = conAlt(nombreNota(st.raiz));
   document.getElementById('droneOct').textContent = octavaNota(st.raiz);
   // El diapasón es el La real (MIDI 69); en notación Si♭ se escribe Si4
   const notaLa = nombreNota(69) + octavaNota(69);
   document.getElementById('laNombre').textContent = nombreNota(69);
-  document.getElementById('chipNot').textContent = st.notacion === 'bb' ? 'Si♭' : 'Do';
+  document.getElementById('chipNot').innerHTML = conAlt(st.notacion === 'bb' ? 'Si♭' : 'Do');
   // Resúmenes de las opciones de cada pestaña (se tocan para abrir sus opciones)
   const timbres = { pura: 'Pura', organo: 'Órgano', trompeta: 'Trompeta' };
   document.getElementById('droneResumen').textContent = [st.timbre === 'organo' ? '' : timbres[st.timbre], st.quinta ? '+ 5ª' : '', st.octavaSup ? '+ 8ª' : '']
@@ -2134,13 +2244,14 @@ function pintar() {
 
   const bd = document.getElementById('btnDrone');
   bd.setAttribute('aria-pressed', droneOn);
-  bd.textContent = droneOn ? '■ Drone' : '▶ Drone';
+  // cada botón conserva su icono; el relleno indica que está encendido
+  bd.innerHTML = ico('onda') + '<span>Drone</span>';
   const bm = document.getElementById('btnMetro');
   bm.setAttribute('aria-pressed', metroOn);
-  bm.textContent = (metroOn ? '■ ' : '♩ ') + st.bpm;
+  bm.innerHTML = ico('metro') + '<span>' + st.bpm + '</span>';
   const ba = document.getElementById('btnAfinador');
   ba.setAttribute('aria-pressed', afOn);
-  ba.textContent = afOn ? '■ Afinar' : '🎤 Afinar';
+  ba.innerHTML = ico('mic') + '<span>Afinar</span>';
 
   pintarMetronomo();
   pintarEjercicio();
@@ -2173,7 +2284,7 @@ const contNotas = document.getElementById('notas');
 const TECLAS = ['C', '⇧C', 'D', '⇧D', 'E', 'F', '⇧F', 'G', '⇧G', 'A', '⇧A', 'B'];
 NOMBRES.forEach((_, i) => {
   const b = document.createElement('button');
-  b.append(document.createTextNode(''));
+  b.append(Object.assign(document.createElement('span'), { className: 'nom' }));
   const t = document.createElement('span');
   t.className = 'tecla';
   t.textContent = TECLAS[i];
