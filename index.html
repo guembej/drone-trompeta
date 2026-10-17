@@ -434,6 +434,10 @@
   .ej-estado #ejCiclo { margin-left: auto; color: var(--suave); font-size: .85rem; font-variant-numeric: tabular-nums; }
   .pentagrama { overflow-x: auto; background: var(--panel-2); border: 1px solid var(--borde); border-radius: 12px; padding: 4px 0; scroll-behavior: smooth; }
   .pentagrama svg { display: block; height: 118px; }
+  /* clave y armadura fijas a la izquierda cuando el pentagrama se ha desplazado */
+  .penta-env { position: relative; }
+  .penta-fija { position: absolute; left: 0; top: 4px; display: block; background: var(--sup-2); border-radius: 12px 0 0 12px; box-shadow: 6px 0 8px -4px rgba(0,0,0,.45); visibility: hidden; pointer-events: none; }
+  .penta-fija.ver { visibility: visible; }
   .penta { color: var(--texto); }
   .penta .linea { stroke: var(--suave); stroke-width: 1; }
   .penta .actual { color: var(--acento); }
@@ -851,7 +855,7 @@
       <button class="engranaje" data-hoja="opEj" aria-label="Opciones del calentamiento"><svg class="ico" aria-hidden="true"><use href="#i-ajustes"/></svg></button>
     </div>
     <div class="ej-estado"><span id="ejTono">Do mayor</span><span class="fase" id="ejFase">Listo</span><span id="ejCiclo"></span></div>
-    <div class="pentagrama" id="ejPentaCont"><svg id="ejPenta" class="penta"></svg></div>
+    <div class="penta-env"><div class="pentagrama" id="ejPentaCont"><svg id="ejPenta" class="penta"></svg></div><svg id="ejPentaFija" class="penta penta-fija" aria-hidden="true"></svg></div>
     <div class="ej-controles">
       <div class="ej-esperada" id="ejEsperada"><span class="etq" id="ejNotaEtq">Toca</span><span class="nota-grande" id="ejNota">–</span><span class="oct" id="ejOct"></span><div class="peq" id="ejTocas">&nbsp;</div></div>
       <div class="ej-tempo"><span class="etq">Tempo</span>
@@ -1781,6 +1785,10 @@ async function empezarEjercicio() {
   try { await cargarMuestras(); } catch (e) { /* sin muestras: trompeta sintética */ }
   if (!afOn) await alternarAfinador();   // el micro escucha en tu turno
   st.compas = def.compas;
+  const contPenta = document.getElementById('ejPentaCont');
+  contPenta.style.scrollBehavior = 'auto';
+  contPenta.scrollLeft = 0;   // al empezar, el pentagrama se ve desde la clave
+  contPenta.style.scrollBehavior = '';
   const [pulsos] = metroCompas();
   const spb = 60 / st.bpm;
   const t0 = ctx.currentTime + 0.2;
@@ -1913,7 +1921,9 @@ function pintarEjercicio() {
   const xs = frase ? dibujarPentagrama(svg, frase, ejercicioActual().compas, ej.activo ? ej.idx : -1, ej.fase === 'turno' ? 'turno' : 'actual') : [];
   if (ej.activo && ej.idx >= 0 && xs[ej.idx] !== undefined) {
     const cont = document.getElementById('ejPentaCont');
-    const objetivo = xs[ej.idx] - cont.clientWidth / 3;
+    const fija = document.getElementById('ejPentaFija');
+    const margen = Number(fija.getAttribute('width')) || 0;   // la nota nunca queda tapada por la clave y la armadura
+    const objetivo = Math.max(0, xs[ej.idx] * (svg.clientHeight / 116) - margen - (cont.clientWidth - margen) / 3);
     if (Math.abs(cont.scrollLeft - objetivo) > cont.clientWidth / 3) cont.scrollLeft = objetivo;
   }
 
@@ -1956,6 +1966,13 @@ const CLAVE_SOL = 'M15 61 C9 61 8 53 14 51 C22 49 26 58 22 65 C18 72 4 70 3 60 C
 const FIGURAS = [4, 3, 2, 1.5, 1, 0.75, 0.5, 0.25];
 
 // Devuelve la x de cada nota (índice de la frase) para poder seguirla con el scroll
+// la cabecera fija aparece en cuanto la clave o la armadura salen por la izquierda
+function verCabecera() {
+  const cont = document.getElementById('ejPentaCont');
+  document.getElementById('ejPentaFija').classList.toggle('ver', cont.scrollLeft > 4);
+}
+document.getElementById('ejPentaCont').addEventListener('scroll', verCabecera, { passive: true });
+
 function dibujarPentagrama(svg, frase, compas, idxResalte, claseResalte, esc = 1) {
   const pulsos = Number(compas.split('/')[0]);
   const arm = frase.armadura;
@@ -1970,6 +1987,7 @@ function dibujarPentagrama(svg, frase, compas, idxResalte, claseResalte, esc = 1
     x += 9;
   }
   x += 6;
+  const xCab = x, cab = o;   // clave + armadura (para la cabecera fija)
   const [num, den] = compas.split('/');
   o += `<text x="${x + 8}" y="47" font-size="22" font-weight="700" font-family="Georgia, serif" text-anchor="middle" fill="currentColor">${num}</text>`;
   o += `<text x="${x + 8}" y="67" font-size="22" font-weight="700" font-family="Georgia, serif" text-anchor="middle" fill="currentColor">${den}</text>`;
@@ -2050,6 +2068,16 @@ function dibujarPentagrama(svg, frase, compas, idxResalte, claseResalte, esc = 1
   svg.style.height = alto + 'px';
   svg.setAttribute('width', (x + 4) * alto / 116);
   svg.innerHTML = lineas + o;
+  if (svg.id === 'ejPenta') {
+    const fija = document.getElementById('ejPentaFija');
+    let l = '';
+    for (let k = 0; k < 5; k++) l += `<line class="linea" x1="2" y1="${30 + k * ESP}" x2="${xCab}" y2="${30 + k * ESP}"/>`;
+    fija.setAttribute('viewBox', `0 0 ${xCab} 116`);
+    fija.style.height = alto + 'px';
+    fija.setAttribute('width', xCab * alto / 116);
+    fija.innerHTML = l + cab;
+    verCabecera();
+  }
   return xs;
 }
 
