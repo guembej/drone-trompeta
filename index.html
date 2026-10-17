@@ -908,7 +908,7 @@ const PREDETERMINADO = {
   ejN: 6,
   ejDrone: true,
   ejercicios: [],    // ejercicios propios: { id, nombre, compas, notas }
-  tol: 5,            // tolerancia del afinador (± cents en verde)
+  tol: 10,           // tolerancia del afinador (± cents en verde)
   resp: 'normal',    // respuesta del afinador: lenta / normal / rapida
   mostrarHz: false,
   labio: { fecha: '', seg: 0 },              // tiempo de trompeta sonando hoy
@@ -921,7 +921,9 @@ if (!['pura', 'organo', 'trompeta'].includes(st.timbre)) st.timbre = 'organo'; /
 if (!(st.la >= LA_MIN && st.la <= LA_MAX)) st.la = 442;
 if (!(st.bpm >= 30 && st.bpm <= 250)) st.bpm = 80;
 if (!Array.isArray(st.ejercicios)) st.ejercicios = [];
-if (![3, 5, 10].includes(st.tol)) st.tol = 5;
+if (![3, 5, 10].includes(st.tol)) st.tol = 10;
+// la tolerancia por defecto pasó de 5 a 10 c: se aplica una vez también a quien ya tenía la app
+if (!st.tol10) { st.tol = 10; st.tol10 = true; }
 st.metroSube = { ...PREDETERMINADO.metroSube, ...st.metroSube };
 st.metroMudo = { ...PREDETERMINADO.metroMudo, ...st.metroMudo };
 st.labio = { ...PREDETERMINADO.labio, ...st.labio };
@@ -2234,7 +2236,7 @@ function pintar() {
   // Solo se indica lo que no es lo habitual (la configuración completa está en ⚙)
   const marcasAf = [], marcasMetro = [];
   if (st.modo === 'justo') marcasAf.push('Justo');
-  if (st.tol !== 5) marcasAf.push('±' + st.tol + ' c');
+  if (st.tol !== 10) marcasAf.push('±' + st.tol + ' c');
   if (!st.filtro) marcasAf.push('sin filtro');
   if (st.compas !== '4/4') marcasMetro.push(st.compas);
   if (!metroCompas()[1] && st.subdiv !== 1) marcasMetro.push(subdivs[st.subdiv]);
