@@ -1640,7 +1640,7 @@ async function empezarEjercicio() {
   const t0 = ctx.currentTime + 0.2;
   Object.assign(ej, {
     activo: true, def, base, pulsos, spb, ciclo: 0, cicloVis: 0, desp: 0, fin: false, tramos: [{ desde: t0, bpm: st.bpm }],
-    proxT: t0 + pulsos * spb,   // un compás de entrada con el metrónomo
+    proxT: t0,   // sin compás de entrada: la frase empieza ya, a la vez que el metrónomo
     fase: 'preparados', frase: transponer(base, 0), idx: -1, esperada: null, fuentes: []
   });
   micPausa = true;
