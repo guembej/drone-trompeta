@@ -316,6 +316,18 @@
   .lectura .oct { margin-right: 4px; }
   .bpm { border: 0; background: none; color: var(--texto); padding: 0; cursor: pointer; }
   .centro { text-align: center; }
+  .entra-der { animation: entraDer .2s ease-out; }
+  .entra-izq { animation: entraIzq .2s ease-out; }
+  @keyframes entraDer { from { transform: translateX(40px); opacity: .3; } }
+  @keyframes entraIzq { from { transform: translateX(-40px); opacity: .3; } }
+  .metro-zona { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--borde); }
+  .metro-zona .redondo { width: 54px; height: 54px; font-size: 1.6rem; }
+  .metro-zona .bpm span { font-size: 3.2rem; }
+  .metro-zona .pulsos { margin: 8px 0 0; }
+  .resumen:empty { visibility: hidden; }
+  .resumen { color: var(--acento); font-size: .85rem; }
+  .hoja h4 { margin: 22px 0 0; font-size: .78rem; text-transform: uppercase; letter-spacing: .1em; color: var(--suave); }
+  .hoja h4 + .fila, .hoja h4 + .peq { margin-top: 8px; }
   .corto { display: none; }
   @media (max-width: 440px) { .pestanas .largo { display: none; } .pestanas .corto { display: inline; } }
   .notas button { min-height: 56px; }
@@ -531,7 +543,6 @@
     #panelAfinador .esfera { max-height: 240px; }
 
     #panelDrone .notas button { min-height: 64px; font-size: 1.3rem; }
-    #panelMetro .bpm span { font-size: 5rem; }
 
     /* Calentamiento: pentagrama grande a todo el ancho y controles en una fila */
     .pentagrama svg { margin: 0 auto; }
@@ -601,7 +612,8 @@
 </dialog>
 
 <dialog class="hoja" id="opAf">
-  <h3 tabindex="-1" autofocus>Opciones del afinador</h3>
+  <h3 tabindex="-1" autofocus>Afinador y metrónomo</h3>
+  <h4>Afinador</h4>
   <div class="fila"><span class="etq">Referencia</span>
     <div class="seg" id="segModo" role="group" aria-label="Referencia de afinación">
       <button data-v="temperado">Temperado</button><button data-v="justo">Justo (drone)</button>
@@ -614,12 +626,11 @@
     <div class="chips">
       <button class="chip" id="chFiltro">Filtrar el drone del micrófono</button>
       <button class="chip" id="chDescanso">Avisar cuándo descansar</button>
+      <button class="chip" id="chHz">Mostrar la frecuencia (Hz)</button>
     </div></div>
-  <button class="listo" data-cerrar>Listo</button>
-</dialog>
-
-<dialog class="hoja" id="opMetro">
-  <h3 tabindex="-1" autofocus>Opciones del metrónomo</h3>
+  <p class="peq" id="labioTxt"></p>
+  <h4>Metrónomo</h4>
+  <p class="peq">Toca el número del tempo al pulso para marcarlo.</p>
   <div class="fila"><span class="etq">Tempo</span><input type="range" id="bpmSlider" min="30" max="250" aria-label="Tempo"></div>
   <div class="fila"><span class="etq">Compás</span>
     <div class="seg" id="segCompas" role="group" aria-label="Compás">
@@ -640,6 +651,7 @@
   </div>
   <button class="listo" data-cerrar>Listo</button>
 </dialog>
+
 
 <dialog class="hoja" id="opEj">
   <h3 tabindex="-1" autofocus>Opciones del calentamiento</h3>
@@ -682,7 +694,6 @@
 <nav class="pestanas" role="tablist" aria-label="Secciones">
   <button role="tab" id="tabDrone" data-v="drone" aria-controls="panelDrone">Drone<span class="punto" id="puntoDrone" hidden></span></button>
   <button role="tab" id="tabAfinador" data-v="afinador" aria-controls="panelAfinador">Afinador<span class="punto" id="puntoAfinador" hidden></span></button>
-  <button role="tab" id="tabMetro" data-v="metro" aria-controls="panelMetro">Metr<span class="largo">ónomo</span><span class="corto">o</span><span class="punto" id="puntoMetro" hidden></span></button>
   <button role="tab" id="tabEj" data-v="ej" aria-controls="panelEj">Calentar<span class="punto" id="puntoEj" hidden></span></button>
 </nav>
 
@@ -704,25 +715,22 @@
       <svg class="esfera" id="esfera1" viewBox="0 26 380 214" aria-hidden="true"></svg>
       <div class="lectura-af"><span class="nota-grande" id="afNota">–</span><span class="oct" id="afOct"></span></div>
       <div class="cents" id="afCents">&nbsp;</div>
-      <div class="info" id="afInfo">Pulsa «Afinador» y toca una nota.</div>
+      <div class="info" id="afInfo">Pulsa «Afinar» y toca.</div>
     </div>
-    <p class="peq" id="labioTxt"></p>
     <p class="peq" id="afHint"></p>
     <p class="error" id="afError" hidden></p>
-    <div class="pie-panel"><button class="resumen" id="afResumen" data-hoja="opAf"></button><button class="engranaje" data-hoja="opAf" aria-label="Opciones del afinador">⚙</button></div>
+    <div class="metro-zona">
+      <div class="tempo">
+        <button class="redondo" id="bpmMenos" aria-label="Más lento">−</button>
+        <button class="bpm" id="bpmTap" aria-label="Tempo: toca al pulso para marcarlo"><span id="bpmValor">80</span><small id="bpmNombre">Andante</small></button>
+        <button class="redondo" id="bpmMas" aria-label="Más rápido">+</button>
+      </div>
+      <div class="pulsos" id="pulsos" aria-hidden="true"></div>
+      <p class="peq centro" id="metroInfo"></p>
+    </div>
+    <div class="pie-panel"><button class="resumen" id="afResumen" data-hoja="opAf"></button><button class="engranaje" data-hoja="opAf" aria-label="Opciones del afinador y del metrónomo">⚙</button></div>
   </section>
 
-  <section class="panel" id="panelMetro" role="tabpanel" aria-labelledby="tabMetro" hidden>
-    <div class="tempo">
-      <button class="redondo" id="bpmMenos" aria-label="Más lento">−</button>
-      <button class="bpm" id="bpmTap" aria-label="Tempo: toca al pulso para marcarlo"><span id="bpmValor">80</span><small id="bpmNombre">Andante</small></button>
-      <button class="redondo" id="bpmMas" aria-label="Más rápido">+</button>
-    </div>
-    <div class="pulsos" id="pulsos" aria-hidden="true"></div>
-    <p class="peq centro">Toca el número al pulso para marcar el tempo</p>
-    <p class="peq" id="metroInfo"></p>
-    <div class="pie-panel"><button class="resumen" id="metroResumen" data-hoja="opMetro"></button><button class="engranaje" data-hoja="opMetro" aria-label="Opciones del metrónomo">⚙</button></div>
-  </section>
 
   <section class="panel" id="panelEj" role="tabpanel" aria-labelledby="tabEj" hidden>
     <div class="ej-cabeza">
@@ -791,6 +799,7 @@ const PREDETERMINADO = {
   tol: 5,            // tolerancia del afinador (± cents en verde)
   resp: 'normal',    // respuesta del afinador: lenta / normal / rapida
   avisoDescanso: true,
+  mostrarHz: false,
   labio: { fecha: '', seg: 0 },              // tiempo de trompeta sonando hoy
   metroSube: { on: false, paso: 2, cada: 4, tope: 120 },
   metroMudo: { on: false, suenan: 2, callan: 2 }
@@ -1150,6 +1159,18 @@ const RESP = {
 };
 const ambar = () => Math.min(st.tol * 3, 30);   // zona ámbar según la tolerancia
 
+// Con histéresis: para entrar en una zona basta con cruzar su límite, pero para salir hay que pasarlo
+// con algo de margen. Así el color no parpadea cuando la nota está justo en el borde.
+let estadoPrev = '';
+function clasificar(abs) {
+  const m = Math.max(1, st.tol * 0.3);
+  let e = abs <= st.tol ? 'ok' : abs <= ambar() ? 'casi' : 'lejos';
+  if (estadoPrev === 'ok' && e !== 'ok' && abs <= st.tol + m) e = 'ok';
+  if (estadoPrev === 'casi' && e === 'lejos' && abs <= ambar() + m) e = 'casi';
+  estadoPrev = e;
+  return e;
+}
+
 let micPausa = false;   // en el calentamiento el micro no escucha mientras toca la app
 
 function bucle() {
@@ -1263,16 +1284,17 @@ function mostrarLectura(l) {
   meds.forEach((m) => m.classList.remove('ok', 'casi', 'lejos', 'activo'));
   const tocas = document.getElementById('ejTocas');
   if (!l) {
+    estadoPrev = '';
     tocas.innerHTML = '&nbsp;';
     document.getElementById('afNota').textContent = '–';
     document.getElementById('afOct').textContent = '';
     document.getElementById('afCents').innerHTML = '&nbsp;';
     moverAguja(0);
-    document.getElementById('afInfo').textContent = afOn ? 'Escuchando… toca una nota.' : 'Pulsa «Afinador» y toca una nota.';
+    document.getElementById('afInfo').textContent = afOn ? 'Escuchando…' : 'Pulsa «Afinar» y toca.';
     return;
   }
   const abs = Math.abs(l.cents);
-  const estado = abs <= st.tol ? 'ok' : abs <= ambar() ? 'casi' : 'lejos';
+  const estado = clasificar(abs);
   meds.forEach((m) => m.classList.add('activo', estado));
   moverAguja(l.cents);
   document.getElementById('afNota').textContent = nombreNota(l.n);
@@ -1282,13 +1304,10 @@ function mostrarLectura(l) {
   // además del color, la palabra: para leerlo de lejos y para quien no distingue bien los colores
   document.getElementById('afCents').innerHTML = centsTxt + '<small>' + (estado === 'ok' ? 'afinado' : l.cents > 0 ? 'alto' : 'bajo') + '</small>';
   tocas.textContent = 'Tocas ' + nombreNota(l.n) + octavaNota(l.n) + ' · ' + centsTxt;
-  let info = fmt(l.f, 1) + ' Hz (real)';
-  if (l.intervalo !== null) {
-    const off = JUSTO[l.intervalo];
-    const offTxt = off === 0 ? '' : ' · pura: ' + (off > 0 ? '+' : '−') + fmt(Math.abs(off), 0) + ' c vs temperado';
-    info += '<br>' + INTERVALOS[l.intervalo] + ' sobre ' + nombreNota(st.raiz) + offTxt;
-  }
-  document.getElementById('afInfo').innerHTML = info;
+  const partes = [];
+  if (st.mostrarHz) partes.push(fmt(l.f, 1) + ' Hz');
+  if (l.intervalo !== null) partes.push(INTERVALOS[l.intervalo] + ' sobre ' + nombreNota(st.raiz));
+  document.getElementById('afInfo').textContent = partes.join(' · ');
 }
 dibujarEsfera('esfera1');
 dibujarEsfera('esfera2');
@@ -2100,6 +2119,7 @@ function pintar() {
   document.getElementById('chOctava').setAttribute('aria-pressed', st.octavaSup);
   document.getElementById('chFiltro').setAttribute('aria-pressed', st.filtro);
   document.getElementById('chDescanso').setAttribute('aria-pressed', st.avisoDescanso);
+  document.getElementById('chHz').setAttribute('aria-pressed', st.mostrarHz);
   marcar('segTol', String(st.tol));
   marcar('segResp', st.resp);
   pintarLabio();
@@ -2117,14 +2137,19 @@ function pintar() {
   document.getElementById('chipNot').textContent = st.notacion === 'bb' ? 'Si♭' : 'Do';
   // Resúmenes de las opciones de cada pestaña (se tocan para abrir sus opciones)
   const timbres = { pura: 'Pura', organo: 'Órgano', trompeta: 'Trompeta' };
-  document.getElementById('droneResumen').textContent = 'Timbre ' + timbres[st.timbre].toLowerCase()
-    + (st.quinta ? ' · + 5ª' : '') + (st.octavaSup ? ' · + 8ª' : '');
-  document.getElementById('afResumen').textContent = (st.modo === 'justo' ? 'Justo' : 'Temperado') + ' · ±' + st.tol + ' c · respuesta '
-    + { lenta: 'lenta', normal: 'media', rapida: 'rápida' }[st.resp] + (st.filtro ? '' : ' · sin filtro');
+  document.getElementById('droneResumen').textContent = [st.timbre === 'organo' ? '' : timbres[st.timbre], st.quinta ? '+ 5ª' : '', st.octavaSup ? '+ 8ª' : '']
+    .filter(Boolean).join(' · ');
   const subdivs = { 1: '♩', 2: '♫', 3: 'tresillos', 4: '♬' };
-  document.getElementById('metroResumen').textContent = st.compas + (metroCompas()[1] ? '' : ' · ' + subdivs[st.subdiv])
-    + (st.acento ? '' : ' · sin acento') + (st.metroSube.on ? ' · sube a ' + st.metroSube.tope : '')
-    + (st.metroMudo.on ? ' · mudos ' + st.metroMudo.suenan + '+' + st.metroMudo.callan : '');
+  // Solo se indica lo que no es lo habitual (la configuración completa está en ⚙)
+  const marcas = [];
+  if (st.modo === 'justo') marcas.push('Justo');
+  if (st.tol !== 5) marcas.push('±' + st.tol + ' c');
+  if (!st.filtro) marcas.push('sin filtro');
+  if (st.compas !== '4/4') marcas.push(st.compas);
+  if (!metroCompas()[1] && st.subdiv !== 1) marcas.push(subdivs[st.subdiv]);
+  if (st.metroSube.on) marcas.push('sube a ' + st.metroSube.tope);
+  if (st.metroMudo.on) marcas.push('mudos ' + st.metroMudo.suenan + '+' + st.metroMudo.callan);
+  document.getElementById('afResumen').textContent = marcas.join(' · ');
   const io = ORDEN_OCTAVAS.indexOf(st.octava);
   document.getElementById('octMenos').disabled = io <= 0;
   document.getElementById('octMas').disabled = io >= ORDEN_OCTAVAS.length - 1;
@@ -2135,15 +2160,14 @@ function pintar() {
   document.getElementById('laGrande').textContent = st.la;
   document.getElementById('droneHz').textContent = fmt(frecuencia(st.raiz), 1) + ' Hz';
 
+  if (st.pestana === 'metro') st.pestana = 'afinador';   // el metrónomo ahora vive con el afinador
   const pest = esPC.matches && st.pestana === 'afinador' ? 'drone' : st.pestana;
   document.querySelectorAll('.pestanas button').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.v === pest)));
   document.getElementById('panelDrone').hidden = pest !== 'drone';
   document.getElementById('panelAfinador').hidden = pest !== 'afinador' && !esPC.matches;
-  document.getElementById('panelMetro').hidden = pest !== 'metro';
   document.getElementById('panelEj').hidden = pest !== 'ej';
   document.getElementById('puntoDrone').hidden = !droneOn;      // indica que suena aunque estés en otra pestaña
-  document.getElementById('puntoAfinador').hidden = !afOn;
-  document.getElementById('puntoMetro').hidden = !metroOn;
+  document.getElementById('puntoAfinador').hidden = !afOn && !metroOn;
   document.getElementById('puntoEj').hidden = !ej.activo;
 
   const bd = document.getElementById('btnDrone');
@@ -2162,7 +2186,7 @@ function pintar() {
   const hint = document.getElementById('afHint');
   if (st.modo === 'justo') {
     hint.className = 'peq';
-    hint.textContent = 'Mide contra el intervalo puro sobre ' + nombreNota(st.raiz) + ' (la nota del drone).';
+    hint.textContent = '';
   } else {
     hint.className = 'peq';
     hint.textContent = '';
@@ -2247,6 +2271,7 @@ segmento('segModo', (v) => { st.modo = v; notaActual = null; guardar(); pintar()
 document.getElementById('chQuinta').addEventListener('click', () => { st.quinta = !st.quinta; guardar(); actualizarDrone(); pintar(); });
 document.getElementById('chOctava').addEventListener('click', () => { st.octavaSup = !st.octavaSup; guardar(); actualizarDrone(); pintar(); });
 document.getElementById('chFiltro').addEventListener('click', () => { st.filtro = !st.filtro; guardar(); conectarFiltros(); pintar(); });
+document.getElementById('chHz').addEventListener('click', () => { st.mostrarHz = !st.mostrarHz; guardar(); pintar(); });
 document.getElementById('chDescanso').addEventListener('click', () => {
   st.avisoDescanso = !st.avisoDescanso;
   if (!st.avisoDescanso && labio.descansoHasta) terminarDescanso(false);
@@ -2307,6 +2332,30 @@ document.getElementById('bpmTap').addEventListener('click', tapTempo);
 
 // Pestañas
 function elegirPestana(v) { st.pestana = v; guardar(); pintar(); }
+
+// Deslizar el dedo a izquierda/derecha cambia de pestaña (móvil). No actúa sobre el pentagrama
+// (que tiene su propio scroll), sobre deslizadores o listas, ni con un panel de opciones abierto.
+let toque = null;
+const zonaToque = document.querySelector('main');
+zonaToque.addEventListener('touchstart', (e) => {
+  toque = e.touches.length === 1 && !e.target.closest('input, select, textarea, .pentagrama')
+    ? { x: e.touches[0].clientX, y: e.touches[0].clientY, t: Date.now() } : null;
+}, { passive: true });
+zonaToque.addEventListener('touchend', (e) => {
+  if (!toque || document.querySelector('dialog[open]')) { toque = null; return; }
+  const dx = e.changedTouches[0].clientX - toque.x, dy = e.changedTouches[0].clientY - toque.y;
+  const valido = Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5 && Date.now() - toque.t < 800;
+  toque = null;
+  if (!valido) return;
+  const orden = esPC.matches ? ['drone', 'ej'] : ['drone', 'afinador', 'ej'];
+  const destino = orden[orden.indexOf(st.pestana) + (dx < 0 ? 1 : -1)];
+  if (!destino) return;
+  elegirPestana(destino);
+  const panel = document.getElementById({ drone: 'panelDrone', afinador: 'panelAfinador', ej: 'panelEj' }[destino]);
+  panel.classList.remove('entra-izq', 'entra-der');
+  void panel.offsetWidth;   // reinicia la animación
+  panel.classList.add(dx < 0 ? 'entra-der' : 'entra-izq');
+}, { passive: true });
 document.querySelectorAll('.pestanas button').forEach((b) => b.addEventListener('click', () => elegirPestana(b.dataset.v)));
 
 pintar();

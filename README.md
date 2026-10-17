@@ -12,7 +12,7 @@ App web instalable (PWA) para estudiar trompeta: drone, afinador, metrónomo y c
 - **En el PC**: el afinador queda fijo a la derecha y cada pestaña aprovecha el ancho (el pentagrama del calentamiento ocupa toda la línea).
 - **Editor de ejercicios**: escribe tus frases en texto (`Do4 Sol4 Do5:2 | Mi5:4`) con vista previa en el pentagrama.
 - **Barra de transporte**: drone, metrónomo y afinador se encienden y apagan desde cualquier pestaña. El botón del afinador se colorea con tu afinación.
-- **Interfaz minimalista**: cada pestaña muestra solo lo que se usa al tocar; el resto de ajustes está detrás de ⚙ (o tocando el resumen de abajo). Notación y diapasón están en el ⚙ de la cabecera.
+- **Interfaz minimalista**: tres pestañas (Drone · Afinador con metrónomo · Calentar). Cada una muestra solo lo que se usa al tocar; el resto está detrás de ⚙, y abajo solo aparece lo que no es lo habitual (por ejemplo «Justo»). Notación y diapasón están en el ⚙ de la cabecera. En el móvil se cambia de pestaña deslizando el dedo.
 - **Teclado** (ordenador): C–B notas, Mayús = ♯, Espacio drone, ↑↓ octava, M metrónomo, ←→ tempo, T afinador.
 - **Afinador ajustable**: tolerancia ±10 / ±5 / ±3 cents y respuesta lenta, media o rápida. El panel se tiñe de verde al estar afinado y dice «afinado», «alto» o «bajo».
 - **Labio y descanso**: con el afinador activo cuenta el tiempo que suena la trompeta («Labio hoy») y, tras tocar 30 s o más seguidos, propone descansar lo mismo que has tocado.
