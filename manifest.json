@@ -1,8 +1,8 @@
 {
-  "id": "drone-trompeta-app",
-  "name": "Drone Trompeta",
-  "short_name": "Drone Trompeta",
-  "description": "Drone de afinación y afinador para trompeta en Si♭ y Do.",
+  "id": "piston-trompeta-app",
+  "name": "Pistón",
+  "short_name": "Pistón",
+  "description": "Drone, afinador, metrónomo y calentamiento para trompeta.",
   "lang": "es",
   "start_url": "./",
   "scope": "./",

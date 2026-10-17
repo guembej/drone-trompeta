@@ -1,4 +1,4 @@
-# Drone Trompeta
+# Pistón
 
 App web instalable (PWA) para estudiar trompeta: drone, afinador, metrónomo y calentamiento de pregunta y respuesta. Funciona sin conexión en Android y en Windows.
 
