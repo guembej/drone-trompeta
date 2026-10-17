@@ -603,6 +603,11 @@
   details.atajos p { margin: 8px 0 0; line-height: 2; }
   .pie-panel details.atajos { flex: none; }
   .pie-panel:has(details.atajos) .resumen:empty { flex: 1; }
+  .valor-bpm { color: var(--suave); font-size: var(--t2); font-variant-numeric: tabular-nums; }
+  .valor-bpm b { color: var(--texto); font-size: 1.35rem; margin-right: 2px; }
+  .deslizador { display: flex; align-items: center; gap: 10px; }
+  .deslizador input[type=range] { flex: 1; margin: 0; }
+  .deslizador .paso { flex: none; width: 40px; height: 40px; padding: 0; border: 0; border-radius: 50%; background: var(--sup-2); color: var(--texto); }
   .alt { font-size: .8em; vertical-align: .26em; line-height: 0; margin-left: .03em; font-weight: inherit; }
 
   /* E: pestaña activa con un único indicador (píldora) */
@@ -725,7 +730,14 @@
 <dialog class="hoja" id="opMetro">
   <h3 tabindex="-1" autofocus>Opciones del metrónomo</h3>
   <p class="peq">Toca el número del tempo al pulso para marcarlo.</p>
-  <div class="fila"><span class="etq">Tempo</span><input type="range" id="bpmSlider" min="30" max="250" aria-label="Tempo"></div>
+  <div class="fila">
+    <div class="fila-cab"><span class="etq">Tempo</span><span class="valor-bpm"><b id="hojaBpm">80</b> bpm · <span id="hojaBpmNombre">Andante</span></span></div>
+    <div class="deslizador">
+      <button class="paso" id="hojaBpmMenos" aria-label="Más lento"><svg class="ico" aria-hidden="true"><use href="#i-menos"/></svg></button>
+      <input type="range" id="bpmSlider" min="30" max="250" aria-label="Tempo">
+      <button class="paso" id="hojaBpmMas" aria-label="Más rápido"><svg class="ico" aria-hidden="true"><use href="#i-mas"/></svg></button>
+    </div>
+  </div>
   <div class="fila"><span class="etq">Compás</span>
     <div class="seg" id="segCompas" role="group" aria-label="Compás">
       <button data-v="2/4">2/4</button><button data-v="3/4">3/4</button><button data-v="4/4">4/4</button><button data-v="6/8">6/8</button>
@@ -1591,6 +1603,8 @@ function pintarMetronomo() {
   }
   document.getElementById('bpmValor').textContent = st.bpm;
   document.getElementById('bpmNombre').textContent = nombreTempo(st.bpm);
+  document.getElementById('hojaBpm').textContent = st.bpm;
+  document.getElementById('hojaBpmNombre').textContent = nombreTempo(st.bpm);
   const sl = document.getElementById('bpmSlider');
   if (Number(sl.value) !== st.bpm) sl.value = st.bpm;
   marcar('segCompas', st.compas);
@@ -1645,6 +1659,8 @@ document.getElementById('chSube').addEventListener('click', () => {
 document.getElementById('chMudo').addEventListener('click', () => { st.metroMudo.on = !st.metroMudo.on; guardar(); pintar(); });
 
 repetir(document.getElementById('bpmMenos'), () => ponerBpm(st.bpm - 1));
+repetir(document.getElementById('hojaBpmMenos'), () => ponerBpm(st.bpm - 1));
+repetir(document.getElementById('hojaBpmMas'), () => ponerBpm(st.bpm + 1));
 repetir(document.getElementById('bpmMas'), () => ponerBpm(st.bpm + 1));
 document.getElementById('bpmSlider').addEventListener('input', (e) => ponerBpm(Number(e.target.value)));
 document.getElementById('btnTap').addEventListener('click', tapTempo);
