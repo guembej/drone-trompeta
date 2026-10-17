@@ -284,6 +284,77 @@
   .error { color: var(--lejos); font-size: .92rem; margin: 10px 0 0; }
 
 
+  /* ===== Minimalismo: lo que se usa al tocar, delante; el resto, en paneles de opciones ===== */
+  .estado-btn {
+    display: flex; align-items: center; gap: 6px;
+    min-height: 42px; padding: 0 12px;
+    border: 1px solid var(--borde); border-radius: 99px;
+    background: var(--panel-2); color: var(--suave);
+    font-weight: 600; white-space: nowrap; font-variant-numeric: tabular-nums;
+  }
+  .estado-btn b { color: var(--texto); }
+  .estado-btn .engr { margin-left: 4px; font-size: 1.05rem; }
+  .pie-panel { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 12px; }
+  .resumen {
+    flex: 1; min-width: 0; min-height: 44px; padding: 0;
+    border: 0; background: none; color: var(--suave);
+    font-size: .92rem; text-align: left;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .engranaje {
+    flex: none; width: 44px; height: 44px;
+    border: 1px solid var(--borde); border-radius: 50%;
+    background: var(--panel-2); color: var(--suave); font-size: 1.25rem; line-height: 1;
+  }
+  .oct-btn {
+    flex: none; width: 36px; height: 36px; align-self: center;
+    border: 1px solid var(--borde); border-radius: 50%;
+    background: var(--panel-2); color: var(--texto); font-size: 1.3rem; font-weight: 700; line-height: 1;
+  }
+  .oct-btn:disabled { opacity: .3; }
+  .lectura { align-items: center; }
+  .lectura .oct { margin-right: 4px; }
+  .bpm { border: 0; background: none; color: var(--texto); padding: 0; cursor: pointer; }
+  .centro { text-align: center; }
+  .corto { display: none; }
+  @media (max-width: 440px) { .pestanas .largo { display: none; } .pestanas .corto { display: inline; } }
+  .notas button { min-height: 56px; }
+
+  /* Paneles de opciones: suben desde abajo */
+  .hoja {
+    width: min(540px, 100vw); max-width: 100vw; max-height: 86vh;
+    margin: auto auto 0; padding: 18px 16px calc(16px + env(safe-area-inset-bottom));
+    background: var(--panel); color: var(--texto);
+    border: 1px solid var(--borde); border-bottom: 0; border-radius: 20px 20px 0 0;
+    overflow-y: auto;
+  }
+  .hoja[open] { animation: subir .22s ease-out; }
+  @keyframes subir { from { transform: translateY(40px); opacity: 0; } }
+  .hoja::backdrop { background: rgba(0, 0, 0, .55); }
+  .hoja h3 { margin: 0 0 4px; font-size: 1.05rem; outline: none; }
+  .hoja .fila { margin-top: 16px; }
+  .hoja .chips { flex-direction: column; }
+  .hoja .chip { min-height: 46px; text-align: left; }
+  .hoja input[type=range] { margin: 6px 0 0; }
+  .hoja .listo {
+    width: 100%; min-height: 50px; margin-top: 20px;
+    border: 0; border-radius: 14px; background: var(--acento); color: var(--acento-txt);
+    font-weight: 700; font-size: 1.05rem;
+  }
+  .dlg-la .ajuste { margin: 4px 0 0; }
+
+  /* Calentamiento: nota esperada coloreada según tu afinación (sin aguja duplicada) */
+  .ej-controles { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: center; margin-top: 10px; }
+  .ej-controles .grande-btn { grid-column: 1 / -1; margin-top: 0; }
+  .ej-tempo { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .ej-esperada.ok .nota-grande { color: var(--ok); }
+  .ej-esperada.casi .nota-grande { color: var(--casi); }
+  .ej-esperada.lejos .nota-grande { color: var(--lejos); }
+  /* El botón del afinador de la barra se colorea con la afinación: se ve desde cualquier pestaña */
+  .barra #btnAfinador[aria-pressed="true"].ok { background: var(--ok); border-color: var(--ok); color: #0c1f15; }
+  .barra #btnAfinador[aria-pressed="true"].casi { background: var(--casi); border-color: var(--casi); color: #2a2208; }
+  .barra #btnAfinador[aria-pressed="true"].lejos { background: var(--lejos); border-color: var(--lejos); color: #2a0f0a; }
+
   /* Afinador: panel teñido de verde cuando estás afinado */
   #panelAfinador { transition: background-color .25s, border-color .25s; }
   #panelAfinador:has(#medidor.ok) { background: #16271e; border-color: #2c5a41; }
@@ -364,7 +435,7 @@
   .ej-estado .fase.turno { background: #173326; color: var(--ok); }
   .ej-estado #ejCiclo { margin-left: auto; color: var(--suave); font-size: .85rem; font-variant-numeric: tabular-nums; }
   .pentagrama { overflow-x: auto; background: var(--panel-2); border: 1px solid var(--borde); border-radius: 12px; padding: 4px 0; scroll-behavior: smooth; }
-  .pentagrama svg { display: block; height: 100px; }
+  .pentagrama svg { display: block; height: 118px; }
   .penta { color: var(--texto); }
   .penta .linea { stroke: var(--suave); stroke-width: 1; }
   .penta .actual { color: var(--acento); }
@@ -424,7 +495,7 @@
     flex: 1;
     max-width: 220px;
     min-width: 0;
-    min-height: 56px;
+    min-height: 52px;
     padding: 0 4px;
     border-radius: 16px;
     border: 2px solid var(--acento);
@@ -459,29 +530,14 @@
     .solo-pc { display: block; }
     #panelAfinador .esfera { max-height: 240px; }
 
-    /* Drone: notas a la izquierda, opciones a la derecha */
-    #panelDrone { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); column-gap: 20px; grid-auto-flow: row dense; align-items: start; }
-    #panelDrone > .lectura, #panelDrone > .notas { grid-column: 1; }
-    #panelDrone > .notas { grid-row: span 2; }
-    #panelDrone > .fila { grid-column: 2; margin-top: 0; margin-bottom: 10px; }
-    #panelDrone > .atajos { grid-column: 1 / -1; }
     #panelDrone .notas button { min-height: 64px; font-size: 1.3rem; }
-
-    /* Metrónomo: tempo a la izquierda, opciones a la derecha */
-    #panelMetro { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 24px; grid-auto-flow: row dense; align-items: center; }
-    #panelMetro > .tempo, #panelMetro > input, #panelMetro > .pulsos { grid-column: 1; }
-    #panelMetro > .fila { grid-column: 2; margin-top: 0; margin-bottom: 10px; }
-    #panelMetro > .peq { grid-column: 1 / -1; }
     #panelMetro .bpm span { font-size: 5rem; }
 
     /* Calentamiento: pentagrama grande a todo el ancho y controles en una fila */
     .pentagrama svg { margin: 0 auto; }
-    .ej-controles { display: grid; grid-template-columns: 170px minmax(0, 1fr) 190px; gap: 16px; align-items: center; margin-top: 12px; }
-    .ej-turno { margin-top: 0; }
-    .medidor.mini { display: none; }
+    .ej-controles { grid-template-columns: 1fr 1fr 1.2fr; gap: 16px; margin-top: 12px; }
+    .ej-controles .grande-btn { grid-column: auto; min-height: 72px; font-size: 1.2rem; }
     .ej-esperada .nota-grande { font-size: 4rem; }
-    .ej-ajustes .fila:first-child { margin-top: 0; }
-    .ej-controles .grande-btn { margin-top: 0; min-height: 72px; font-size: 1.2rem; }
   }
   /* Móviles bajos: todo un poco más compacto para que no haga falta scroll */
   @media (max-height: 740px) {
@@ -502,25 +558,101 @@
 
 <header class="top">
   <h1>Drone <span>Trompeta</span></h1>
-  <div class="derecha">
-    <button class="btn-la" id="btnLa" aria-label="Diapasón"><span id="laNombre">Si</span> <b id="laValor">442</b></button>
-    <div class="seg" id="segNotacion" role="group" aria-label="Notación">
-      <button data-v="bb">Si♭</button>
-      <button data-v="do">Do</button>
-    </div>
-  </div>
+  <button class="estado-btn" id="btnLa" aria-label="Ajustes generales: notación y diapasón">
+    <span id="chipNot">Si♭</span> · <b id="laValor">442</b><span id="laNombre" hidden></span><span class="engr" aria-hidden="true">⚙</span>
+  </button>
 </header>
 
-<dialog class="aviso dlg-la" id="dlgLa">
-  <h3>Diapasón</h3>
-  <p id="laTexto"></p>
-  <p class="peq" id="pie"></p>
-  <div class="ajuste">
-    <button id="laMenos" aria-label="Bajar 1 Hz">−</button>
-    <div class="valor"><span id="laGrande">442</span> <small>Hz</small></div>
-    <button id="laMas" aria-label="Subir 1 Hz">+</button>
+<dialog class="hoja dlg-la" id="dlgLa">
+  <h3 tabindex="-1" autofocus>Ajustes generales</h3>
+  <div class="fila">
+    <span class="etq">Notación</span>
+    <div class="seg" id="segNotacion" role="group" aria-label="Notación">
+      <button data-v="bb">Trompeta en Si♭</button>
+      <button data-v="do">En Do (real)</button>
+    </div>
   </div>
-  <button id="laOk">Listo</button>
+  <div class="fila">
+    <span class="etq">Diapasón</span>
+    <div class="ajuste">
+      <button id="laMenos" aria-label="Bajar 1 Hz">−</button>
+      <div class="valor"><span id="laGrande">442</span> <small>Hz</small></div>
+      <button id="laMas" aria-label="Subir 1 Hz">+</button>
+    </div>
+  </div>
+  <p class="peq" id="laTexto"></p>
+  <p class="peq" id="pie"></p>
+  <button class="listo" id="laOk">Listo</button>
+</dialog>
+
+<dialog class="hoja" id="opDrone">
+  <h3 tabindex="-1" autofocus>Opciones del drone</h3>
+  <div class="fila"><span class="etq">Timbre</span>
+    <div class="seg" id="segTimbre" role="group" aria-label="Timbre">
+      <button data-v="pura">Pura</button><button data-v="organo">Órgano</button><button data-v="trompeta">Trompeta</button>
+    </div></div>
+  <div class="fila"><span class="etq">Octava</span>
+    <div class="seg" id="segOctava" role="group" aria-label="Octava">
+      <button data-v="grave">Grave</button><button data-v="media">Media</button><button data-v="aguda">Aguda</button>
+    </div></div>
+  <div class="fila"><span class="etq">Añadir</span>
+    <div class="chips"><button class="chip" id="chQuinta">Quinta</button><button class="chip" id="chOctava">Octava</button></div></div>
+  <button class="listo" data-cerrar>Listo</button>
+</dialog>
+
+<dialog class="hoja" id="opAf">
+  <h3 tabindex="-1" autofocus>Opciones del afinador</h3>
+  <div class="fila"><span class="etq">Referencia</span>
+    <div class="seg" id="segModo" role="group" aria-label="Referencia de afinación">
+      <button data-v="temperado">Temperado</button><button data-v="justo">Justo (drone)</button>
+    </div></div>
+  <div class="fila"><span class="etq">Tolerancia (zona verde)</span>
+    <div class="seg" id="segTol" role="group" aria-label="Tolerancia"><button data-v="10">±10 c</button><button data-v="5">±5 c</button><button data-v="3">±3 c</button></div></div>
+  <div class="fila"><span class="etq">Respuesta de la aguja</span>
+    <div class="seg" id="segResp" role="group" aria-label="Velocidad de respuesta"><button data-v="lenta">Lenta</button><button data-v="normal">Media</button><button data-v="rapida">Rápida</button></div></div>
+  <div class="fila"><span class="etq">Micrófono</span>
+    <div class="chips">
+      <button class="chip" id="chFiltro">Filtrar el drone del micrófono</button>
+      <button class="chip" id="chDescanso">Avisar cuándo descansar</button>
+    </div></div>
+  <button class="listo" data-cerrar>Listo</button>
+</dialog>
+
+<dialog class="hoja" id="opMetro">
+  <h3 tabindex="-1" autofocus>Opciones del metrónomo</h3>
+  <div class="fila"><span class="etq">Tempo</span><input type="range" id="bpmSlider" min="30" max="250" aria-label="Tempo"></div>
+  <div class="fila"><span class="etq">Compás</span>
+    <div class="seg" id="segCompas" role="group" aria-label="Compás">
+      <button data-v="2/4">2/4</button><button data-v="3/4">3/4</button><button data-v="4/4">4/4</button><button data-v="6/8">6/8</button>
+    </div></div>
+  <div class="fila"><span class="etq">Subdivisión</span>
+    <div class="seg" id="segSubdiv" role="group" aria-label="Subdivisión">
+      <button data-v="1" aria-label="Negras">♩</button><button data-v="2" aria-label="Corcheas">♫</button><button data-v="3" aria-label="Tresillos">3</button><button data-v="4" aria-label="Semicorcheas">♬</button>
+    </div></div>
+  <div class="fila"><div class="chips"><button class="chip" id="chAcento">Acento en el 1</button><button class="chip" id="btnTap">Tap tempo</button></div></div>
+  <div class="fila">
+    <div class="fila-cab"><span class="etq">Subir el tempo solo</span><button class="chip mini" id="chSube">Activar</button></div>
+    <div class="params" id="paramsSube">+<select id="subePaso" aria-label="Subida en bpm"></select> cada <select id="subeCada" aria-label="Cada cuántos compases"></select> comp. hasta <select id="subeTope" aria-label="Tempo máximo"></select></div>
+  </div>
+  <div class="fila">
+    <div class="fila-cab"><span class="etq">Compases mudos</span><button class="chip mini" id="chMudo">Activar</button></div>
+    <div class="params" id="paramsMudo">Suenan <select id="mudoSuenan" aria-label="Compases que suenan"></select> · callan <select id="mudoCallan" aria-label="Compases en silencio"></select></div>
+  </div>
+  <button class="listo" data-cerrar>Listo</button>
+</dialog>
+
+<dialog class="hoja" id="opEj">
+  <h3 tabindex="-1" autofocus>Opciones del calentamiento</h3>
+  <div class="fila"><span class="etq">Al repetir</span>
+    <div class="seg" id="segEjDir" role="group" aria-label="Transposición">
+      <button data-v="baja">Baja ½ tono</button><button data-v="sube">Sube ½ tono</button><button data-v="igual">Igual</button>
+    </div></div>
+  <div class="fila fila-h"><span class="etq">Tonalidades</span>
+    <div class="contador"><button id="ejNMenos" aria-label="Menos">−</button><b id="ejN">6</b><button id="ejNMas" aria-label="Más">+</button></div></div>
+  <div class="fila"><div class="chips"><button class="chip" id="chEjDrone">El drone sigue la tónica</button></div></div>
+  <div class="fila"><span class="etq">Ejercicio</span>
+    <div class="chips"><button class="chip" id="ejEditar">✎ Editar o copiar</button><button class="chip" id="ejNuevo">＋ Nuevo</button></div></div>
+  <button class="listo" data-cerrar>Listo</button>
 </dialog>
 
 <dialog class="aviso" id="aviso">
@@ -550,39 +682,19 @@
 <nav class="pestanas" role="tablist" aria-label="Secciones">
   <button role="tab" id="tabDrone" data-v="drone" aria-controls="panelDrone">Drone<span class="punto" id="puntoDrone" hidden></span></button>
   <button role="tab" id="tabAfinador" data-v="afinador" aria-controls="panelAfinador">Afinador<span class="punto" id="puntoAfinador" hidden></span></button>
-  <button role="tab" id="tabMetro" data-v="metro" aria-controls="panelMetro">Metrónomo<span class="punto" id="puntoMetro" hidden></span></button>
+  <button role="tab" id="tabMetro" data-v="metro" aria-controls="panelMetro">Metr<span class="largo">ónomo</span><span class="corto">o</span><span class="punto" id="puntoMetro" hidden></span></button>
   <button role="tab" id="tabEj" data-v="ej" aria-controls="panelEj">Calentar<span class="punto" id="puntoEj" hidden></span></button>
 </nav>
 
   <section class="panel" id="panelDrone" role="tabpanel" aria-labelledby="tabDrone">
     <div class="lectura">
+      <button class="oct-btn" id="octMenos" aria-label="Octava más grave">‹</button>
       <span class="nota-grande" id="droneNota">Do</span><span class="oct" id="droneOct">4</span>
+      <button class="oct-btn" id="octMas" aria-label="Octava más aguda">›</button>
       <span class="hz" id="droneHz"></span>
     </div>
     <div class="notas" id="notas" role="group" aria-label="Nota del drone"></div>
-    <div class="fila">
-      <span class="etq">Octava</span>
-      <div class="seg" id="segOctava" role="group" aria-label="Octava">
-        <button data-v="grave">Grave</button>
-        <button data-v="media">Media</button>
-        <button data-v="aguda">Aguda</button>
-      </div>
-    </div>
-    <div class="fila">
-      <span class="etq">Añadir</span>
-      <div class="chips">
-        <button class="chip" id="chQuinta">Quinta</button>
-        <button class="chip" id="chOctava">Octava</button>
-      </div>
-    </div>
-    <div class="fila">
-      <span class="etq">Timbre</span>
-      <div class="seg" id="segTimbre" role="group" aria-label="Timbre">
-        <button data-v="pura">Pura</button>
-        <button data-v="organo">Órgano</button>
-        <button data-v="trompeta">Trompeta</button>
-      </div>
-    </div>
+    <div class="pie-panel"><button class="resumen" id="droneResumen" data-hoja="opDrone"></button><button class="engranaje" data-hoja="opDrone" aria-label="Opciones del drone">⚙</button></div>
     <p class="atajos">Teclado: <kbd>C</kbd>–<kbd>B</kbd> notas (<kbd>H</kbd> = Si) · <kbd>⇧</kbd>+letra = ♯ · <kbd>Espacio</kbd> drone · <kbd>↑</kbd><kbd>↓</kbd> octava · <kbd>M</kbd> metrónomo · <kbd>←</kbd><kbd>→</kbd> tempo · <kbd>T</kbd> afinador</p>
   </section>
 
@@ -594,98 +706,40 @@
       <div class="cents" id="afCents">&nbsp;</div>
       <div class="info" id="afInfo">Pulsa «Afinador» y toca una nota.</div>
     </div>
-    <div class="fila">
-      <span class="etq">Referencia</span>
-      <div class="seg" id="segModo" role="group" aria-label="Referencia de afinación">
-        <button data-v="temperado">Temperado</button>
-        <button data-v="justo">Justo (drone)</button>
-      </div>
-    </div>
-    <div class="fila dos">
-      <div><span class="etq">Tolerancia</span>
-        <div class="seg" id="segTol" role="group" aria-label="Tolerancia"><button data-v="10">±10</button><button data-v="5">±5</button><button data-v="3">±3</button></div></div>
-      <div><span class="etq">Respuesta</span>
-        <div class="seg" id="segResp" role="group" aria-label="Velocidad de respuesta"><button data-v="lenta">Lenta</button><button data-v="normal">Media</button><button data-v="rapida">Rápida</button></div></div>
-    </div>
-    <div class="fila">
-      <div class="chips">
-        <button class="chip" id="chFiltro">Filtro anti-drone</button>
-        <button class="chip" id="chDescanso">Avisar descansos</button>
-      </div>
-    </div>
     <p class="peq" id="labioTxt"></p>
     <p class="peq" id="afHint"></p>
     <p class="error" id="afError" hidden></p>
+    <div class="pie-panel"><button class="resumen" id="afResumen" data-hoja="opAf"></button><button class="engranaje" data-hoja="opAf" aria-label="Opciones del afinador">⚙</button></div>
   </section>
 
   <section class="panel" id="panelMetro" role="tabpanel" aria-labelledby="tabMetro" hidden>
     <div class="tempo">
       <button class="redondo" id="bpmMenos" aria-label="Más lento">−</button>
-      <div class="bpm"><span id="bpmValor">80</span><small id="bpmNombre">Andante</small></div>
+      <button class="bpm" id="bpmTap" aria-label="Tempo: toca al pulso para marcarlo"><span id="bpmValor">80</span><small id="bpmNombre">Andante</small></button>
       <button class="redondo" id="bpmMas" aria-label="Más rápido">+</button>
     </div>
-    <input type="range" id="bpmSlider" min="30" max="250" aria-label="Tempo">
     <div class="pulsos" id="pulsos" aria-hidden="true"></div>
-    <div class="fila">
-      <span class="etq">Compás</span>
-      <div class="seg" id="segCompas" role="group" aria-label="Compás">
-        <button data-v="2/4">2/4</button><button data-v="3/4">3/4</button><button data-v="4/4">4/4</button><button data-v="6/8">6/8</button>
-      </div>
-    </div>
-    <div class="fila">
-      <span class="etq">Subdivisión</span>
-      <div class="seg" id="segSubdiv" role="group" aria-label="Subdivisión">
-        <button data-v="1" aria-label="Negras">♩</button><button data-v="2" aria-label="Corcheas">♫</button><button data-v="3" aria-label="Tresillos">3</button><button data-v="4" aria-label="Semicorcheas">♬</button>
-      </div>
-    </div>
-    <div class="fila">
-      <div class="chips">
-        <button class="chip" id="chAcento">Acento en el 1</button>
-        <button class="chip" id="btnTap">Tap tempo</button>
-      </div>
-    </div>
-    <div class="fila">
-      <div class="fila-cab"><span class="etq">Subir el tempo solo</span><button class="chip mini" id="chSube">Activar</button></div>
-      <div class="params" id="paramsSube">+<select id="subePaso" aria-label="Subida en bpm"></select> cada <select id="subeCada" aria-label="Cada cuántos compases"></select> comp. hasta <select id="subeTope" aria-label="Tempo máximo"></select></div>
-    </div>
-    <div class="fila">
-      <div class="fila-cab"><span class="etq">Compases mudos (pulso interno)</span><button class="chip mini" id="chMudo">Activar</button></div>
-      <div class="params" id="paramsMudo">Suenan <select id="mudoSuenan" aria-label="Compases que suenan"></select> · callan <select id="mudoCallan" aria-label="Compases en silencio"></select></div>
-    </div>
+    <p class="peq centro">Toca el número al pulso para marcar el tempo</p>
     <p class="peq" id="metroInfo"></p>
+    <div class="pie-panel"><button class="resumen" id="metroResumen" data-hoja="opMetro"></button><button class="engranaje" data-hoja="opMetro" aria-label="Opciones del metrónomo">⚙</button></div>
   </section>
 
   <section class="panel" id="panelEj" role="tabpanel" aria-labelledby="tabEj" hidden>
     <div class="ej-cabeza">
       <select id="ejSel" aria-label="Ejercicio"></select>
-      <button class="icono-btn" id="ejEditar" aria-label="Editar ejercicio">✎</button>
-      <button class="icono-btn" id="ejNuevo" aria-label="Nuevo ejercicio">＋</button>
+      <button class="engranaje" data-hoja="opEj" aria-label="Opciones del calentamiento">⚙</button>
     </div>
     <div class="ej-estado"><span id="ejTono">Do mayor</span><span class="fase" id="ejFase">Listo</span><span id="ejCiclo"></span></div>
     <div class="pentagrama" id="ejPentaCont"><svg id="ejPenta" class="penta"></svg></div>
     <div class="ej-controles">
-    <div class="ej-turno">
-      <div class="ej-esperada"><span class="etq" id="ejNotaEtq">Toca</span><span class="nota-grande" id="ejNota">–</span><span class="oct" id="ejOct"></span><div class="peq" id="ejTocas">&nbsp;</div></div>
-      <div class="medidor mini" id="medidor2"><svg class="esfera" id="esfera2" viewBox="0 26 380 214" aria-hidden="true"></svg></div>
-    </div>
-    <div class="ej-ajustes">
-    <div class="fila">
-      <div class="fila-cab"><span class="etq">Al repetir</span><button class="chip mini" id="chEjDrone">Drone en la tónica</button></div>
-      <div class="seg" id="segEjDir" role="group" aria-label="Transposición">
-        <button data-v="baja">Baja ½ tono</button><button data-v="sube">Sube ½ tono</button><button data-v="igual">Igual</button>
-      </div>
-    </div>
-    <div class="fila fila-h">
-      <span class="etq">Tempo</span>
-      <div class="contador"><button id="ejBpmMenos" aria-label="Más lento">−</button><b id="ejBpm">80</b><button id="ejBpmMas" aria-label="Más rápido">+</button></div>
-      <span class="etq">Tonos</span>
-      <div class="contador"><button id="ejNMenos" aria-label="Menos">−</button><b id="ejN">6</b><button id="ejNMas" aria-label="Más">+</button></div>
+      <div class="ej-esperada" id="ejEsperada"><span class="etq" id="ejNotaEtq">Toca</span><span class="nota-grande" id="ejNota">–</span><span class="oct" id="ejOct"></span><div class="peq" id="ejTocas">&nbsp;</div></div>
+      <div class="ej-tempo"><span class="etq">Tempo</span>
+        <div class="contador"><button id="ejBpmMenos" aria-label="Más lento">−</button><b id="ejBpm">80</b><button id="ejBpmMas" aria-label="Más rápido">+</button></div></div>
+      <button class="grande-btn" id="btnEj">▶ Empezar</button>
     </div>
     <p class="peq" id="ejInfo"></p>
     <p class="error" id="ejError" hidden></p>
-    </div>
-    <button class="grande-btn" id="btnEj">▶ Empezar</button>
-    </div>
+    <div class="medidor mini" id="medidor2" hidden><svg class="esfera" id="esfera2" viewBox="0 26 380 214" aria-hidden="true"></svg></div>
   </section>
 </main>
 
@@ -695,7 +749,7 @@
 <nav class="barra" aria-label="Transporte">
   <button id="btnDrone" aria-pressed="false">▶ Drone</button>
   <button id="btnMetro" aria-pressed="false">♩ 80</button>
-  <button id="btnAfinador" aria-pressed="false">🎤 Afinador</button>
+  <button id="btnAfinador" aria-pressed="false" aria-label="Afinador">🎤 Afinar</button>
 </nav>
 
 <script>
@@ -1205,7 +1259,7 @@ function pasoAguja() {
 }
 
 function mostrarLectura(l) {
-  const meds = [document.getElementById('medidor'), document.getElementById('medidor2')];
+  const meds = ['medidor', 'medidor2', 'ejEsperada', 'btnAfinador'].map((id) => document.getElementById(id));
   meds.forEach((m) => m.classList.remove('ok', 'casi', 'lejos', 'activo'));
   const tocas = document.getElementById('ejTocas');
   if (!l) {
@@ -1843,7 +1897,7 @@ function dibujarPentagrama(svg, frase, compas, idxResalte, claseResalte, esc = 1
   let lineas = '';
   for (let k = 0; k < 5; k++) lineas += `<line class="linea" x1="2" y1="${30 + k * ESP}" x2="${x}" y2="${30 + k * ESP}"/>`;
   // en PC el pentagrama del ejercicio crece (120–170 px de alto) y, si la frase es corta, reparte las notas a todo el ancho
-  let alto = 100;
+  let alto = 118;
   if (svg.id === 'ejPenta' && esPC.matches) {
     const ancho = svg.parentElement.clientWidth - 16;
     alto = Math.max(110, Math.min(window.innerHeight < 760 ? 125 : 170, ancho * 116 / (x + 4)));   // más bajo en portátiles
@@ -2060,6 +2114,20 @@ function pintar() {
   // El diapasón es el La real (MIDI 69); en notación Si♭ se escribe Si4
   const notaLa = nombreNota(69) + octavaNota(69);
   document.getElementById('laNombre').textContent = nombreNota(69);
+  document.getElementById('chipNot').textContent = st.notacion === 'bb' ? 'Si♭' : 'Do';
+  // Resúmenes de las opciones de cada pestaña (se tocan para abrir sus opciones)
+  const timbres = { pura: 'Pura', organo: 'Órgano', trompeta: 'Trompeta' };
+  document.getElementById('droneResumen').textContent = 'Timbre ' + timbres[st.timbre].toLowerCase()
+    + (st.quinta ? ' · + 5ª' : '') + (st.octavaSup ? ' · + 8ª' : '');
+  document.getElementById('afResumen').textContent = (st.modo === 'justo' ? 'Justo' : 'Temperado') + ' · ±' + st.tol + ' c · respuesta '
+    + { lenta: 'lenta', normal: 'media', rapida: 'rápida' }[st.resp] + (st.filtro ? '' : ' · sin filtro');
+  const subdivs = { 1: '♩', 2: '♫', 3: 'tresillos', 4: '♬' };
+  document.getElementById('metroResumen').textContent = st.compas + (metroCompas()[1] ? '' : ' · ' + subdivs[st.subdiv])
+    + (st.acento ? '' : ' · sin acento') + (st.metroSube.on ? ' · sube a ' + st.metroSube.tope : '')
+    + (st.metroMudo.on ? ' · mudos ' + st.metroMudo.suenan + '+' + st.metroMudo.callan : '');
+  const io = ORDEN_OCTAVAS.indexOf(st.octava);
+  document.getElementById('octMenos').disabled = io <= 0;
+  document.getElementById('octMas').disabled = io >= ORDEN_OCTAVAS.length - 1;
   document.getElementById('laValor').textContent = st.la;
   document.getElementById('laTexto').textContent = st.notacion === 'bb'
     ? 'Frecuencia del Si4 escrito (La4 real) para el drone y el afinador.'
@@ -2086,7 +2154,7 @@ function pintar() {
   bm.textContent = (metroOn ? '■ ' : '♩ ') + st.bpm;
   const ba = document.getElementById('btnAfinador');
   ba.setAttribute('aria-pressed', afOn);
-  ba.textContent = afOn ? '■ Afinador' : '🎤 Afinador';
+  ba.textContent = afOn ? '■ Afinar' : '🎤 Afinar';
 
   pintarMetronomo();
   pintarEjercicio();
@@ -2216,6 +2284,26 @@ document.getElementById('laMenos').addEventListener('click', () => ponerLa(st.la
 document.getElementById('laMas').addEventListener('click', () => ponerLa(st.la + 1));
 document.getElementById('laOk').addEventListener('click', () => dlgLa.close());
 dlgLa.addEventListener('click', (e) => { if (e.target === dlgLa) dlgLa.close(); });
+
+// Paneles de opciones (⚙): se abren desde el resumen o el engranaje y se cierran con «Listo» o tocando fuera
+document.querySelectorAll('[data-hoja]').forEach((b) => b.addEventListener('click', () => document.getElementById(b.dataset.hoja).showModal()));
+document.querySelectorAll('dialog.hoja').forEach((d) => {
+  d.addEventListener('click', (e) => { if (e.target === d) d.close(); });
+  d.querySelectorAll('[data-cerrar]').forEach((b) => b.addEventListener('click', () => d.close()));
+});
+['ejEditar', 'ejNuevo'].forEach((id) => document.getElementById(id).addEventListener('click', () => document.getElementById('opEj').close()));
+
+// Octava con flechas junto a la nota del drone
+function cambiarOctava(paso) {
+  const i = ORDEN_OCTAVAS.indexOf(st.octava) + paso;
+  if (i < 0 || i >= ORDEN_OCTAVAS.length) return;
+  st.octava = ORDEN_OCTAVAS[i];
+  elegirNota(mod12(st.raiz + transp()));
+}
+document.getElementById('octMenos').addEventListener('click', () => cambiarOctava(-1));
+document.getElementById('octMas').addEventListener('click', () => cambiarOctava(1));
+// Tocar el número del tempo marca el tempo (tap)
+document.getElementById('bpmTap').addEventListener('click', tapTempo);
 
 // Pestañas
 function elegirPestana(v) { st.pestana = v; guardar(); pintar(); }
